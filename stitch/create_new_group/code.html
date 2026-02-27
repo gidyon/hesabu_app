@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hesabu Online - Create New Group</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee6c",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom scrollbar for better appearance in dark mode */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #102216;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2bee6c22;
+            border-radius: 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
+<div class="flex items-center justify-between px-4 h-16">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-slate-700 dark:text-white">chevron_left</span>
+</button>
+<h1 class="text-lg font-semibold tracking-tight">Create New Group</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</div>
+</header>
+<main class="flex-1 flex flex-col max-w-lg mx-auto w-full pb-32">
+<!-- Progress Indicator -->
+<div class="px-6 py-6">
+<div class="flex items-center gap-2">
+<div class="h-1.5 flex-1 rounded-full bg-primary"></div>
+<div class="h-1.5 flex-1 rounded-full bg-slate-200 dark:bg-white/10"></div>
+<div class="h-1.5 flex-1 rounded-full bg-slate-200 dark:bg-white/10"></div>
+</div>
+<p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-3 uppercase tracking-wider">Step 1 of 3: Basic Details</p>
+</div>
+<!-- Form Section -->
+<div class="px-6 space-y-8">
+<!-- Group Name Input -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300" for="group-name">
+                    Group Name
+                </label>
+<div class="relative">
+<input class="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base" id="group-name" placeholder="e.g., Family Savings 2024" type="text"/>
+</div>
+</div>
+<!-- Purpose/Description -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300" for="purpose">
+                    Purpose/Description
+                </label>
+<textarea class="w-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 text-base resize-none" id="purpose" placeholder="Describe the goal of this group (e.g., saving for investment or emergency funds)..." rows="4"></textarea>
+</div>
+<!-- Contribution Frequency -->
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        Contribution Frequency
+                    </label>
+<span class="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-widest">Required</span>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<!-- Daily Option -->
+<label class="relative group cursor-pointer">
+<input class="peer sr-only" name="frequency" type="radio" value="daily"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 peer-checked:text-primary mb-2">calendar_today</span>
+<span class="text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:text-primary">Daily</span>
+</div>
+</label>
+<!-- Weekly Option -->
+<label class="relative group cursor-pointer">
+<input checked="" class="peer sr-only" name="frequency" type="radio" value="weekly"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 peer-checked:text-primary mb-2">view_week</span>
+<span class="text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:text-primary">Weekly</span>
+</div>
+</label>
+<!-- Bi-Weekly Option -->
+<label class="relative group cursor-pointer">
+<input class="peer sr-only" name="frequency" type="radio" value="bi-weekly"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 peer-checked:text-primary mb-2">date_range</span>
+<span class="text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:text-primary">Bi-Weekly</span>
+</div>
+</label>
+<!-- Monthly Option -->
+<label class="relative group cursor-pointer">
+<input class="peer sr-only" name="frequency" type="radio" value="monthly"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 peer-checked:border-primary peer-checked:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 peer-checked:text-primary mb-2">calendar_month</span>
+<span class="text-sm font-medium text-slate-600 dark:text-slate-400 peer-checked:text-primary">Monthly</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Group Image Preview (Placeholder) -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Group Cover Image (Optional)
+                </label>
+<div class="w-full h-32 rounded-xl border-2 border-dashed border-slate-200 dark:border-white/10 flex flex-col items-center justify-center text-slate-400 dark:text-slate-600 bg-slate-50 dark:bg-white/2">
+<span class="material-symbols-outlined text-3xl mb-1">add_a_photo</span>
+<span class="text-xs">Tap to upload a photo</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Bottom Button -->
+<div class="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light dark:from-background-dark via-background-light dark:via-background-dark to-transparent">
+<div class="max-w-lg mx-auto">
+<button class="w-full bg-primary hover:bg-primary/90 text-background-dark font-bold text-base py-4 rounded-xl shadow-[0_8px_30px_rgb(43,238,108,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                Create Group
+                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>

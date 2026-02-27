@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Groups - Hesabu Online</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee6c",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display">
+<div class="relative flex h-screen w-full max-w-[430px] mx-auto flex-col bg-background-light dark:bg-background-dark overflow-hidden shadow-2xl">
+<header class="flex flex-col gap-2 p-4 pb-2 sticky top-0 z-20 bg-background-light/80 dark:bg-background-dark/80 ios-blur">
+<div class="flex items-center h-12 justify-between">
+<div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="User profile picture in a circular frame" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD3_fUP2iH0oh-E6sGicJ0Ek4_2eETYDmZdVAfcrT1ZWwKL2SDU_w3mzHW42T02ZwT2ovsrx-PbRXBcaw3pUXFl4C89I82X74tgKRkvFQKUledoz1y5mimcWCSnIicSctmz8YrjemRuaO-H4xOr-pPebgv40k7ot-Sm0-1AGOA8JKAeaRQgEW9i6pbWvYHKixlIO53g-9F0_Rc4QA2BS4bDINOXdbfsFU3KUtwMJqlh0SgETUwgSOHUE3qr_otxgQGTziJBgYIFVwE");'></div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white">
+<span class="material-symbols-outlined text-[24px]">visibility_off</span>
+</button>
+</div>
+</div>
+<h1 class="text-slate-900 dark:text-white tracking-tight text-[32px] font-bold leading-tight">My Groups</h1>
+</header>
+<main class="flex-1 overflow-y-auto px-4 pb-32">
+<div class="mt-4 mb-6">
+<div class="flex flex-col gap-2 rounded-xl p-6 bg-primary dark:bg-primary text-background-dark">
+<p class="text-background-dark/70 text-sm font-semibold uppercase tracking-wider">Total Group Savings</p>
+<p class="tracking-tight text-3xl font-extrabold">$16,600.00</p>
+<div class="mt-2 flex items-center gap-1 text-xs font-medium bg-background-dark/10 w-fit px-2 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+12.5% from last month</span>
+</div>
+</div>
+</div>
+<div class="mb-8">
+<button class="flex w-full items-center justify-center gap-3 h-16 px-4 rounded-xl border-2 border-primary/30 bg-primary/5 text-slate-900 dark:text-white hover:bg-primary/10 transition-all active:scale-95">
+<div class="bg-primary size-10 rounded-lg flex items-center justify-center text-background-dark">
+<span class="material-symbols-outlined">key</span>
+</div>
+<div class="flex flex-col items-start">
+<span class="font-bold text-base">Join Group via ID</span>
+<span class="text-xs text-slate-500 dark:text-slate-400">Enter a code to join an existing group</span>
+</div>
+<span class="material-symbols-outlined ml-auto text-slate-400">chevron_right</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold">Your Active Groups</h3>
+<span class="text-slate-500 text-sm font-medium">3 Total</span>
+</div>
+<div class="group flex flex-col gap-4 p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 shadow-sm transition-transform active:scale-[0.98]">
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="size-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Team of people working together" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDJghQ8F6GJM4qJkqci85BzWV4262k_uFKLV6pwY1s3BpCliuOGyXo7ZdzIFszVgRah_XB-N6Uph9EjUaYo2ubNZ-OUxKi4KfhODLGlzmmgpD8xf1j7BjM06nWEcF1Twbj5BPCgHooCS74zvYAYLE0fNY7NBEE8dRY2n0JUuqIKaEWgkfO4VcMkFCL4UaHYOPJvpemMaXF8Y6hiPGapjLTz_LeqC_VS--a-ynbwXxDQmh5u4ycwoHdicUHZd2SXT3TxsEYDa8TOfgk')"></div>
+</div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white font-bold text-base">Family Vacation Fund</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">5 Members • Monthly</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<div>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold tracking-widest">Group Balance</p>
+<p class="text-slate-900 dark:text-white text-xl font-bold">$4,200.00</p>
+</div>
+<p class="text-primary text-xs font-bold">84% of Goal</p>
+</div>
+<div class="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full w-[84%]"></div>
+</div>
+</div>
+</div>
+<div class="group flex flex-col gap-4 p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 shadow-sm transition-transform active:scale-[0.98]">
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="size-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500 overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Modern high rise office building" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDsRoa3uJEM8Kj-xMSD0ZLx7OZfGNUEBS0Yx0gK6Lct8Y4TE4nFT1hQc61Y7GOqrt8qOZ3H1-mj6AiI6ocw1nnuz0sooO_3KD-VFtK5a_kbmPWvDrWyIhnRSM36GPS5DjINPNnNwv1ZtXUMXS7UROVzI2-7yD4kBnhVg0Akn5mWPgh2n4tb9lmr3LoadvalgfJ00RWiQ4iFGBX27cO59_HM0pzxdmmM1PUF8YEO2x7dQfAHKnHD_r0xFu7uXxp32uL-m0ilQthw9sA')"></div>
+</div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white font-bold text-base">Investment Club</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">12 Members • Weekly</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<div>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold tracking-widest">Group Balance</p>
+<p class="text-slate-900 dark:text-white text-xl font-bold">$12,400.00</p>
+</div>
+<p class="text-primary text-xs font-bold">Goal reached!</p>
+</div>
+<div class="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full w-full shadow-[0_0_8px_rgba(43,238,108,0.5)]"></div>
+</div>
+</div>
+</div>
+<div class="group flex flex-col gap-4 p-4 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/10 shadow-sm transition-transform active:scale-[0.98]">
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="size-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500 overflow-hidden">
+<div class="w-full h-full bg-cover bg-center" data-alt="Classic car in a showroom" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB8e13NY33J2AdSOQRdqqz8XUIKY5R3zWdHsVX-vGI9pMyXvEuot2bUaTbqoYgWy3CTiHclcwE39HYLt1s31FNnJkHpIRD7GLb3Ad6-raMz_RmSOAY0CLebJ9RmCpIGfq_GOl1TN44PqClH42sttIY5flbgO9bpa4M0PTqvB-P-8rCA0Scv4kjTPY3c_1UJX6wQct_nrigXEJsOUBrsDoXwvJ69iPraToP9Edu5GnKD6dVzX1MD5eQbTxgmEb1zVjDdSmYjbySntAY')"></div>
+</div>
+<div class="flex flex-col">
+<p class="text-slate-900 dark:text-white font-bold text-base">New Car Circle</p>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-medium">3 Members • Bi-Weekly</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<div>
+<p class="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold tracking-widest">Group Balance</p>
+<p class="text-slate-900 dark:text-white text-xl font-bold">$0.00</p>
+</div>
+<p class="text-slate-400 dark:text-slate-500 text-xs font-bold">New Start</p>
+</div>
+<div class="w-full bg-slate-100 dark:bg-white/10 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/20 h-full rounded-full w-[2%]"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<button class="fixed bottom-24 right-6 flex size-14 items-center justify-center rounded-full bg-primary text-background-dark shadow-[0_8px_30px_rgb(43,238,108,0.3)] active:scale-90 transition-transform z-30">
+<span class="material-symbols-outlined text-[32px] font-bold">add</span>
+</button>
+<nav class="absolute bottom-0 left-0 right-0 h-20 bg-background-light/80 dark:bg-background-dark/80 ios-blur border-t border-slate-200 dark:border-white/5 flex items-center justify-around px-4 pb-4">
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[28px] fill-[1]">group</span>
+<span class="text-[10px] font-medium">Groups</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-[28px]">account_balance_wallet</span>
+<span class="text-[10px] font-medium">Transactions</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-[28px]">analytics</span>
+<span class="text-[10px] font-medium">Analysis</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500">
+<span class="material-symbols-outlined text-[28px]">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</div>
+</nav>
+<div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-300 dark:bg-white/20 rounded-full z-40"></div>
+</div>
+
+</body></html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create New Password - Hesabu Online</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2bee6c",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex justify-center items-start">
+<!-- Mobile Container (Phone Form Factor) -->
+<div class="relative flex h-full min-h-screen w-full max-w-[430px] flex-col bg-background-light dark:bg-background-dark overflow-x-hidden shadow-2xl">
+<!-- TopAppBar (iOS Style) -->
+<div class="flex items-center px-4 pt-12 pb-4 justify-between">
+<button class="text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+</button>
+<h2 class="text-white text-lg font-semibold leading-tight tracking-tight flex-1 text-center pr-10">Reset Password</h2>
+</div>
+<!-- Header Section -->
+<div class="px-6 pt-6">
+<h3 class="text-white tracking-tight text-3xl font-bold leading-tight pb-2">Set your new password</h3>
+<p class="text-white/60 text-base font-normal leading-relaxed">
+                Your new password must be different from previously used passwords for security.
+            </p>
+</div>
+<!-- Form Section -->
+<div class="flex flex-col gap-6 px-6 pt-8">
+<!-- New Password Input -->
+<label class="flex flex-col gap-2">
+<p class="text-white/80 text-sm font-medium leading-normal ml-1">New Password</p>
+<div class="flex w-full items-stretch group">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-white focus:outline-0 focus:ring-0 border border-white/10 bg-white/5 focus:border-primary/50 h-14 placeholder:text-white/30 px-4 text-base font-normal leading-normal transition-all" placeholder="••••••••" type="password" value="Hesabu2024!"/>
+<div class="text-white/40 flex border border-white/10 border-l-0 bg-white/5 items-center justify-center px-4 rounded-r-lg group-focus-within:border-primary/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">visibility_off</span>
+</div>
+</div>
+</label>
+<!-- Password Strength -->
+<div class="flex flex-col gap-2 bg-white/5 p-4 rounded-xl border border-white/5">
+<div class="flex justify-between items-center mb-1">
+<p class="text-white/80 text-xs font-semibold uppercase tracking-wider">Password Strength</p>
+<p class="text-primary text-sm font-bold">Strong</p>
+</div>
+<div class="flex gap-1.5 h-1.5">
+<div class="flex-1 rounded-full bg-primary"></div>
+<div class="flex-1 rounded-full bg-primary"></div>
+<div class="flex-1 rounded-full bg-primary"></div>
+<div class="flex-1 rounded-full bg-white/10"></div>
+</div>
+<!-- Requirements Checklist -->
+<div class="grid grid-cols-1 gap-2 mt-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+<span class="text-white/70 text-xs">At least 8 characters</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+<span class="text-white/70 text-xs">At least one number</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+<span class="text-white/70 text-xs">At least one special character</span>
+</div>
+</div>
+</div>
+<!-- Confirm Password Input -->
+<label class="flex flex-col gap-2">
+<p class="text-white/80 text-sm font-medium leading-normal ml-1">Confirm New Password</p>
+<div class="flex w-full items-stretch group">
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-white focus:outline-0 focus:ring-0 border border-white/10 bg-white/5 focus:border-primary/50 h-14 placeholder:text-white/30 px-4 text-base font-normal leading-normal transition-all" placeholder="••••••••" type="password" value=""/>
+<div class="text-white/40 flex border border-white/10 border-l-0 bg-white/5 items-center justify-center px-4 rounded-r-lg group-focus-within:border-primary/50 transition-all cursor-pointer">
+<span class="material-symbols-outlined">visibility_off</span>
+</div>
+</div>
+</label>
+</div>
+<!-- Bottom Action -->
+<div class="mt-auto p-6 pb-12">
+<button class="w-full h-14 bg-primary text-background-dark font-bold text-lg rounded-xl flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(43,238,108,0.2)] active:scale-[0.98] transition-all">
+                Reset Password
+                <span class="material-symbols-outlined">lock_reset</span>
+</button>
+<p class="text-center text-white/40 text-sm mt-4">
+                Step 3 of 3
+            </p>
+</div>
+<!-- Success Modal (Hidden by Default/Mockup State) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-6 bg-background-dark/80 backdrop-blur-sm">
+<div class="bg-[#1c271f] w-full rounded-2xl p-8 border border-primary/20 flex flex-col items-center text-center">
+<div class="size-16 bg-primary/20 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-4xl">check_circle</span>
+</div>
+<h4 class="text-white text-xl font-bold mb-2">Password Updated!</h4>
+<p class="text-white/60 mb-8">Your password has been reset successfully. You can now log in with your new credentials.</p>
+<button class="w-full h-12 bg-primary text-background-dark font-bold rounded-lg">
+                    Back to Login
+                </button>
+</div>
+</div>
+</div>
+</body></html>
