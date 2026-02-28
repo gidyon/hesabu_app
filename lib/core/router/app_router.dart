@@ -14,6 +14,8 @@ import 'package:hesabu_app/features/settings/presentation/screens/settings_updat
 import 'package:hesabu_app/features/settings/presentation/screens/settings_security_screen.dart';
 import 'package:hesabu_app/features/settings/presentation/screens/settings_help_screen.dart';
 import 'package:hesabu_app/features/settings/presentation/screens/settings_about_screen.dart';
+import 'package:hesabu_app/features/groups/presentation/screens/join_group_screen.dart';
+import 'package:hesabu_app/features/groups/presentation/screens/deposit_to_group_screen.dart';
 
 // Placeholder screens for Wallet and Stats
 class PlaceholderScreen extends StatelessWidget {
@@ -105,6 +107,18 @@ class AppRouter {
             ],
           ),
         ],
+      ),
+
+      // ── Groups Sub-pages (pushed on top of shell) ─────────────
+      GoRoute(
+        path: '/groups/join',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const JoinGroupScreen(),
+      ),
+      GoRoute(
+        path: '/groups/deposit',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const DepositToGroupScreen(),
       ),
 
       // ── Settings Sub-pages (pushed on top of shell) ──────────
