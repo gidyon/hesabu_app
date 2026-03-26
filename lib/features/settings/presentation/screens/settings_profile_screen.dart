@@ -3,8 +3,8 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
-import 'package:hesabu_app/features/settings/data/mock_settings_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class SettingsProfileScreen extends StatefulWidget {
   const SettingsProfileScreen({super.key});
@@ -14,18 +14,20 @@ class SettingsProfileScreen extends StatefulWidget {
 }
 
 class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
-  final SettingsRepository _settingsRepository = MockSettingsRepository();
   UserProfile? _profile;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProfile();
+    });
   }
 
   Future<void> _loadProfile() async {
-    final profile = await _settingsRepository.getUserProfile();
+    final settingsRepository = context.read<SettingsRepository>();
+    final profile = await settingsRepository.getUserProfile();
     if (mounted) {
       setState(() {
         _profile = profile;

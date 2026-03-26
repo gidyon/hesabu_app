@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
-import 'package:hesabu_app/features/groups/data/mock_groups_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class TreasurerDashboardScreen extends StatefulWidget {
   const TreasurerDashboardScreen({super.key});
@@ -13,7 +13,6 @@ class TreasurerDashboardScreen extends StatefulWidget {
 }
 
 class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
-  final GroupsRepository _groupsRepository = MockGroupsRepository();
   List<Transaction> _transactions = [];
   double _balance = 0.0;
   bool _isLoading = true;
@@ -21,12 +20,15 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   Future<void> _loadData() async {
-    final transactions = await _groupsRepository.getRecentTransactions('1'); // Mock ID
-    final balance = await _groupsRepository.getGroupBalance('1');
+    final groupsRepository = context.read<GroupsRepository>();
+    final transactions = await groupsRepository.getRecentTransactions('1'); // Mock ID
+    final balance = await groupsRepository.getGroupBalance('1');
     if (mounted) {
       setState(() {
         _transactions = transactions;
