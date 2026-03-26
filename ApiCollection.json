@@ -1,0 +1,1408 @@
+{
+    "info": {
+        "_postman_id": "9e597dc8-24c5-496c-82b1-32b95d21303f",
+        "name": "HesabuOnline",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "2839011",
+        "_collection_link": "https://go.postman.co/collection/2839011-9e597dc8-24c5-496c-82b1-32b95d21303f?source=collection_link"
+    },
+    "item": [
+        {
+            "name": "Registration",
+            "item": [
+                {
+                    "name": "create-user",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"msisdn\": \"254718273753\",\n  \"password\": \"SecurePass123\",\n  \"first_name\": \"Eustace\",\n  \"other_names\": \"Mwai Macharia\",\n  \"document_type\": \"ID\",\n  \"document_number\": \"35692358\",\n  \"user_type_id\": 1,\n  \"device_id\": \"DEVICE-ABC-123456\",\n  \"entity_type\": \"Individual\"\n}\n",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/register",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "register"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Failed",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"msisdn\": \"254718273753\",\n  \"password\": \"SecurePass123\",\n  \"first_name\": \"Eustace\",\n  \"other_names\": \"Mwai Macharia\",\n  \"document_type\": \"ID\",\n  \"document_number\": \"35692358\",\n  \"user_type_id\": 1,\n  \"device_id\": \"DEVICE-ABC-123456\",\n  \"entity_type\": \"Individual\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/register",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "register"
+                                    ]
+                                }
+                            },
+                            "status": "Conflict",
+                            "code": 409,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 409
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "57"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:06:27 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "14"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "c7571d729281301f2f54325ba5d6ca09"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"User is already registered\",\n    \"status\": \"fail\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "login-user",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const respJson = pm.response.json()",
+                                    "    pm.collectionVariables.set('token', respJson.access_token)",
+                                    "}"
+                                ],
+                                "type": "text/javascript",
+                                "packages": {},
+                                "requests": {}
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"msisdn\": \"254718273753\",\n  \"password\": \"SecurePass123\"\n}\n",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/login",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "login"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"msisdn\": \"254718273753\",\n  \"password\": \"SecurePass123\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/login",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "login"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "594"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:02:21 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "6540"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "5eecb470ea997247a8f72e358380e855"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3NDU1MTc0MSwianRpIjoiNTA5NzdhZjctMWFlOS00MDhkLWFmZWQtOGQ2ZDQ5OTMzMGIwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzQ1NTE3NDEsImV4cCI6MTc3NDU1NTM0MSwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.myVoJEfW7Z7mP70lB21EPnLEaEBjIxPFeMoK04Qro5I\",\n    \"message\": \"Login successful\",\n    \"status\": \"success\",\n    \"user\": {\n        \"document_number\": \"35692358\",\n        \"entity_id\": 6,\n        \"first_name\": \"Eustace\",\n        \"msisdn\": \"254718273753\",\n        \"other_names\": \"Mwai Macharia\",\n        \"user_id\": 6\n    }\n}"
+                        },
+                        {
+                            "name": "Unauthorized",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"msisdn\": \"254718273751\",\n  \"password\": \"SecurePass123\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/login",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "login"
+                                    ]
+                                }
+                            },
+                            "status": "Unauthorized",
+                            "code": 401,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 401
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "59"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:06:56 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "12"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "43e7591907014e618f1a084d53b6371e"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Invalid username or password\",\n    \"status\": \"fail\"\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Group",
+            "item": [
+                {
+                    "name": "create_group",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Utawala Unfits2\",\n  \"treasurer_msisdn\": \"254718273753\",\n  \"location\": \"Utawala\",\n  \"group_type\": \"normal\",\n  \"configs\": \"normal\"\n}\n",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/groups/create",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "groups",
+                                "create"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Failed",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"Utawala Unfits\",\n  \"treasurer_msisdn\": \"254718273753\",\n  \"location\": \"Utawala\",\n  \"group_type\": \"normal\",\n  \"configs\": \"normal\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/create",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "create"
+                                    ]
+                                }
+                            },
+                            "status": "Internal Server Error",
+                            "code": 500,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 500
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "37"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:07:10 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "74"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "92d717604d78c5566221940ce7c8a55f"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Failed to create group\"\n}"
+                        },
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"name\": \"Utawala Unfits2\",\n  \"treasurer_msisdn\": \"254718273753\",\n  \"location\": \"Utawala\",\n  \"group_type\": \"normal\",\n  \"configs\": \"normal\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/create",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "create"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "78"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:07:22 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "39"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "05adf35d434f5a1fbcf1ca049756b25a"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"account_no\": \"10800921\",\n    \"group_id\": 6,\n    \"message\": \"Group created successfully\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "join_group",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"group_id\": \"3\",\n  \"msisdn\": \"254718273752\"\n}\n",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/groups/join",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "groups",
+                                "join"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Failed",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"group_id\": \"1\",\n  \"msisdn\": \"254718273752\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/join",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "join"
+                                    ]
+                                }
+                            },
+                            "status": "Bad Request",
+                            "code": 400,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 400
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "48"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:07:35 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "22"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "ca5b9664ba5ac13f03dff30b110eda69"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"User already exists in this group\"\n}"
+                        },
+                        {
+                            "name": "SuccessJoin",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"group_id\": \"3\",\n  \"msisdn\": \"254718273752\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/join",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "join"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "40"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:07:50 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "63"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "1eefa616beb07b210f2539286cd63b2b"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Member added successfully\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "my_groups",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{staging}}/groups/my-groups",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "groups",
+                                "my-groups"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "GET",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "url": {
+                                    "raw": "{{staging}}/groups/my-groups",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "my-groups"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "837"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:08:03 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "29"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "9b6e264cf9ae3a1219aa853062c6433e"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"groups\": [\n        {\n            \"account_no\": \"10800921\",\n            \"admin_msisdn\": \"254718273753\",\n            \"available_balance\": 0,\n            \"date_created\": \"Thu, 26 Mar 2026 19:07:22 GMT\",\n            \"group_id\": 6,\n            \"group_type\": \"normal\",\n            \"location\": \"Utawala\",\n            \"name\": \"Utawala Unfits2\",\n            \"role\": \"admin\",\n            \"status\": \"active\",\n            \"treasurer_msisdn\": \"254718273753\"\n        },\n        {\n            \"account_no\": \"10966402\",\n            \"admin_msisdn\": \"254718273753\",\n            \"available_balance\": 0,\n            \"date_created\": \"Wed, 25 Mar 2026 05:05:27 GMT\",\n            \"group_id\": 3,\n            \"group_type\": \"normal\",\n            \"location\": \"Utawala\",\n            \"name\": \"Utawala Unfits\",\n            \"role\": \"admin\",\n            \"status\": \"active\",\n            \"treasurer_msisdn\": \"254718273753\"\n        },\n        {\n            \"account_no\": \"10188773\",\n            \"admin_msisdn\": \"254718273753\",\n            \"available_balance\": 230,\n            \"date_created\": \"Thu, 26 Feb 2026 00:56:45 GMT\",\n            \"group_id\": 1,\n            \"group_type\": \"normal\",\n            \"location\": \"Utawala\",\n            \"name\": \"Utawala Unfit\",\n            \"role\": \"admin\",\n            \"status\": \"active\",\n            \"treasurer_msisdn\": \"254718273753\"\n        }\n    ]\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "group_members",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"group_id\": \"1\"\n}\n",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/groups/members",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "groups",
+                                "members"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"group_id\": \"1\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/members",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "members"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "438"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:08:12 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "22"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "8c306b3148feb70b079d0e48cf17c54a"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"group_id\": \"1\",\n    \"members\": [\n        {\n            \"date_joined\": \"2026-02-26 00:56:45\",\n            \"date_left\": null,\n            \"document_number\": \"35692358\",\n            \"first_name\": \"Eustace\",\n            \"member_id\": 1,\n            \"msisdn\": \"254718273753\",\n            \"other_names\": \"Mwai Macharia\",\n            \"role\": \"admin\",\n            \"status\": \"active\"\n        },\n        {\n            \"date_joined\": \"2026-02-26 23:52:47\",\n            \"date_left\": null,\n            \"document_number\": \"35692359\",\n            \"first_name\": \"Test 2\",\n            \"member_id\": 2,\n            \"msisdn\": \"254718273752\",\n            \"other_names\": \"test 2\",\n            \"role\": \"member\",\n            \"status\": \"active\"\n        }\n    ]\n}"
+                        },
+                        {
+                            "name": "Failed/Forbidden",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Authorization",
+                                        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc3MjA1NjEzOCwianRpIjoiNGQzMzE5YTQtMTkxMi00YTA1LTlkYmYtYjBiNzFhMWU2MGMwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjYiLCJuYmYiOjE3NzIwNTYxMzgsImV4cCI6MTc3MjA1NzAzOCwibXNpc2RuIjoiMjU0NzE4MjczNzUzIiwiZW50aXR5X2lkIjo2LCJmaXJzdF9uYW1lIjoiRXVzdGFjZSIsIm90aGVyX25hbWVzIjoiTXdhaSBNYWNoYXJpYSJ9.-k6dgFqKX9R-LoGM5OT-u4-9g3rQQtWSmAMN1pNlW4o",
+                                        "type": "text"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"group_id\": \"x\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/members",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "members"
+                                    ]
+                                }
+                            },
+                            "status": "Forbidden",
+                            "code": 403,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 403
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "56"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:08:24 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "16"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "50ff056d96b7161522cefc68e2d61d4d"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"You are not authorized to view this group\"\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Payments",
+            "item": [
+                {
+                    "name": "initiate_stk",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"msisdn\": \"25471827375x\",\n    \"amount\": -100,\n    \"group_id\": 1,\n    \"main_wallet_account_number\": \"3059682556\",\n    \"paying_msisdn\": \"254716484395\"\n}\n",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/initiate/group/payment",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "initiate",
+                                "group",
+                                "payment"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"msisdn\": \"254718273753\",\n    \"amount\": 100,\n    \"group_id\": 1,\n    \"main_wallet_account_number\": \"3059682556\",\n    \"paying_msisdn\": \"254716484395\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/initiate/group/payment",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "initiate",
+                                        "group",
+                                        "payment"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "82"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:05:06 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "6168"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "47b24305180d212d5aefa779a4d26d61"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"success\",\n    \"reference\": \"WZziCREVnMA1\",\n    \"response\": \"Stk sent successful\"\n}"
+                        },
+                        {
+                            "name": "Failed",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"msisdn\": \"25471827375x\",\n    \"amount\": 100,\n    \"group_id\": 1,\n    \"main_wallet_account_number\": \"3059682556\",\n    \"paying_msisdn\": \"25471648439x\"\n}\n",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/initiate/group/payment",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "initiate",
+                                        "group",
+                                        "payment"
+                                    ]
+                                }
+                            },
+                            "status": "Conflict",
+                            "code": 409,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 409
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "36"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:09:15 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "12"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "3fec4f7182127630a3a85b631154325e"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"Invalid Paying Msisdn\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "stk_result",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"transaction_id\": \"YUTTTRRSDS2725\",\n    \"account\": \"test\",\n    \"name\": \"Eustace\",\n    \"description\": \"The service request is processed successfully.\",\n    \"reference\": \"nRQAKkoPjsT1\",\n    \"status\": \"success\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/other_stk_deposits",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "other_stk_deposits"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "group_statements",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"group_id\": \"1\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{staging}}/groups/statements",
+                            "host": [
+                                "{{staging}}"
+                            ],
+                            "path": [
+                                "groups",
+                                "statements"
+                            ]
+                        }
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"group_id\": \"1\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/statements",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "statements"
+                                    ]
+                                }
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 200
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "526"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:05:52 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "32"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "4ee79414dcbdaa2aea89016aacd34905"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"filter_msisdn\": null,\n    \"group_id\": \"1\",\n    \"statements\": [\n        {\n            \"amount\": 100,\n            \"bal_after\": 230,\n            \"bal_before\": 130,\n            \"date_created\": \"2026-03-25 21:37:48\",\n            \"id\": 4,\n            \"member_name\": \"Eustace Mwai Macharia\",\n            \"msisdn\": \"254718273753\",\n            \"operation\": \"deposit\",\n            \"transaction_id\": \"YUTTTRRSDS2725\"\n        },\n        {\n            \"amount\": 20,\n            \"bal_after\": 130,\n            \"bal_before\": 110,\n            \"date_created\": \"2026-03-25 21:37:26\",\n            \"id\": 3,\n            \"member_name\": \"Eustace Mwai Macharia\",\n            \"msisdn\": \"254718273753\",\n            \"operation\": \"deposit\",\n            \"transaction_id\": \"YUTTTRRSDS27\"\n        }\n    ],\n    \"total_amount\": 120,\n    \"total_transactions\": 2\n}"
+                        },
+                        {
+                            "name": "Failed",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"group_id\": \"x\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{staging}}/groups/statements",
+                                    "host": [
+                                        "{{staging}}"
+                                    ],
+                                    "path": [
+                                        "groups",
+                                        "statements"
+                                    ]
+                                }
+                            },
+                            "status": "Forbidden",
+                            "code": 403,
+                            "_postman_previewlanguage": null,
+                            "header": [
+                                {
+                                    "key": ":status",
+                                    "value": 403
+                                },
+                                {
+                                    "key": "content-type",
+                                    "value": "application/json"
+                                },
+                                {
+                                    "key": "content-length",
+                                    "value": "56"
+                                },
+                                {
+                                    "key": "server",
+                                    "value": "Werkzeug/2.3.8 Python/3.10.20"
+                                },
+                                {
+                                    "key": "date",
+                                    "value": "Thu, 26 Mar 2026 19:10:03 GMT"
+                                },
+                                {
+                                    "key": "access-control-allow-origin",
+                                    "value": "*"
+                                },
+                                {
+                                    "key": "x-kong-upstream-latency",
+                                    "value": "24"
+                                },
+                                {
+                                    "key": "x-kong-proxy-latency",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "via",
+                                    "value": "1.1 kong/3.9.1"
+                                },
+                                {
+                                    "key": "x-kong-request-id",
+                                    "value": "cc4e32341c0c9822594878771c4e3821"
+                                }
+                            ],
+                            "cookie": [],
+                            "body": "{\n    \"message\": \"You are not authorized to view this group\"\n}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "staging",
+            "value": ""
+        },
+        {
+            "key": "prod",
+            "value": ""
+        },
+        {
+            "key": "token",
+            "value": ""
+        }
+    ]
+}
