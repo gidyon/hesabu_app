@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
-import 'package:hesabu_app/features/auth/data/mock_auth_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -12,7 +12,6 @@ class ResetPasswordScreen extends StatefulWidget {
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final AuthRepository _authRepository = MockAuthRepository();
   final _emailController = TextEditingController();
   bool _isLoading = false;
 
@@ -31,7 +30,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      final success = await _authRepository.sendResetCode(_emailController.text.trim());
+      final success = await context.read<AuthRepository>().sendResetCode(_emailController.text.trim());
       if (success && mounted) {
         // Pass the email to the verify screen via extra
         context.push('/verify-reset-code', extra: _emailController.text.trim());

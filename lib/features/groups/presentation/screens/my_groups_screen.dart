@@ -3,9 +3,9 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
-import 'package:hesabu_app/features/groups/data/mock_groups_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class MyGroupsScreen extends StatefulWidget {
   const MyGroupsScreen({super.key});
@@ -15,7 +15,6 @@ class MyGroupsScreen extends StatefulWidget {
 }
 
 class _MyGroupsScreenState extends State<MyGroupsScreen> {
-  final GroupsRepository _groupsRepository = MockGroupsRepository();
   List<Group> _groups = [];
   double _totalSavings = 0.0;
   bool _isLoading = true;
@@ -23,12 +22,15 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
   Future<void> _loadData() async {
-    final groups = await _groupsRepository.getActiveGroups();
-    final total = await _groupsRepository.getTotalSavings();
+    final groupsRepository = context.read<GroupsRepository>();
+    final groups = await groupsRepository.getActiveGroups();
+    final total = await groupsRepository.getTotalSavings();
     if (mounted) {
       setState(() {
         _groups = groups;

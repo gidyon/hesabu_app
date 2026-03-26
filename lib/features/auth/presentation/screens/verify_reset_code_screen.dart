@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
-import 'package:hesabu_app/features/auth/data/mock_auth_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 
 class VerifyResetCodeScreen extends StatefulWidget {
@@ -13,7 +13,6 @@ class VerifyResetCodeScreen extends StatefulWidget {
 }
 
 class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
-  final AuthRepository _authRepository = MockAuthRepository();
   final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   
@@ -65,7 +64,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
   void _onVerify() async {
     String code = _otpControllers.map((e) => e.text).join();
     if (code.length == 6) {
-        bool verified = await _authRepository.verifyResetCode("test@example.com", code);
+        bool verified = await context.read<AuthRepository>().verifyResetCode("test@example.com", code);
         if (verified && mounted) {
             context.push('/create-password');
         }
