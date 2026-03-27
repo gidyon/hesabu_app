@@ -8,6 +8,10 @@ class Group {
   final double goal;
   final double progressPercentage;
   final String status;
+  final String role;
+  final String accountNo;
+  final String location;
+  final String description;
 
   Group({
     required this.id,
@@ -19,6 +23,28 @@ class Group {
     required this.goal,
     required this.progressPercentage,
     required this.status,
+    required this.role,
+    required this.accountNo,
+    required this.location,
+    required this.description,
+  });
+}
+
+class Member {
+  final String id;
+  final String name;
+  final String msisdn;
+  final String role;
+  final String status;
+  final String dateJoined;
+
+  Member({
+    required this.id,
+    required this.name,
+    required this.msisdn,
+    required this.role,
+    required this.status,
+    required this.dateJoined,
   });
 }
 
@@ -47,5 +73,8 @@ abstract class GroupsRepository {
   Future<double> getGroupBalance(String groupId);
   Future<bool> joinGroup(String groupId);
   Future<bool> createGroup(Map<String, dynamic> groupData);
+  Future<bool> editGroup(String groupId, Map<String, dynamic> groupData);
+  Future<bool> inviteMember(String groupId, String contact);
+  Future<List<Member>> getMembers(String groupId);
   Future<bool> deposit(String groupId, double amount, String method);
 }

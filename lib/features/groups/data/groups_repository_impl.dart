@@ -28,6 +28,10 @@ class GroupsRepositoryImpl implements GroupsRepository {
           goal: 0.0, // Not in API response
           progressPercentage: 0.0,
           status: model.status,
+          role: model.role,
+          accountNo: model.accountNo,
+          location: model.location,
+          description: model.configs,
         );
       }).toList();
     } catch (e) {
@@ -102,11 +106,36 @@ class GroupsRepositoryImpl implements GroupsRepository {
 
   @override
   Future<bool> createGroup(Map<String, dynamic> groupData) async {
+    await remoteDataSource.createGroup(groupData);
+    return true;
+  }
+
+  @override
+  Future<bool> editGroup(String groupId, Map<String, dynamic> groupData) async {
+    return await remoteDataSource.editGroup(groupId, groupData);
+  }
+
+  @override
+  Future<bool> inviteMember(String groupId, String contact) async {
+    return await remoteDataSource.inviteMember(groupId, contact);
+  }
+
+  @override
+  Future<List<Member>> getMembers(String groupId) async {
     try {
-      await remoteDataSource.createGroup(groupData);
-      return true;
+      final response = await remoteDataSource.getGroupMembers(groupId);
+      return response.members.map((model) {
+        return Member(
+          id: model.memberId.toString(),
+          name: '${model.firstName} ${model.otherNames}',
+          msisdn: model.msisdn,
+          role: model.role,
+          status: model.status,
+          dateJoined: model.dateJoined,
+        );
+      }).toList();
     } catch (e) {
-      return false;
+      return [];
     }
   }
 

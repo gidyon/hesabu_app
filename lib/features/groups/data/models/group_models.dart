@@ -23,6 +23,7 @@ class GroupModel {
   final String role;
   final String status;
   final String treasurerMsisdn;
+  final String configs;
 
   GroupModel({
     required this.accountNo,
@@ -36,6 +37,7 @@ class GroupModel {
     required this.role,
     required this.status,
     required this.treasurerMsisdn,
+    required this.configs,
   });
 
   factory GroupModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class GroupModel {
       role: json['role']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       treasurerMsisdn: json['treasurer_msisdn']?.toString() ?? '',
+      configs: json['configs']?.toString() ?? '',
     );
   }
 }
@@ -138,6 +141,58 @@ class CreateGroupResponse {
       accountNo: json['account_no']?.toString() ?? '',
       groupId: json['group_id'] as int? ?? 0,
       message: json['message']?.toString() ?? '',
+    );
+  }
+}
+class GroupMembersResponse {
+  final String groupId;
+  final List<MemberModel> members;
+
+  GroupMembersResponse({required this.groupId, required this.members});
+
+  factory GroupMembersResponse.fromJson(Map<String, dynamic> json) {
+    var membersJson = json['members'] as List? ?? [];
+    return GroupMembersResponse(
+      groupId: json['group_id']?.toString() ?? '',
+      members: membersJson.map((e) => MemberModel.fromJson(e)).toList(),
+    );
+  }
+}
+
+class MemberModel {
+  final String dateJoined;
+  final String? dateLeft;
+  final String documentNumber;
+  final String firstName;
+  final int memberId;
+  final String msisdn;
+  final String otherNames;
+  final String role;
+  final String status;
+
+  MemberModel({
+    required this.dateJoined,
+    this.dateLeft,
+    required this.documentNumber,
+    required this.firstName,
+    required this.memberId,
+    required this.msisdn,
+    required this.otherNames,
+    required this.role,
+    required this.status,
+  });
+
+  factory MemberModel.fromJson(Map<String, dynamic> json) {
+    return MemberModel(
+      dateJoined: json['date_joined']?.toString() ?? '',
+      dateLeft: json['date_left']?.toString(),
+      documentNumber: json['document_number']?.toString() ?? '',
+      firstName: json['first_name']?.toString() ?? '',
+      memberId: json['member_id'] as int? ?? 0,
+      msisdn: json['msisdn']?.toString() ?? '',
+      otherNames: json['other_names']?.toString() ?? '',
+      role: json['role']?.toString() ?? 'member',
+      status: json['status']?.toString() ?? 'active',
     );
   }
 }

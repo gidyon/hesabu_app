@@ -7,6 +7,8 @@ import 'package:hesabu_app/features/auth/presentation/screens/register_screen.da
 import 'package:hesabu_app/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/verify_reset_code_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/create_new_password_screen.dart';
+import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/features/groups/presentation/screens/create_group_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/my_groups_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/treasurer_dashboard_screen.dart';
 import 'package:hesabu_app/features/settings/presentation/screens/settings_profile_screen.dart';
@@ -17,6 +19,8 @@ import 'package:hesabu_app/features/settings/presentation/screens/settings_help_
 import 'package:hesabu_app/features/settings/presentation/screens/settings_about_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/join_group_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/deposit_to_group_screen.dart';
+import 'package:hesabu_app/features/groups/presentation/screens/group_details_screen.dart';
+import 'package:hesabu_app/features/groups/presentation/screens/invite_members_screen.dart';
 
 // Placeholder screens for Wallet and Stats
 class PlaceholderScreen extends StatelessWidget {
@@ -121,6 +125,30 @@ class AppRouter {
         path: '/groups/deposit',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const DepositToGroupScreen(),
+      ),
+      GoRoute(
+        path: '/groups/create',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final group = state.extra as Group?;
+          return CreateGroupScreen(group: group);
+        },
+      ),
+      GoRoute(
+        path: '/groups/invite',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final groupId = state.extra as String;
+          return InviteMembersScreen(groupId: groupId);
+        },
+      ),
+      GoRoute(
+        path: '/groups/details',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final group = state.extra as Group;
+          return GroupDetailsScreen(group: group);
+        },
       ),
 
       // ── Settings Sub-pages (pushed on top of shell) ──────────

@@ -73,6 +73,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Map<String, dynamic>?> getUser() async {
+    return localDataSource.getUser();
+  }
+
+  @override
   Future<void> setOnboarded() async {
     await localDataSource.setOnboarded();
   }

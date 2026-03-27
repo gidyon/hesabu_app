@@ -129,190 +129,187 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: accent))
                 : _groups.isEmpty
-                    ? _buildEmptyState(context, accent, isDark)
-                    : SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                        child: Column(
-                          children: [
-                            // Total Savings Card
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [accent, accent.withOpacity(0.8)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: accent.withOpacity(0.3),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
+                ? _buildEmptyState(context, accent, isDark)
+                : SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                    child: Column(
+                      children: [
+                        // Total Savings Card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [accent, accent.withOpacity(0.8)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: accent.withOpacity(0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'TOTAL GROUP SAVINGS',
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1,
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.15),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.account_balance_wallet,
-                                          color: Colors.white,
-                                          size: 18,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
                                   Text(
-                                    currencyFormat.format(_totalSavings),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: -0.5,
+                                    'TOTAL GROUP SAVINGS',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
                                     ),
                                   ),
-                                  const SizedBox(height: 12),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.white.withOpacity(0.15),
+                                      shape: BoxShape.circle,
                                     ),
-                                    child: const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.trending_up,
-                                          size: 14,
-                                          color: Colors.white,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          '+12.5% from last month',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
+                                    child: const Icon(
+                                      Icons.account_balance_wallet,
+                                      color: Colors.white,
+                                      size: 18,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Quick Actions Row
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _quickAction(
-                                    context,
-                                    icon: Icons.group_add_outlined,
-                                    label: 'Join Group',
-                                    accent: accent,
-                                    onTap: () => context.push('/groups/join'),
-                                  ),
+                              const SizedBox(height: 8),
+                              Text(
+                                currencyFormat.format(_totalSavings),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.5,
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _quickAction(
-                                    context,
-                                    icon: Icons.savings_outlined,
-                                    label: 'Deposit',
-                                    accent: accent,
-                                    onTap: () =>
-                                        context.push('/groups/deposit'),
-                                  ),
+                              ),
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _quickAction(
-                                    context,
-                                    icon: Icons.bar_chart_rounded,
-                                    label: 'Reports',
-                                    accent: accent,
-                                    onTap: () {},
-                                  ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 28),
-
-                            // Active Groups Header
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Your Active Groups',
-                                  style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).textTheme.bodyLarge?.color,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.trending_up,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      '+12.5% from last month',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  '${_groups.length} Total',
-                                  style: const TextStyle(
-                                    color: AppColors.slate500,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                            const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
-                            // Groups List
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _groups.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 16),
-                              itemBuilder: (context, index) => _buildGroupCard(
+                        // Quick Actions Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _quickAction(
                                 context,
-                                _groups[index],
-                                currencyFormat,
-                                accent,
-                                isDark,
+                                icon: Icons.group_add_outlined,
+                                label: 'Join Group',
+                                accent: accent,
+                                onTap: () => context.push('/groups/join'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _quickAction(
+                                context,
+                                icon: Icons.savings_outlined,
+                                label: 'Deposit',
+                                accent: accent,
+                                onTap: () => context.push('/groups/deposit'),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _quickAction(
+                                context,
+                                icon: Icons.bar_chart_rounded,
+                                label: 'Reports',
+                                accent: accent,
+                                onTap: () {},
                               ),
                             ),
                           ],
                         ),
-                      ),
+
+                        const SizedBox(height: 28),
+
+                        // Active Groups Header
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Your Active Groups',
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.color,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '${_groups.length} Total',
+                              style: const TextStyle(
+                                color: AppColors.slate500,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // Groups List
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _groups.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) => _buildGroupCard(
+                            context,
+                            _groups[index],
+                            currencyFormat,
+                            accent,
+                            isDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
           ),
 
           // FAB
@@ -320,7 +317,10 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             bottom: 100,
             right: 24,
             child: GestureDetector(
-              onTap: () {},
+              onTap: () async {
+                final result = await context.push('/groups/create');
+                if (result == true) _loadData();
+              },
               child: Container(
                 height: 56,
                 width: 56,
@@ -416,7 +416,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
         : AppColors.slate100;
 
     return GestureDetector(
-      onTap: () => context.push('/treasurer-dashboard'),
+      onTap: () => context.push('/groups/details', extra: group),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -602,8 +602,9 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
           ),
           const SizedBox(height: 16),
           OutlinedButton(
-            onPressed: () {
-              // TODO: Implement Create Group
+            onPressed: () async {
+              final result = await context.push('/groups/create');
+              if (result == true) _loadData();
             },
             style: OutlinedButton.styleFrom(
               foregroundColor: accent,
@@ -624,4 +625,3 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     );
   }
 }
-

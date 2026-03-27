@@ -9,6 +9,7 @@ abstract class AuthRepository {
   Future<bool> sendResetCode(String email);
   Future<bool> verifyResetCode(String email, String code);
   Future<bool> resetPassword(String email, String newPassword);
+  Future<Map<String, dynamic>?> getUser();
   Future<void> setOnboarded();
   bool hasSeenOnboarding();
   bool isSessionValid();

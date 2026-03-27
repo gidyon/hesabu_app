@@ -49,6 +49,28 @@ class GroupsRemoteDataSource {
     }
   }
 
+  Future<GroupMembersResponse> getGroupMembers(String groupId) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/groups/members',
+        data: {'group_id': groupId},
+      );
+      return GroupMembersResponse.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to fetch members';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
+    }
+  }
+
   Future<bool> joinGroup(String groupId, String msisdn) async {
     try {
       final response = await apiClient.dio.post(
@@ -86,6 +108,53 @@ class GroupsRemoteDataSource {
         final message = (data is Map && data['message'] != null)
             ? data['message']
             : 'Failed to create group';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
+    }
+  }
+
+  Future<bool> editGroup(
+    String groupId,
+    Map<String, dynamic> groupData,
+  ) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/groups/edit/$groupId',
+        data: groupData,
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to edit group';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
+    }
+  }
+
+  Future<bool> inviteMember(String groupId, String contact) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/groups/invite',
+        data: {'group_id': groupId, 'contact': contact},
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to invite member';
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,
