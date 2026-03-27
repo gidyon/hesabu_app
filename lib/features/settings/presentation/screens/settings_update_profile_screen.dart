@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class SettingsUpdateProfileScreen extends StatefulWidget {
   const SettingsUpdateProfileScreen({super.key});
@@ -14,27 +16,70 @@ class SettingsUpdateProfileScreen extends StatefulWidget {
 
 class _SettingsUpdateProfileScreenState
     extends State<SettingsUpdateProfileScreen> {
-  final _nameController = TextEditingController(text: 'John Doe');
-  final _emailController = TextEditingController(text: 'john.doe@hesabu.co.ke');
-  final _phoneController = TextEditingController(text: '+254 712 345 678');
+  final _firstNameController = TextEditingController();
+  final _otherNamesController = TextEditingController();
+  final _phoneController = TextEditingController();
+  bool _isLoading = true;
   bool _isSaving = false;
+  UserProfile? _profile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final settingsRepository = context.read<SettingsRepository>();
+    final profile = await settingsRepository.getUserProfile();
+    if (mounted) {
+      setState(() {
+        _profile = profile;
+        _firstNameController.text = profile.firstName;
+        _otherNamesController.text = profile.otherNames;
+        _phoneController.text = profile.msisdn;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
+    _firstNameController.dispose();
+    _otherNamesController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
 
   void _save() async {
     setState(() => _isSaving = true);
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
-      );
+    try {
+      final success = await context.read<SettingsRepository>().updateProfile({
+        'first_name': _firstNameController.text,
+        'other_names': _otherNamesController.text,
+        'msisdn': _phoneController.text,
+      });
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: Color(0xFF2ecc71),
+          ),
+        );
+        context.pop(true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('ApiException: ', '')),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -96,149 +141,153 @@ class _SettingsUpdateProfileScreenState
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 60,
             ),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Avatar
-                  Center(
-                    child: Stack(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: accent.withOpacity(0.3),
-                              width: 4,
-                            ),
-                            image: const DecorationImage(
-                              image: NetworkImage(
-                                'https://i.pravatar.cc/200?img=12',
+                        // Avatar
+                        Center(
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: accent.withOpacity(0.3),
+                                    width: 4,
+                                  ),
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      _profile?.avatarUrl ??
+                                          'https://i.pravatar.cc/200?img=12',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                              fit: BoxFit.cover,
-                            ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: accent,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: accent,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).scaffoldBackgroundColor,
-                                width: 2,
+                        const SizedBox(height: 8),
+                        Center(
+                          child: Text(
+                            'Tap to change photo',
+                            style: TextStyle(color: accent, fontSize: 13),
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        _label('First Name', isDark),
+                        _field(
+                          context,
+                          _firstNameController,
+                          Icons.person_outline,
+                          'Your first name',
+                          cardBg,
+                          cardBorder,
+                        ),
+                        const SizedBox(height: 20),
+
+                        _label('Other Names', isDark),
+                        _field(
+                          context,
+                          _otherNamesController,
+                          Icons.person_outline,
+                          'Your other names',
+                          cardBg,
+                          cardBorder,
+                        ),
+                        const SizedBox(height: 20),
+
+                        _label('Phone Number', isDark),
+                        _field(
+                          context,
+                          _phoneController,
+                          Icons.phone_outlined,
+                          '+254 7XX XXX XXX',
+                          cardBg,
+                          cardBorder,
+                          enabled: false,
+                        ),
+                        const SizedBox(height: 40),
+
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _isSaving ? null : _save,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: accent,
+                              foregroundColor: isDark
+                                  ? AppColors.backgroundDark
+                                  : Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
                               ),
+                              elevation: 0,
                             ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              size: 14,
-                              color: Colors.white,
-                            ),
+                            child: _isSaving
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Save Changes',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      'Tap to change photo',
-                      style: TextStyle(color: accent, fontSize: 13),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  _label('Full Name'),
-                  _field(
-                    context,
-                    _nameController,
-                    Icons.person_outline,
-                    'Your full name',
-                    cardBg,
-                    cardBorder,
-                  ),
-                  const SizedBox(height: 20),
-
-                  _label('Email Address'),
-                  _field(
-                    context,
-                    _emailController,
-                    Icons.mail_outline,
-                    'your@email.com',
-                    cardBg,
-                    cardBorder,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 20),
-
-                  _label('Phone Number'),
-                  _field(
-                    context,
-                    _phoneController,
-                    Icons.phone_outlined,
-                    '+254 7XX XXX XXX',
-                    cardBg,
-                    cardBorder,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 40),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _save,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: accent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text(
-                              'Save Changes',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _label(String text) => Padding(
+  Widget _label(String text, bool isDark) => Padding(
     padding: const EdgeInsets.only(left: 4, bottom: 8),
     child: Text(
       text,
-      style: const TextStyle(
-        color: AppColors.slate200,
+      style: TextStyle(
+        color: isDark ? AppColors.slate400 : AppColors.slate500,
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
@@ -253,6 +302,7 @@ class _SettingsUpdateProfileScreenState
     Color bg,
     Color border, {
     TextInputType keyboardType = TextInputType.text,
+    bool enabled = true,
   }) {
     return Container(
       height: 56,
@@ -270,8 +320,11 @@ class _SettingsUpdateProfileScreenState
             child: TextField(
               controller: controller,
               keyboardType: keyboardType,
+              enabled: enabled,
               style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
+                color: enabled
+                    ? Theme.of(context).textTheme.bodyLarge?.color
+                    : AppColors.slate400,
               ),
               decoration: InputDecoration(
                 hintText: hint,

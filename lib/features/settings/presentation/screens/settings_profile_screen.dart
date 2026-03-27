@@ -76,7 +76,10 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => context.push('/settings/profile'),
+                    onTap: () async {
+                      final result = await context.push('/settings/profile');
+                      if (result == true) _loadProfile();
+                    },
                     child: Container(
                       width: 40,
                       height: 40,
@@ -227,8 +230,10 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                       icon: Icons.person,
                                       iconColor: accent,
                                       title: 'Update Profile',
-                                      onTap: () =>
-                                          context.push('/settings/profile'),
+                                      onTap: () async {
+                                        final result = await context.push('/settings/profile');
+                                        if (result == true) _loadProfile();
+                                      },
                                       showDivider: true,
                                     ),
                                     _buildListItem(

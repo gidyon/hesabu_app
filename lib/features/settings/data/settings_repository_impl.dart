@@ -20,15 +20,20 @@ class SettingsRepositoryImpl implements SettingsRepository {
 
         return UserProfile(
           name: name.isNotEmpty ? name : 'User',
-          membershipType:
-              'Standard Member', // Default as it's not in the response
-          activeGroupName: 'My Groups', // Default or fetch logic
+          firstName: model.firstName ?? '',
+          otherNames: model.otherNames ?? '',
+          msisdn: model.msisdn ?? '',
+          membershipType: 'Standard Member',
+          activeGroupName: 'My Groups',
           avatarUrl:
               'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random',
         );
       }
       return UserProfile(
         name: 'Guest User',
+        firstName: '',
+        otherNames: '',
+        msisdn: '',
         membershipType: 'None',
         activeGroupName: 'No Active Group',
         avatarUrl: '',
@@ -36,10 +41,32 @@ class SettingsRepositoryImpl implements SettingsRepository {
     } catch (e) {
       return UserProfile(
         name: 'Guest User',
+        firstName: '',
+        otherNames: '',
+        msisdn: '',
         membershipType: 'None',
         activeGroupName: 'No Active Group',
         avatarUrl: '',
       );
+    }
+  }
+
+  @override
+  Future<bool> updateProfile(Map<String, dynamic> profileData) async {
+    try {
+      final userJson = await localDataSource.getUser();
+      if (userJson != null) {
+        final updatedUser = Map<String, dynamic>.from(userJson);
+        updatedUser['first_name'] = profileData['first_name'];
+        updatedUser['other_names'] = profileData['other_names'];
+        updatedUser['msisdn'] = profileData['msisdn'];
+
+        await localDataSource.saveUser(updatedUser);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      rethrow;
     }
   }
 }
