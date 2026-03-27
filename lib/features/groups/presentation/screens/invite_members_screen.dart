@@ -58,28 +58,37 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = InheritedThemeController.of(context).accentColor.primary;
+    final themeController = InheritedThemeController.of(context);
+    final isDark = themeController.isDark;
+    final accent = themeController.accentColor.primary;
+    final backgroundColor =
+        isDark ? themeController.accentColor.darkBackground : Colors.white;
+    final titleColor = isDark ? Colors.white : Colors.black87;
+    final inputColor = isDark
+        ? Colors.white.withOpacity(0.05)
+        : Colors.black.withOpacity(0.03);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0b130d),
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Invite Members',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: titleColor),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
+        iconTheme: IconThemeData(color: titleColor),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'GROW YOUR CHAMA',
               style: TextStyle(
-                color: Color(0xFF2ecc71),
+                color: accent,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1,
@@ -87,16 +96,18 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Add members to your group by entering their phone number or email address.',
-              style: TextStyle(color: Colors.white70, fontSize: 15),
+              style: TextStyle(color: titleColor.withOpacity(0.7), fontSize: 15),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            _buildLabel('Phone Number or Email'),
+            _buildLabel('Phone Number or Email', titleColor),
             _buildInputField(
               controller: _inviteController,
               hintText: 'e.g. +254 700 000 000',
+              inputColor: inputColor,
+              titleColor: titleColor,
             ),
             const SizedBox(height: 12),
             Container(
@@ -128,7 +139,7 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
               onPressed: _isLoading ? null : _sendInvite,
               style: ElevatedButton.styleFrom(
                 backgroundColor: accent,
-                foregroundColor: const Color(0xFF0b130d),
+                foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -138,7 +149,10 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
                   ? const SizedBox(
                       height: 24,
                       width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.black,
+                      ),
                     )
                   : const Text(
                       'Send Invitation',
@@ -155,13 +169,13 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
     );
   }
 
-  Widget _buildLabel(String label) {
+  Widget _buildLabel(String label, Color titleColor) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         label,
-        style: const TextStyle(
-          color: Colors.white38,
+        style: TextStyle(
+          color: titleColor.withOpacity(0.4),
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -172,19 +186,21 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
   Widget _buildInputField({
     required TextEditingController controller,
     required String hintText,
+    required Color inputColor,
+    required Color titleColor,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF16221a),
+        color: inputColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: titleColor.withOpacity(0.05)),
       ),
       child: TextFormField(
         controller: controller,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: titleColor),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.white10),
+          hintStyle: TextStyle(color: titleColor.withOpacity(0.2)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(18),
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -76,24 +78,44 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       decimalDigits: 0,
     );
 
+    final themeController = InheritedThemeController.of(context);
+    final isDark = themeController.isDark;
+    final accent = themeController.accentColor.primary;
+    final backgroundColor = isDark
+        ? themeController.accentColor.darkBackground
+        : Colors.white;
+    final titleColor = isDark ? Colors.white : Colors.black87;
+    final cardColor = isDark
+        ? Colors.white.withOpacity(0.05)
+        : Colors.black.withOpacity(0.03);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0b130d),
+      backgroundColor: backgroundColor,
       body: Stack(
         children: [
           Column(
             children: [
-              _buildTopNav(context),
-              Expanded(child: _buildBody(currencyFormat, isAdmin)),
-              _buildBottomNavBar(),
+              _buildTopNav(context, titleColor, accent),
+              Expanded(
+                child: _buildBody(
+                  currencyFormat,
+                  isAdmin,
+                  accent,
+                  titleColor,
+                  cardColor,
+                ),
+              ),
+              _buildBottomNavBar(accent, titleColor),
             ],
           ),
-          if (_currentIndex == 1) _buildFixedInsights(currencyFormat),
+          if (_currentIndex == 1)
+            _buildFixedInsights(currencyFormat, accent, cardColor, titleColor),
         ],
       ),
     );
   }
 
-  Widget _buildTopNav(BuildContext context) {
+  Widget _buildTopNav(BuildContext context, Color titleColor, Color accent) {
     return Padding(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 10,
@@ -105,77 +127,86 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
-              size: 22,
-            ),
+            icon: Icon(Icons.arrow_back_ios_new, color: titleColor, size: 22),
             onPressed: () => context.pop(),
           ),
           Text(
             widget.group.name,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: titleColor,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const Icon(
-            Icons.file_download_outlined,
-            color: Color(0xFF2ecc71),
-            size: 24,
-          ),
+          Icon(Icons.file_download_outlined, color: accent, size: 24),
         ],
       ),
     );
   }
 
-  Widget _buildBody(NumberFormat fmt, bool isAdmin) {
+  Widget _buildBody(
+    NumberFormat fmt,
+    bool isAdmin,
+    Color accent,
+    Color titleColor,
+    Color cardColor,
+  ) {
     if (_currentIndex == 1) {
-      return _buildWalletView(fmt, isAdmin);
+      return _buildWalletView(fmt, isAdmin, accent, titleColor, cardColor);
     } else if (_currentIndex == 2) {
-      return _buildMembersView();
+      return _buildMembersView(accent, titleColor);
     } else if (_currentIndex == 3) {
-      return _buildSettingsView();
+      return _buildSettingsView(titleColor);
     }
     return const SizedBox.shrink();
   }
 
-  Widget _buildWalletView(NumberFormat fmt, bool isAdmin) {
+  Widget _buildWalletView(
+    NumberFormat fmt,
+    bool isAdmin,
+    Color accent,
+    Color titleColor,
+    Color cardColor,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          _buildBalanceCard(fmt),
+          _buildBalanceCard(fmt, accent, titleColor, cardColor),
           const SizedBox(height: 24),
-          _buildMainActionButton(isAdmin),
+          _buildMainActionButton(isAdmin, accent),
           const SizedBox(height: 32),
-          const Text(
+          Text(
             'Recent Transactions',
             style: TextStyle(
-              color: Colors.white,
+              color: titleColor,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 20),
-          _buildTransactionsList(fmt),
+          _buildTransactionsList(fmt, accent, titleColor),
           const SizedBox(height: 120), // Spacer for fixed inflow/outflow
         ],
       ),
     );
   }
 
-  Widget _buildBalanceCard(NumberFormat fmt) {
+  Widget _buildBalanceCard(
+    NumberFormat fmt,
+    Color accent,
+    Color titleColor,
+    Color cardColor,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF16221a),
+        color: cardColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: titleColor.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,10 +214,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'TOTAL GROUP BALANCE',
                 style: TextStyle(
-                  color: Color(0xFF2ecc71),
+                  color: accent,
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1,
@@ -194,9 +225,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               ),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on,
-                    color: Colors.white38,
+                    color: titleColor.withOpacity(0.4),
                     size: 12,
                   ),
                   const SizedBox(width: 4),
@@ -204,7 +235,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     widget.group.location.isEmpty
                         ? 'Not Set'
                         : widget.group.location,
-                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                    style: TextStyle(
+                      color: titleColor.withOpacity(0.4),
+                      fontSize: 11,
+                    ),
                   ),
                 ],
               ),
@@ -217,15 +251,18 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             children: [
               Text(
                 fmt.format(_balance),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: titleColor,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Text(
+              Text(
                 '.00',
-                style: TextStyle(color: Colors.white60, fontSize: 20),
+                style: TextStyle(
+                  color: titleColor.withOpacity(0.6),
+                  fontSize: 20,
+                ),
               ),
             ],
           ),
@@ -234,8 +271,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             widget.group.description.isEmpty
                 ? 'No description provided for this group.'
                 : widget.group.description,
-            style: const TextStyle(
-              color: Colors.white54,
+            style: TextStyle(
+              color: titleColor.withOpacity(0.54),
               fontSize: 13,
               height: 1.4,
             ),
@@ -247,7 +284,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildFixedInsights(NumberFormat fmt) {
+  Widget _buildFixedInsights(
+    NumberFormat fmt,
+    Color accent,
+    Color cardColor,
+    Color titleColor,
+  ) {
     return Positioned(
       bottom: 80, // Above bottom nav
       left: 20,
@@ -255,9 +297,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF16221a),
+          color: cardColor,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          border: Border.all(color: titleColor.withOpacity(0.08)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.4),
@@ -272,20 +314,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               child: _buildInsightItem(
                 'TOTAL INFLOW',
                 fmt.format(_totalInflow),
-                const Color(0xFF2ecc71),
+                accent,
+                titleColor,
               ),
             ),
             Container(
               width: 1,
               height: 32,
-              color: Colors.white.withOpacity(0.1),
+              color: titleColor.withOpacity(0.1),
               margin: const EdgeInsets.symmetric(horizontal: 16),
             ),
             Expanded(
               child: _buildInsightItem(
                 'TOTAL OUTFLOW',
                 fmt.format(_totalOutflow),
-                Colors.white,
+                titleColor,
+                titleColor,
               ),
             ),
           ],
@@ -294,15 +338,20 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildInsightItem(String label, String amount, Color amountColor) {
+  Widget _buildInsightItem(
+    String label,
+    String amount,
+    Color amountColor,
+    Color titleColor,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white38,
+          style: TextStyle(
+            color: titleColor.withOpacity(0.38),
             fontSize: 9,
             fontWeight: FontWeight.bold,
           ),
@@ -320,15 +369,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildMainActionButton(bool isAdmin) {
+  Widget _buildMainActionButton(bool isAdmin, Color accent) {
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton.icon(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF2ecc71),
-          foregroundColor: const Color(0xFF0b130d),
+          backgroundColor: accent,
+          foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -345,16 +394,18 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildTransactionsList(NumberFormat fmt) {
+  Widget _buildTransactionsList(
+    NumberFormat fmt,
+    Color accent,
+    Color titleColor,
+  ) {
     if (_isLoading)
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF2ecc71)),
-      );
+      return Center(child: CircularProgressIndicator(color: accent));
     if (_transactions.isEmpty)
-      return const Center(
+      return Center(
         child: Text(
           'No transactions yet',
-          style: TextStyle(color: Colors.white38),
+          style: TextStyle(color: titleColor.withOpacity(0.4)),
         ),
       );
 
@@ -373,15 +424,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (isInflow ? const Color(0xFF2ecc71) : Colors.red)
-                      .withOpacity(0.08),
+                  color: (isInflow ? accent : Colors.red).withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   isInflow
                       ? Icons.file_download_outlined
                       : Icons.file_upload_outlined,
-                  color: isInflow ? const Color(0xFF2ecc71) : Colors.red,
+                  color: isInflow ? accent : Colors.red,
                   size: 22,
                 ),
               ),
@@ -392,8 +442,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   children: [
                     Text(
                       tx.title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: titleColor,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -401,8 +451,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       tx.date,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: titleColor.withOpacity(0.4),
                         fontSize: 12,
                       ),
                     ),
@@ -415,7 +465,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   Text(
                     '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}.00',
                     style: TextStyle(
-                      color: isInflow ? const Color(0xFF2ecc71) : Colors.white,
+                      color: isInflow ? accent : titleColor,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
@@ -423,8 +473,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   const SizedBox(height: 2),
                   Text(
                     tx.method.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white38,
+                    style: TextStyle(
+                      color: titleColor.withOpacity(0.4),
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),
@@ -438,11 +488,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildMembersView() {
+  Widget _buildMembersView(Color accent, Color titleColor) {
     if (_isLoading)
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF2ecc71)),
-      );
+      return Center(child: CircularProgressIndicator(color: accent));
     return ListView.builder(
       padding: const EdgeInsets.all(20),
       itemCount: _members.length,
@@ -455,13 +503,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: const Color(0xFF16221a),
+                backgroundColor: titleColor.withOpacity(0.05),
                 child: Text(
                   member.name[0],
-                  style: const TextStyle(
-                    color: Color(0xFF2ecc71),
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: accent, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(width: 16),
@@ -471,8 +516,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   children: [
                     Text(
                       member.name,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: titleColor,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -480,8 +525,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     const SizedBox(height: 4),
                     Text(
                       member.msisdn,
-                      style: const TextStyle(
-                        color: Colors.white38,
+                      style: TextStyle(
+                        color: titleColor.withOpacity(0.4),
                         fontSize: 12,
                       ),
                     ),
@@ -495,13 +540,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2ecc71).withOpacity(0.1),
+                    color: accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: Text(
                     'ADMIN',
                     style: TextStyle(
-                      color: Color(0xFF2ecc71),
+                      color: accent,
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
                     ),
@@ -514,30 +559,38 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildSettingsView() {
+  Widget _buildSettingsView(Color titleColor) {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
         _buildSettingsItem(
           Icons.edit_outlined,
           'Edit Group Profile',
+          titleColor: titleColor,
           onTap: () => context.push('/groups/create', extra: widget.group),
         ),
         _buildSettingsItem(
           Icons.group_add_outlined,
           'Invite Members',
+          titleColor: titleColor,
           onTap: () => context.push('/groups/invite', extra: widget.group.id),
         ),
-        _buildSettingsItem(Icons.security_outlined, 'Permissions'),
+        _buildSettingsItem(
+          Icons.security_outlined,
+          'Permissions',
+          titleColor: titleColor,
+        ),
         _buildSettingsItem(
           Icons.notifications_outlined,
           'Notification Settings',
+          titleColor: titleColor,
         ),
-        const Divider(color: Colors.white10, height: 40),
+        Divider(color: titleColor.withOpacity(0.1), height: 40),
         _buildSettingsItem(
           Icons.logout,
           'Exit Group',
           color: Colors.orange,
+          titleColor: titleColor,
           onTap: () => _showConfirmationDialog(
             'Exit Group',
             'Are you sure you want to exit this group?',
@@ -547,6 +600,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Icons.delete_outline,
           'Delete Group',
           color: Colors.red,
+          titleColor: titleColor,
           onTap: () => _showConfirmationDialog(
             'Delete Group',
             'This action is permanent. All group data will be lost. Continue?',
@@ -559,98 +613,47 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Widget _buildSettingsItem(
     IconData icon,
     String title, {
+    required Color titleColor,
     Color color = Colors.white,
     VoidCallback? onTap,
   }) {
+    final effectiveColor = color == Colors.white ? titleColor : color;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       onTap: onTap,
-      leading: Icon(icon, color: color.withOpacity(0.6), size: 22),
+      leading: Icon(icon, color: effectiveColor.withOpacity(0.6), size: 22),
       title: Text(
         title,
-        style: TextStyle(color: color.withOpacity(0.8), fontSize: 15),
+        style: TextStyle(color: effectiveColor.withOpacity(0.8), fontSize: 15),
       ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.white10),
-    );
-  }
-
-  void _showInviteDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF16221a),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
-          'Invite Members',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Phone number or Email',
-                hintStyle: const TextStyle(color: Colors.white24),
-                filled: true,
-                fillColor: Colors.black26,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Please only invite people you know. Avoid spamming.',
-              style: TextStyle(color: Colors.white38, fontSize: 11),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white54),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              context.pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Invitation sent successfully!'),
-                  backgroundColor: Color(0xFF2ecc71),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2ecc71),
-              foregroundColor: Colors.black,
-            ),
-            child: const Text('Send Invite'),
-          ),
-        ],
-      ),
+      trailing: Icon(Icons.chevron_right, color: titleColor.withOpacity(0.1)),
     );
   }
 
   void _showConfirmationDialog(String title, String message) {
+    final themeController = InheritedThemeController.of(context);
+    final isDark = themeController.isDark;
+    final backgroundColor = isDark
+        ? themeController.accentColor.darkBackground
+        : Colors.white;
+    final titleColor = isDark ? Colors.white : Colors.black87;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF16221a),
+        backgroundColor: backgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        content: Text(message, style: const TextStyle(color: Colors.white70)),
+        title: Text(title, style: TextStyle(color: titleColor)),
+        content: Text(
+          message,
+          style: TextStyle(color: titleColor.withOpacity(0.7)),
+        ),
         actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: const Text(
+            child: Text(
               'Cancel',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(color: titleColor.withOpacity(0.5)),
             ),
           ),
           TextButton(
@@ -674,41 +677,61 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildBottomNavBar() {
+  Widget _buildBottomNavBar(Color accent, Color titleColor) {
     return Container(
       padding: const EdgeInsets.only(top: 12, bottom: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF0b130d),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+        color: Colors.transparent,
+        border: Border(top: BorderSide(color: titleColor.withOpacity(0.05))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavItem(Icons.home_outlined, 'Home', false, 0),
+          _buildNavItem(
+            Icons.home_outlined,
+            'Home',
+            false,
+            0,
+            accent,
+            titleColor,
+          ),
           _buildNavItem(
             Icons.account_balance_wallet,
             'Wallet',
             _currentIndex == 1,
             1,
+            accent,
+            titleColor,
           ),
           _buildNavItem(
             Icons.people_outlined,
             'Members',
             _currentIndex == 2,
             2,
+            accent,
+            titleColor,
           ),
           _buildNavItem(
             Icons.settings_outlined,
             'Settings',
             _currentIndex == 3,
             3,
+            accent,
+            titleColor,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, bool isActive, int index) {
+  Widget _buildNavItem(
+    IconData icon,
+    String label,
+    bool isActive,
+    int index,
+    Color accent,
+    Color titleColor,
+  ) {
     final isDisabled = index == 0;
     return GestureDetector(
       onTap: isDisabled ? null : () => setState(() => _currentIndex = index),
@@ -718,8 +741,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Icon(
             icon,
             color: isDisabled
-                ? Colors.white10
-                : (isActive ? const Color(0xFF2ecc71) : Colors.white24),
+                ? titleColor.withOpacity(0.1)
+                : (isActive ? accent : titleColor.withOpacity(0.24)),
             size: 24,
           ),
           const SizedBox(height: 4),
@@ -727,8 +750,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             label,
             style: TextStyle(
               color: isDisabled
-                  ? Colors.white10
-                  : (isActive ? const Color(0xFF2ecc71) : Colors.white24),
+                  ? titleColor.withOpacity(0.1)
+                  : (isActive ? accent : titleColor.withOpacity(0.24)),
               fontSize: 10,
               fontWeight: FontWeight.bold,
             ),
