@@ -20,74 +20,106 @@ class ActivityScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        // leading: IconButton(
-        //   icon: Icon(Icons.arrow_back_ios_new, color: titleColor, size: 20),
-        //   onPressed: () => Navigator.of(context).pop(),
-        // ),
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            color: titleColor,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              'Mark all read',
-              style: TextStyle(color: accent, fontWeight: FontWeight.bold),
+      body: Stack(
+        children: [
+          // Top Nav Bar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 10,
+                bottom: 12,
+                left: 16,
+                right: 16,
+              ),
+              color: backgroundColor.withOpacity(0.9),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40), // Placeholder to center title
+                  Text(
+                    'Activity',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {}, // Mark all read logic
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        'Read all',
+                        style: TextStyle(
+                          color: accent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildPushToggle(cardColor, titleColor, accent),
-          const SizedBox(height: 24),
-          _buildSectionHeader('TODAY', titleColor),
-          _buildMemberJoinRequest(cardColor, titleColor, accent),
-          const SizedBox(height: 16),
-          _buildActivityCard(
-            icon: Icons.account_balance_wallet,
-            iconColor: accent,
-            title: 'Contribution received',
-            subtitle: 'Sarah Kamau sent KES 5,000 to \'Emergency Fund\'',
-            time: '45m ago',
-            cardColor: cardColor,
-            titleColor: titleColor,
-            accent: accent,
-          ),
-          const SizedBox(height: 24),
-          _buildSectionHeader('YESTERDAY', titleColor),
-          _buildActivityCard(
-            icon: Icons.payments_outlined,
-            iconColor: Colors.amber,
-            title: 'Payment disbursed',
-            subtitle:
-                'KES 20,000 has been sent to David Maina for monthly rotation.',
-            time: '1d ago',
-            cardColor: cardColor,
-            titleColor: titleColor,
-            accent: accent,
-          ),
-          const SizedBox(height: 16),
-          _buildActivityCard(
-            icon: Icons.info_outline,
-            iconColor: Colors.blue,
-            title: 'Monthly statement ready',
-            subtitle:
-                'Your June summary for \'Education Fund\' is now available for review.',
-            time: '1d ago',
-            cardColor: cardColor,
-            titleColor: titleColor,
-            accent: accent,
+
+          // Content
+          Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 60,
+            ),
+            child: ListView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+              children: [
+                _buildPushToggle(cardColor, titleColor, accent),
+                const SizedBox(height: 24),
+                _buildSectionHeader('TODAY', titleColor),
+                _buildMemberJoinRequest(cardColor, titleColor, accent),
+                const SizedBox(height: 16),
+                _buildActivityCard(
+                  icon: Icons.account_balance_wallet,
+                  iconColor: accent,
+                  title: 'Contribution received',
+                  subtitle: 'Sarah Kamau sent KES 5,000 to \'Emergency Fund\'',
+                  time: '45m ago',
+                  cardColor: cardColor,
+                  titleColor: titleColor,
+                  accent: accent,
+                ),
+                const SizedBox(height: 24),
+                _buildSectionHeader('YESTERDAY', titleColor),
+                _buildActivityCard(
+                  icon: Icons.payments_outlined,
+                  iconColor: Colors.amber,
+                  title: 'Payment disbursed',
+                  subtitle:
+                      'KES 20,000 has been sent to David Maina for monthly rotation.',
+                  time: '1d ago',
+                  cardColor: cardColor,
+                  titleColor: titleColor,
+                  accent: accent,
+                ),
+                const SizedBox(height: 16),
+                _buildActivityCard(
+                  icon: Icons.info_outline,
+                  iconColor: Colors.blue,
+                  title: 'Monthly statement ready',
+                  subtitle:
+                      'Your June summary for \'Education Fund\' is now available for review.',
+                  time: '1d ago',
+                  cardColor: cardColor,
+                  titleColor: titleColor,
+                  accent: accent,
+                ),
+              ],
+            ),
           ),
         ],
       ),

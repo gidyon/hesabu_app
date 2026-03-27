@@ -50,66 +50,74 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 140,
-            floating: false,
-            pinned: true,
-            elevation: 0,
-            backgroundColor: Theme.of(
-              context,
-            ).scaffoldBackgroundColor.withOpacity(0.95),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Padding(
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + 10,
-                  left: 16,
-                  right: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'My Groups',
-                      style: TextStyle(
-                        color: titleColor,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: -0.5,
-                      ),
+      body: Stack(
+        children: [
+          // Top Nav Bar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 10,
+                bottom: 12,
+                left: 16,
+                right: 16,
+              ),
+              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 40),
+                  Text(
+                    'My Groups',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
                     ),
-                    const SizedBox(height: 16),
-                    _buildSearchBar(isDark, titleColor, accent),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 40),
+                ],
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-            sliver: _isLoading
-                ? const SliverFillRemaining(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                : _groups.isEmpty
-                ? SliverFillRemaining(
-                    child: _buildEmptyState(context, accent, isDark),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: _buildGroupCard(
-                          context,
-                          _groups[index],
-                          currencyFormat,
-                          accent,
-                          isDark,
-                        ),
-                      );
-                    }, childCount: _groups.length),
-                  ),
+
+          // Content
+          Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 60,
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _buildSearchBar(isDark, titleColor, accent),
+                ),
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _groups.isEmpty
+                          ? _buildEmptyState(context, accent, isDark)
+                          : ListView.separated(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                              itemCount: _groups.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (context, index) {
+                                return _buildGroupCard(
+                                  context,
+                                  _groups[index],
+                                  currencyFormat,
+                                  accent,
+                                  isDark,
+                                );
+                              },
+                            ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
