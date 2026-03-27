@@ -98,23 +98,22 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                   child: _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : _groups.isEmpty
-                          ? _buildEmptyState(context, accent, isDark)
-                          : ListView.separated(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                              itemCount: _groups.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 16),
-                              itemBuilder: (context, index) {
-                                return _buildGroupCard(
-                                  context,
-                                  _groups[index],
-                                  currencyFormat,
-                                  accent,
-                                  isDark,
-                                );
-                              },
-                            ),
+                      ? _buildEmptyState(context, accent, isDark)
+                      : ListView.separated(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                          itemCount: _groups.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            return _buildGroupCard(
+                              context,
+                              _groups[index],
+                              currencyFormat,
+                              accent,
+                              isDark,
+                            );
+                          },
+                        ),
                 ),
               ],
             ),
@@ -131,93 +130,6 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
           backgroundColor: accent,
           elevation: 4,
           child: const Icon(Icons.add, color: Colors.white, size: 28),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color accent,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? accent.withOpacity(0.3) : AppColors.slate100,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: accent.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: accent, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      color: isDark ? Colors.white70 : AppColors.slate500,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: isDark ? Colors.white30 : AppColors.slate200,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeaderIcon(
-    BuildContext context,
-    IconData icon,
-    bool isDark, {
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.1) : AppColors.slate100,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          color: Theme.of(context).textTheme.bodyLarge?.color,
-          size: 22,
         ),
       ),
     );
@@ -244,49 +156,6 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             color: titleColor.withOpacity(0.4),
             size: 20,
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _quickAction(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required Color accent,
-    required VoidCallback onTap,
-  }) {
-    final isDark = InheritedThemeController.of(context).isDark;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: accent.withOpacity(0.25)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: accent.withOpacity(0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: accent, size: 20),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -429,48 +298,6 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSimpleInsightCard(
-    BuildContext context, {
-    required String label,
-    required String value,
-    required Color valueColor,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.white.withOpacity(0.05) : AppColors.slate100,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.slate500,
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
       ),
     );
   }

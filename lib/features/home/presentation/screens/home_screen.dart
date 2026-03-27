@@ -84,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             context,
                             Icons.notifications_outlined,
                             isDark,
+                            onTap: () => context.go('/activity'),
                           ),
                           const SizedBox(width: 8),
                           _buildHeaderIcon(
@@ -145,7 +146,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 8),
                         Text(
                           _isBalanceVisible
-                              ? '\$${_totalSavings.toStringAsFixed(2)}'
+                              ? NumberFormat.currency(
+                                  symbol: 'KSh ',
+                                  decimalDigits: 2,
+                                ).format(_totalSavings)
                               : 'KSh ••••••••',
                           style: const TextStyle(
                             color: Colors.white,
@@ -215,10 +219,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: _quickAction(
                           context,
-                          icon: Icons.bar_chart_rounded,
-                          label: 'Reports',
+                          icon: Icons.add_circle_outline_rounded,
+                          label: 'New Group',
                           accent: accent,
-                          onTap: () {},
+                          onTap: () => context.push('/groups/create'),
                         ),
                       ),
                     ],
@@ -309,60 +313,6 @@ class _HomeScreenState extends State<HomeScreen> {
           icon,
           color: Theme.of(context).textTheme.bodyLarge?.color,
           size: 22,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color accent,
-    required bool isDark,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.1) : AppColors.slate100,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: accent, size: 20),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-            Text(
-              subtitle,
-              style: TextStyle(
-                color: isDark ? Colors.white70 : AppColors.slate500,
-                fontSize: 10,
-              ),
-            ),
-          ],
         ),
       ),
     );
