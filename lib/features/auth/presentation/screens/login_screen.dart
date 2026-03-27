@@ -17,8 +17,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: '254716484395');
-  final _passwordController = TextEditingController(text: '@Kamaa11');
+  final _emailController = TextEditingController(text: '');
+  final _passwordController = TextEditingController(text: '');
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   bool _bioEnabled = false;
@@ -49,7 +49,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!canAuthenticate) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Biometrics not supported on this device')),
+            const SnackBar(
+              content: Text('Biometrics not supported on this device'),
+            ),
           );
         }
         return;
@@ -459,7 +461,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Container(
                           height: 56,
                           decoration: BoxDecoration(
-                            color: _bioEnabled ? Colors.transparent : Colors.grey.withOpacity(0.1),
+                            color: _bioEnabled
+                                ? Colors.transparent
+                                : Colors.grey.withOpacity(0.1),
                             border: Border.all(
                               color: isDark
                                   ? const Color(0xFF3b5443)
@@ -477,14 +481,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Icon(
                                     Icons.fingerprint,
                                     size: 24,
-                                    color: _bioEnabled ? accent : AppColors.slate400,
+                                    color: _bioEnabled
+                                        ? accent
+                                        : AppColors.slate400,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Biometric',
                                     style: TextStyle(
-                                      color: _bioEnabled 
-                                          ? theme.textTheme.bodyLarge?.color 
+                                      color: _bioEnabled
+                                          ? theme.textTheme.bodyLarge?.color
                                           : AppColors.slate400,
                                       fontWeight: FontWeight.bold,
                                     ),
