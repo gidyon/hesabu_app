@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
+import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -46,8 +48,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeController = InheritedThemeController.of(context);
+    final accent = themeController.accentColor.primary;
+    final isDark = themeController.isDark;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Geometric Background Elements
@@ -58,11 +65,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               width: 256,
               height: 256,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: accent.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(128),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: accent.withOpacity(0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -77,11 +84,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               width: 384,
               height: 384,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.05),
+                color: accent.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(192),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.05),
+                    color: accent.withOpacity(0.05),
                     blurRadius: 120,
                     spreadRadius: 20,
                   ),
@@ -107,19 +114,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_back,
-                            color: Colors.white,
+                            color: theme.textTheme.bodyLarge?.color,
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Reset Password',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -136,22 +143,22 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.15),
+                        color: accent.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.lock_reset_outlined,
-                        color: AppColors.primary,
+                        color: accent,
                         size: 40,
                       ),
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text(
+                  Text(
                     'Forgot Password?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
@@ -178,20 +185,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         'Enter Email',
                         isActive: true,
                         isDone: false,
+                        accent: accent,
+                        isDark: isDark,
                       ),
-                      _buildStepConnector(isActive: false),
+                      _buildStepConnector(isActive: false, accent: accent),
                       _buildStep(
                         '2',
                         'Verify Code',
                         isActive: false,
                         isDone: false,
+                        accent: accent,
+                        isDark: isDark,
                       ),
-                      _buildStepConnector(isActive: false),
+                      _buildStepConnector(isActive: false, accent: accent),
                       _buildStep(
                         '3',
                         'New Password',
                         isActive: false,
                         isDone: false,
+                        accent: accent,
+                        isDark: isDark,
                       ),
                     ],
                   ),
@@ -213,9 +226,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1c271f),
+                      color: isDark ? const Color(0xFF1c271f) : Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF3b5443)),
+                      border: Border.all(color: isDark ? const Color(0xFF3b5443) : AppColors.slate200),
                     ),
                     child: Row(
                       children: [
@@ -229,10 +242,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           child: TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: const InputDecoration(
+                            style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                            decoration: InputDecoration(
                               hintText: 'Enter your email or phone',
-                              hintStyle: TextStyle(color: Color(0xFF9db9a6)),
+                              hintStyle: TextStyle(color: isDark ? const Color(0xFF9db9a6) : AppColors.slate400),
                               border: InputBorder.none,
                             ),
                           ),
@@ -249,8 +262,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleSendResetCode,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.backgroundDark,
+                        backgroundColor: accent,
+                        foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -286,14 +299,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     child: GestureDetector(
                       onTap: () => context.go('/login'),
                       child: RichText(
-                        text: const TextSpan(
-                          style: TextStyle(color: AppColors.slate400),
+                        text: TextSpan(
+                          style: const TextStyle(color: AppColors.slate400),
                           children: [
-                            TextSpan(text: 'Remember your password? '),
+                            const TextSpan(text: 'Remember your password? '),
                             TextSpan(
                               text: 'Back to Login',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: accent,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -318,6 +331,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     String label, {
     required bool isActive,
     required bool isDone,
+    required Color accent,
+    required bool isDark,
   }) {
     return Expanded(
       child: Column(
@@ -327,18 +342,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             height: 32,
             decoration: BoxDecoration(
               color: isActive || isDone
-                  ? AppColors.primary
-                  : AppColors.primary.withOpacity(0.15),
+                  ? accent
+                  : accent.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: isDone
-                  ? const Icon(Icons.check, color: Colors.black, size: 16)
+                  ? Icon(Icons.check, color: isDark ? Colors.black : Colors.white, size: 16)
                   : Text(
                       number,
                       style: TextStyle(
                         color: isActive
-                            ? AppColors.backgroundDark
+                            ? (isDark ? Colors.black : Colors.white)
                             : AppColors.slate400,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
@@ -350,7 +365,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           Text(
             label,
             style: TextStyle(
-              color: isActive ? AppColors.primary : AppColors.slate400,
+              color: isActive ? accent : AppColors.slate400,
               fontSize: 11,
               fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
             ),
@@ -361,11 +376,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Widget _buildStepConnector({required bool isActive}) {
+  Widget _buildStepConnector({required bool isActive, required Color accent}) {
     return Container(
       width: 24,
       height: 2,
-      color: isActive ? AppColors.primary : AppColors.primary.withOpacity(0.2),
+      color: isActive ? accent : accent.withOpacity(0.2),
       margin: const EdgeInsets.only(bottom: 20),
     );
   }

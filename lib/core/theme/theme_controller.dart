@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Accent color options available to the user.
 enum AppAccentColor {
@@ -54,22 +55,45 @@ extension AppAccentColorX on AppAccentColor {
 
 /// Controls the app's theme mode and accent color.
 class ThemeController extends ChangeNotifier {
+  static const String _themeModeKey = 'theme_mode';
+  static const String _accentColorKey = 'accent_color';
+
+  final SharedPreferences _prefs;
   ThemeMode _themeMode = ThemeMode.dark;
   AppAccentColor _accentColor = AppAccentColor.emerald;
+
+  ThemeController(this._prefs) {
+    _loadFromPrefs();
+  }
+
+  void _loadFromPrefs() {
+    final modeIndex = _prefs.getInt(_themeModeKey);
+    if (modeIndex != null) {
+      _themeMode = ThemeMode.values[modeIndex];
+    }
+
+    final accentIndex = _prefs.getInt(_accentColorKey);
+    if (accentIndex != null) {
+      _accentColor = AppAccentColor.values[accentIndex];
+    }
+    notifyListeners();
+  }
 
   ThemeMode get themeMode => _themeMode;
   AppAccentColor get accentColor => _accentColor;
 
   bool get isDark => _themeMode == ThemeMode.dark;
 
-  void toggleTheme() {
+  Future<void> toggleTheme() async {
     _themeMode = isDark ? ThemeMode.light : ThemeMode.dark;
+    await _prefs.setInt(_themeModeKey, _themeMode.index);
     notifyListeners();
   }
 
-  void setAccent(AppAccentColor accent) {
+  Future<void> setAccent(AppAccentColor accent) async {
     if (_accentColor == accent) return;
     _accentColor = accent;
+    await _prefs.setInt(_accentColorKey, _accentColor.index);
     notifyListeners();
   }
 }

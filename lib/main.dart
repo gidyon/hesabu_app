@@ -16,7 +16,7 @@ import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:hesabu_app/features/settings/data/settings_repository_impl.dart';
 
-final ThemeController _themeController = ThemeController();
+late ThemeController _themeController;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +27,8 @@ void main() async {
 
   final authRemoteDataSource = AuthRemoteDataSource(apiClient: apiClient);
   final groupsRemoteDataSource = GroupsRemoteDataSource(apiClient: apiClient);
+
+  _themeController = ThemeController(prefs);
 
   runApp(
     MyApp(

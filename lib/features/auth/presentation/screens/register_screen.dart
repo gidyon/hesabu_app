@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
+import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -56,8 +58,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeController = InheritedThemeController.of(context);
+    final accent = themeController.accentColor.primary;
+    final isDark = themeController.isDark;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Geometric Background Elements
@@ -68,11 +75,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 256,
               height: 256,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: accent.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(128),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: accent.withOpacity(0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -87,11 +94,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 384,
               height: 384,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.05),
+                color: accent.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(192),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.05),
+                    color: accent.withOpacity(0.05),
                     blurRadius: 120,
                     spreadRadius: 20,
                   ),
@@ -117,19 +124,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.05),
+                            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_back,
-                            color: Colors.white,
+                            color: theme.textTheme.bodyLarge?.color,
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Register',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: theme.textTheme.bodyLarge?.color,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -146,22 +153,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: accent.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.account_balance_wallet,
-                        color: AppColors.primary,
+                        color: accent,
                         size: 32,
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Create Account',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: theme.textTheme.bodyLarge?.color,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
@@ -247,8 +254,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleRegister,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.backgroundDark,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accent,
+                        foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -284,14 +292,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: GestureDetector(
                       onTap: () => context.go('/login'),
                       child: RichText(
-                        text: const TextSpan(
-                          style: TextStyle(color: AppColors.slate400),
+                        text: TextSpan(
+                          style: const TextStyle(color: AppColors.slate400),
                           children: [
-                            TextSpan(text: 'Already have an account? '),
+                            const TextSpan(text: 'Already have an account? '),
                             TextSpan(
                               text: 'Login',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: accent,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -337,9 +345,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        color: const Color(0xFF1c271f),
+        color: InheritedThemeController.of(context).isDark ? const Color(0xFF1c271f) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF3b5443)),
+        border: Border.all(color: InheritedThemeController.of(context).isDark ? const Color(0xFF3b5443) : AppColors.slate200),
       ),
       child: Row(
         children: [
@@ -351,10 +359,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: controller,
               obscureText: isPassword && !isVisible,
               keyboardType: keyboardType,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: const TextStyle(color: Color(0xFF9db9a6)),
+                hintStyle: TextStyle(color: InheritedThemeController.of(context).isDark ? const Color(0xFF9db9a6) : AppColors.slate400),
                 border: InputBorder.none,
               ),
             ),
