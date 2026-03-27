@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
       if (success && mounted) {
-        context.go('/groups'); // Navigate to home
+        context.go('/home'); // Navigate to home
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

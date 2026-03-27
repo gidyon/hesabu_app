@@ -16,7 +16,6 @@ class MyGroupsScreen extends StatefulWidget {
 
 class _MyGroupsScreenState extends State<MyGroupsScreen> {
   List<Group> _groups = [];
-  double _totalSavings = 0.0;
   bool _isLoading = true;
 
   @override
@@ -30,11 +29,9 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
   Future<void> _loadData() async {
     final groupsRepository = context.read<GroupsRepository>();
     final groups = await groupsRepository.getActiveGroups();
-    final total = await groupsRepository.getTotalSavings();
     if (mounted) {
       setState(() {
         _groups = groups;
-        _totalSavings = total;
         _isLoading = false;
       });
     }
@@ -45,6 +42,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     final controller = InheritedThemeController.of(context);
     final accent = controller.accentColor.primary;
     final isDark = controller.isDark;
+    final titleColor = isDark ? Colors.white : Colors.black87;
     final currencyFormat = NumberFormat.currency(
       symbol: 'KSh ',
       decimalDigits: 2,
@@ -52,310 +50,193 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          // Header
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 10,
-                bottom: 10,
-                left: 16,
-                right: 16,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 140,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: Theme.of(
+              context,
+            ).scaffoldBackgroundColor.withOpacity(0.95),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  left: 16,
+                  right: 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'My Groups',
+                      style: TextStyle(
+                        color: titleColor,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSearchBar(isDark, titleColor, accent),
+                  ],
+                ),
               ),
-              color: Theme.of(
-                context,
-              ).scaffoldBackgroundColor.withOpacity(0.95),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            sliver: _isLoading
+                ? const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : _groups.isEmpty
+                ? SliverFillRemaining(
+                    child: _buildEmptyState(context, accent, isDark),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildGroupCard(
+                          context,
+                          _groups[index],
+                          currencyFormat,
+                          accent,
+                          isDark,
+                        ),
+                      );
+                    }, childCount: _groups.length),
+                  ),
+          ),
+        ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: FloatingActionButton(
+          onPressed: () async {
+            final result = await context.push('/groups/create');
+            if (result == true) _loadData();
+          },
+          backgroundColor: accent,
+          elevation: 4,
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color accent,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? accent.withOpacity(0.3) : AppColors.slate100,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: accent.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: accent, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: accent.withOpacity(0.3)),
-                          color: accent.withOpacity(0.12),
-                        ),
-                        child: const CircleAvatar(
-                          radius: 18,
-                          backgroundImage: NetworkImage(
-                            "https://i.pravatar.cc/100?img=12",
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          _buildHeaderIcon(
-                            context,
-                            Icons.notifications_outlined,
-                            isDark,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildHeaderIcon(
-                            context,
-                            Icons.visibility_off_outlined,
-                            isDark,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
                   Text(
-                    'My Groups',
+                    title,
                     style: TextStyle(
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                      fontSize: 32,
+                      color: isDark ? Colors.white : Colors.black87,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : AppColors.slate500,
+                      fontSize: 12,
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-
-          // Main Content
-          Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 110,
+            Icon(
+              Icons.chevron_right,
+              color: isDark ? Colors.white30 : AppColors.slate200,
             ),
-            child: _isLoading
-                ? Center(child: CircularProgressIndicator(color: accent))
-                : _groups.isEmpty
-                ? _buildEmptyState(context, accent, isDark)
-                : SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                    child: Column(
-                      children: [
-                        // Total Savings Card
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [accent, accent.withOpacity(0.8)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: accent.withOpacity(0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'TOTAL GROUP SAVINGS',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.8),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.15),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.account_balance_wallet,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                currencyFormat.format(_totalSavings),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.trending_up,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      '+12.5% from last month',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Quick Actions Row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _quickAction(
-                                context,
-                                icon: Icons.group_add_outlined,
-                                label: 'Join Group',
-                                accent: accent,
-                                onTap: () => context.push('/groups/join'),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _quickAction(
-                                context,
-                                icon: Icons.savings_outlined,
-                                label: 'Deposit',
-                                accent: accent,
-                                onTap: () => context.push('/groups/deposit'),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _quickAction(
-                                context,
-                                icon: Icons.bar_chart_rounded,
-                                label: 'Reports',
-                                accent: accent,
-                                onTap: () {},
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 28),
-
-                        // Active Groups Header
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Your Active Groups',
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyLarge?.color,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '${_groups.length} Total',
-                              style: const TextStyle(
-                                color: AppColors.slate500,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // Groups List
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _groups.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 16),
-                          itemBuilder: (context, index) => _buildGroupCard(
-                            context,
-                            _groups[index],
-                            currencyFormat,
-                            accent,
-                            isDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
-
-          // FAB
-          Positioned(
-            bottom: 100,
-            right: 24,
-            child: GestureDetector(
-              onTap: () async {
-                final result = await context.push('/groups/create');
-                if (result == true) _loadData();
-              },
-              child: Container(
-                height: 56,
-                width: 56,
-                decoration: BoxDecoration(
-                  color: accent,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: accent.withOpacity(0.35),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.add, color: Colors.white, size: 30),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildHeaderIcon(BuildContext context, IconData icon, bool isDark) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.1) : AppColors.slate100,
-        shape: BoxShape.circle,
+  Widget _buildHeaderIcon(
+    BuildContext context,
+    IconData icon,
+    bool isDark, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: isDark ? Colors.white.withOpacity(0.1) : AppColors.slate100,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+          size: 22,
+        ),
       ),
-      child: Icon(
-        icon,
-        color: Theme.of(context).textTheme.bodyLarge?.color,
-        size: 22,
+    );
+  }
+
+  Widget _buildSearchBar(bool isDark, Color titleColor, Color accent) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withOpacity(0.05) : AppColors.slate100,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: titleColor.withOpacity(0.05)),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search groups...',
+          hintStyle: TextStyle(
+            color: titleColor.withOpacity(0.4),
+            fontSize: 14,
+          ),
+          border: InputBorder.none,
+          icon: Icon(
+            Icons.search,
+            color: titleColor.withOpacity(0.4),
+            size: 20,
+          ),
+        ),
       ),
     );
   }
@@ -540,6 +421,48 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSimpleInsightCard(
+    BuildContext context, {
+    required String label,
+    required String value,
+    required Color valueColor,
+    required bool isDark,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.05) : AppColors.slate100,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.slate500,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: valueColor,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

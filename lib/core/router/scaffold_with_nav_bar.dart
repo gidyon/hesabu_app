@@ -35,10 +35,10 @@ class ScaffoldWithNavBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavItem(context, 0, Icons.home, 'Home'),
-            _buildNavItem(context, 1, Icons.account_balance_wallet, 'Wallet'),
-            _buildNavItem(context, 2, Icons.analytics, 'Stats'),
-            _buildNavItem(context, 3, Icons.settings, 'Settings'),
+            _buildNavItem(context, 0, Icons.home_outlined, 'Home'),
+            _buildNavItem(context, 1, Icons.group_outlined, 'Groups'),
+            _buildNavItem(context, 2, Icons.notifications_none, 'Activity'),
+            _buildNavItem(context, 3, Icons.settings_outlined, 'Settings'),
           ],
         ),
       ),

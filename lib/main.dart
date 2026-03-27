@@ -40,7 +40,7 @@ void main() async {
   String initialLocation = '/intro';
   if (authRepository.hasSeenOnboarding()) {
     if (authRepository.isSessionValid()) {
-      initialLocation = '/groups';
+      initialLocation = '/home';
     } else {
       initialLocation = '/login';
     }
