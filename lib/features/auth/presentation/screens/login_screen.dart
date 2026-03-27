@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/widgets/app_logo.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
@@ -14,8 +15,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: '254718273753');
-  final _passwordController = TextEditingController(text: 'SecurePass123');
+  final _emailController = TextEditingController(text: '254716484395');
+  final _passwordController = TextEditingController(text: '@Kamaa11');
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
@@ -125,21 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 48),
 
                   // Branding
-                  Center(
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: accent.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.account_balance_wallet,
-                        color: accent,
-                        size: 32,
-                      ),
-                    ),
-                  ),
+                  const Center(child: AppLogo(size: 64)),
                   const SizedBox(height: 24),
                   Text(
                     'Welcome Back',

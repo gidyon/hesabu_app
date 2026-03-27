@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hesabu_app/core/router/scaffold_with_nav_bar.dart';
+import 'package:hesabu_app/features/auth/presentation/screens/intro_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/reset_password_screen.dart';
@@ -34,16 +35,17 @@ class PlaceholderScreen extends StatelessWidget {
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
-final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(
-  debugLabel: 'shell',
-);
+// final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(
+//   debugLabel: 'shell',
+// );
 
 class AppRouter {
-  static final GoRouter router = GoRouter(
+  static GoRouter createRouter(String initialLocation) => GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/login',
+    initialLocation: initialLocation,
     routes: [
       // ── Auth Routes (outside shell) ──────────────────────────
+      GoRoute(path: '/intro', builder: (context, state) => const IntroScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',

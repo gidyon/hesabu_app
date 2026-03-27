@@ -49,7 +49,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text,
       );
       if (success && mounted) {
-        context.go('/groups');
+        // Automatically login after successful registration
+        await context.read<AuthRepository>().login(
+          _emailController.text,
+          _passwordController.text,
+        );
+        if (mounted) {
+          context.go('/groups');
+        }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -124,7 +131,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                            color: isDark
+                                ? Colors.white.withOpacity(0.05)
+                                : Colors.black.withOpacity(0.05),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -148,22 +157,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 48),
 
                   // Branding
-                  Center(
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: accent.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.account_balance_wallet,
-                        color: accent,
-                        size: 32,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                  // const Center(child: AppLogo(size: 64)),
+                  // const SizedBox(height: 24),
                   Text(
                     'Create Account',
                     textAlign: TextAlign.center,
@@ -254,9 +249,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleRegister,
                       style: ElevatedButton.styleFrom(
-                      style: ElevatedButton.styleFrom(
                         backgroundColor: accent,
-                        foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
+                        foregroundColor: isDark
+                            ? AppColors.backgroundDark
+                            : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -345,9 +341,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        color: InheritedThemeController.of(context).isDark ? const Color(0xFF1c271f) : Colors.white,
+        color: InheritedThemeController.of(context).isDark
+            ? const Color(0xFF1c271f)
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: InheritedThemeController.of(context).isDark ? const Color(0xFF3b5443) : AppColors.slate200),
+        border: Border.all(
+          color: InheritedThemeController.of(context).isDark
+              ? const Color(0xFF3b5443)
+              : AppColors.slate200,
+        ),
       ),
       child: Row(
         children: [
@@ -359,10 +361,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: controller,
               obscureText: isPassword && !isVisible,
               keyboardType: keyboardType,
-              style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: TextStyle(color: InheritedThemeController.of(context).isDark ? const Color(0xFF9db9a6) : AppColors.slate400),
+                hintStyle: TextStyle(
+                  color: InheritedThemeController.of(context).isDark
+                      ? const Color(0xFF9db9a6)
+                      : AppColors.slate400,
+                ),
                 border: InputBorder.none,
               ),
             ),

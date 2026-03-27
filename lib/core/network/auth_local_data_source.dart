@@ -4,12 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthLocalDataSource {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_profile';
+  static const String _onboardedKey = 'has_onboarded';
+  static const String _lastLoginKey = 'last_login_timestamp';
 
   final SharedPreferences sharedPreferences;
 
   AuthLocalDataSource({required this.sharedPreferences});
 
   Future<bool> saveToken(String token) async {
+    await sharedPreferences.setInt(_lastLoginKey, DateTime.now().millisecondsSinceEpoch);
     return await sharedPreferences.setString(_tokenKey, token);
   }
 
@@ -35,5 +38,30 @@ class AuthLocalDataSource {
 
   Future<bool> clearUser() async {
     return await sharedPreferences.remove(_userKey);
+  }
+
+  Future<bool> setOnboarded() async {
+    return await sharedPreferences.setBool(_onboardedKey, true);
+  }
+
+  bool hasSeenOnboarding() {
+    return sharedPreferences.getBool(_onboardedKey) ?? false;
+  }
+
+  bool isTokenValid() {
+    final lastLogin = sharedPreferences.getInt(_lastLoginKey);
+    if (lastLogin == null) return false;
+    
+    final lastLoginDate = DateTime.fromMillisecondsSinceEpoch(lastLogin);
+    final now = DateTime.now();
+    final difference = now.difference(lastLoginDate).inMinutes;
+    
+    return difference < 30;
+  }
+
+  Future<void> logout() async {
+    await sharedPreferences.remove(_tokenKey);
+    await sharedPreferences.remove(_lastLoginKey);
+    await sharedPreferences.remove(_userKey);
   }
 }

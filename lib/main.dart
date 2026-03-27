@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hesabu_app/core/theme/app_theme.dart';
@@ -30,12 +31,25 @@ void main() async {
 
   _themeController = ThemeController(prefs);
 
+  final authRepository = AuthRepositoryImpl(
+    remoteDataSource: authRemoteDataSource,
+    localDataSource: authLocalDataSource,
+  );
+
+  // Determine initial location
+  String initialLocation = '/intro';
+  if (authRepository.hasSeenOnboarding()) {
+    if (authRepository.isSessionValid()) {
+      initialLocation = '/groups';
+    } else {
+      initialLocation = '/login';
+    }
+  }
+
   runApp(
     MyApp(
-      authRepository: AuthRepositoryImpl(
-        remoteDataSource: authRemoteDataSource,
-        localDataSource: authLocalDataSource,
-      ),
+      authRepository: authRepository,
+      initialLocation: initialLocation,
       groupsRepository: GroupsRepositoryImpl(
         remoteDataSource: groupsRemoteDataSource,
         localDataSource: authLocalDataSource,
@@ -47,25 +61,40 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final AuthRepository authRepository;
   final GroupsRepository groupsRepository;
   final SettingsRepository settingsRepository;
+  final String initialLocation;
 
   const MyApp({
     super.key,
     required this.authRepository,
     required this.groupsRepository,
     required this.settingsRepository,
+    required this.initialLocation,
   });
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _router = AppRouter.createRouter(widget.initialLocation);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<AuthRepository>.value(value: authRepository),
-        Provider<GroupsRepository>.value(value: groupsRepository),
-        Provider<SettingsRepository>.value(value: settingsRepository),
+        Provider<AuthRepository>.value(value: widget.authRepository),
+        Provider<GroupsRepository>.value(value: widget.groupsRepository),
+        Provider<SettingsRepository>.value(value: widget.settingsRepository),
       ],
       child: InheritedThemeController(
         notifier: _themeController,
@@ -83,7 +112,7 @@ class MyApp extends StatelessWidget {
                 Brightness.dark,
               ),
               themeMode: _themeController.themeMode,
-              routerConfig: AppRouter.router,
+              routerConfig: _router,
               debugShowCheckedModeBanner: false,
             );
           },

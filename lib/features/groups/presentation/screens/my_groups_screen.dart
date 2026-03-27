@@ -128,188 +128,191 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             ),
             child: _isLoading
                 ? Center(child: CircularProgressIndicator(color: accent))
-                : SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                    child: Column(
-                      children: [
-                        // Total Savings Card
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [accent, accent.withOpacity(0.8)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: accent.withOpacity(0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                : _groups.isEmpty
+                    ? _buildEmptyState(context, accent, isDark)
+                    : SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                        child: Column(
+                          children: [
+                            // Total Savings Card
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [accent, accent.withOpacity(0.8)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: accent.withOpacity(0.3),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'TOTAL GROUP SAVINGS',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.8),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.15),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.account_balance_wallet,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
                                   Text(
-                                    'TOTAL GROUP SAVINGS',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.8),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1,
+                                    currencyFormat.format(_totalSavings),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.5,
                                     ),
                                   ),
+                                  const SizedBox(height: 12),
                                   Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.15),
-                                      shape: BoxShape.circle,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
                                     ),
-                                    child: const Icon(
-                                      Icons.account_balance_wallet,
-                                      color: Colors.white,
-                                      size: 18,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.trending_up,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          '+12.5% from last month',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                currencyFormat.format(_totalSavings),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.trending_up,
-                                      size: 14,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      '+12.5% from last month',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Quick Actions Row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _quickAction(
-                                context,
-                                icon: Icons.group_add_outlined,
-                                label: 'Join Group',
-                                accent: accent,
-                                onTap: () => context.push('/groups/join'),
-                              ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _quickAction(
-                                context,
-                                icon: Icons.savings_outlined,
-                                label: 'Deposit',
-                                accent: accent,
-                                onTap: () => context.push('/groups/deposit'),
-                              ),
+
+                            const SizedBox(height: 20),
+
+                            // Quick Actions Row
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _quickAction(
+                                    context,
+                                    icon: Icons.group_add_outlined,
+                                    label: 'Join Group',
+                                    accent: accent,
+                                    onTap: () => context.push('/groups/join'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _quickAction(
+                                    context,
+                                    icon: Icons.savings_outlined,
+                                    label: 'Deposit',
+                                    accent: accent,
+                                    onTap: () =>
+                                        context.push('/groups/deposit'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _quickAction(
+                                    context,
+                                    icon: Icons.bar_chart_rounded,
+                                    label: 'Reports',
+                                    accent: accent,
+                                    onTap: () {},
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _quickAction(
+
+                            const SizedBox(height: 28),
+
+                            // Active Groups Header
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Your Active Groups',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '${_groups.length} Total',
+                                  style: const TextStyle(
+                                    color: AppColors.slate500,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Groups List
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _groups.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(height: 16),
+                              itemBuilder: (context, index) => _buildGroupCard(
                                 context,
-                                icon: Icons.bar_chart_rounded,
-                                label: 'Reports',
-                                accent: accent,
-                                onTap: () {},
+                                _groups[index],
+                                currencyFormat,
+                                accent,
+                                isDark,
                               ),
                             ),
                           ],
                         ),
-
-                        const SizedBox(height: 28),
-
-                        // Active Groups Header
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Your Active Groups',
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodyLarge?.color,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '${_groups.length} Total',
-                              style: const TextStyle(
-                                color: AppColors.slate500,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Groups List
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _groups.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 16),
-                          itemBuilder: (context, index) => _buildGroupCard(
-                            context,
-                            _groups[index],
-                            currencyFormat,
-                            accent,
-                            isDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
           ),
 
           // FAB
@@ -540,4 +543,85 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
       ),
     );
   }
+
+  Widget _buildEmptyState(BuildContext context, Color accent, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: accent.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.groups_outlined,
+              size: 80,
+              color: accent.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            'Oh darn! Such empty.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'You are not a member of any group yet. Start your financial journey by joining one or creating your own.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppColors.slate400,
+              fontSize: 16,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 48),
+          ElevatedButton(
+            onPressed: () => context.push('/groups/join'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: accent,
+              foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              minimumSize: const Size(double.infinity, 56),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Join a Group',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: () {
+              // TODO: Implement Create Group
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: accent,
+              side: BorderSide(color: accent),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              minimumSize: const Size(double.infinity, 56),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text(
+              'Create New Group',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

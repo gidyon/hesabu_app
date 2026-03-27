@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/widgets/app_logo.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
@@ -138,20 +139,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(height: 64),
 
                   // Icon
-                  Center(
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: accent.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        Icons.lock_reset_outlined,
-                        color: accent,
-                        size: 40,
-                      ),
-                    ),
+                  const Center(
+                    child: AppLogo(size: 80),
                   ),
                   const SizedBox(height: 32),
                   Text(

@@ -71,4 +71,19 @@ class AuthRepositoryImpl implements AuthRepository {
     await Future.delayed(const Duration(seconds: 1));
     return true;
   }
+
+  @override
+  Future<void> setOnboarded() async {
+    await localDataSource.setOnboarded();
+  }
+
+  @override
+  bool hasSeenOnboarding() {
+    return localDataSource.hasSeenOnboarding();
+  }
+
+  @override
+  bool isSessionValid() {
+    return localDataSource.isTokenValid();
+  }
 }
