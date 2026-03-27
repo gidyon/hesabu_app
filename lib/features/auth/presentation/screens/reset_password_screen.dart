@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/widgets/app_logo.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
@@ -115,7 +114,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                            color: isDark
+                                ? Colors.white.withOpacity(0.05)
+                                : Colors.black.withOpacity(0.05),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -139,9 +140,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const SizedBox(height: 64),
 
                   // Icon
-                  const Center(
-                    child: AppLogo(size: 80),
-                  ),
                   const SizedBox(height: 32),
                   Text(
                     'Forgot Password?',
@@ -217,7 +215,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     decoration: BoxDecoration(
                       color: isDark ? const Color(0xFF1c271f) : Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: isDark ? const Color(0xFF3b5443) : AppColors.slate200),
+                      border: Border.all(
+                        color: isDark
+                            ? const Color(0xFF3b5443)
+                            : AppColors.slate200,
+                      ),
                     ),
                     child: Row(
                       children: [
@@ -231,10 +233,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           child: TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                            style: TextStyle(
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
                             decoration: InputDecoration(
                               hintText: 'Enter your email or phone',
-                              hintStyle: TextStyle(color: isDark ? const Color(0xFF9db9a6) : AppColors.slate400),
+                              hintStyle: TextStyle(
+                                color: isDark
+                                    ? const Color(0xFF9db9a6)
+                                    : AppColors.slate400,
+                              ),
                               border: InputBorder.none,
                             ),
                           ),
@@ -252,7 +260,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       onPressed: _isLoading ? null : _handleSendResetCode,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: accent,
-                        foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
+                        foregroundColor: isDark
+                            ? AppColors.backgroundDark
+                            : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -330,14 +340,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: isActive || isDone
-                  ? accent
-                  : accent.withOpacity(0.15),
+              color: isActive || isDone ? accent : accent.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: isDone
-                  ? Icon(Icons.check, color: isDark ? Colors.black : Colors.white, size: 16)
+                  ? Icon(
+                      Icons.check,
+                      color: isDark ? Colors.black : Colors.white,
+                      size: 16,
+                    )
                   : Text(
                       number,
                       style: TextStyle(

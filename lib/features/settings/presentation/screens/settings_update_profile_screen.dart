@@ -7,6 +7,8 @@ import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class SettingsUpdateProfileScreen extends StatefulWidget {
   const SettingsUpdateProfileScreen({super.key});
@@ -69,11 +71,23 @@ class _SettingsUpdateProfileScreenState
   void _save() async {
     setState(() => _isSaving = true);
     try {
+      String? finalAvatarUrl = _profile?.avatarUrl;
+
+      if (_selectedImage != null) {
+        // Copy image to permanent storage
+        final appDir = await getApplicationDocumentsDirectory();
+        final fileName = path.basename(_selectedImage!.path);
+        final localImage = await _selectedImage!.copy(
+          '${appDir.path}/$fileName',
+        );
+        finalAvatarUrl = localImage.path;
+      }
+
       final success = await context.read<SettingsRepository>().updateProfile({
         'first_name': _firstNameController.text,
         'other_names': _otherNamesController.text,
         'msisdn': _phoneController.text,
-        'avatar_url': _selectedImage?.path ?? _profile?.avatarUrl,
+        'avatar_url': finalAvatarUrl,
       });
 
       if (success && mounted) {
@@ -167,43 +181,52 @@ class _SettingsUpdateProfileScreenState
                       children: [
                         // Avatar
                         Center(
-                          child: GestureDetector(
-                            onTap: _pickImage,
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: accent.withOpacity(0.3),
-                                      width: 4,
-                                    ),
-                                    image: _selectedImage != null
-                                        ? DecorationImage(
-                                            image: FileImage(_selectedImage!),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : (_profile?.avatarUrl != null &&
-                                                _profile!.avatarUrl.startsWith('/'))
-                                            ? DecorationImage(
-                                                image: FileImage(
-                                                    File(_profile!.avatarUrl)),
-                                                fit: BoxFit.cover,
-                                              )
-                                            : DecorationImage(
-                                                image: NetworkImage(
-                                                  _profile?.avatarUrl ??
-                                                      'https://i.pravatar.cc/200?img=12',
-                                                ),
-                                                fit: BoxFit.cover,
-                                              ),
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: accent.withOpacity(0.3),
+                                    width: 4,
+                                  ),
+                                  image: _selectedImage != null
+                                      ? DecorationImage(
+                                          image: FileImage(_selectedImage!),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : (_profile?.avatarUrl != null &&
+                                            _profile!.avatarUrl.startsWith('/'))
+                                      ? DecorationImage(
+                                          image: FileImage(
+                                            File(_profile!.avatarUrl),
+                                          ),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : DecorationImage(
+                                          image: NetworkImage(
+                                            _profile?.avatarUrl ??
+                                                'https://i.pravatar.cc/200?img=12',
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                              ),
+                              Positioned.fill(
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: _pickImage,
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
                                 ),
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: IgnorePointer(
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
@@ -223,8 +246,8 @@ class _SettingsUpdateProfileScreenState
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -314,16 +337,16 @@ class _SettingsUpdateProfileScreenState
   }
 
   Widget _label(String text, bool isDark) => Padding(
-        padding: const EdgeInsets.only(left: 4, bottom: 8),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isDark ? AppColors.slate400 : AppColors.slate500,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(left: 4, bottom: 8),
+    child: Text(
+      text,
+      style: TextStyle(
+        color: isDark ? AppColors.slate400 : AppColors.slate500,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+  );
 
   Widget _field(
     BuildContext context,

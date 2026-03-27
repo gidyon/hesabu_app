@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/widgets/app_logo.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
@@ -126,7 +125,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 48),
 
                   // Branding
-                  const Center(child: AppLogo(size: 64)),
                   const SizedBox(height: 24),
                   Text(
                     'Welcome Back',
