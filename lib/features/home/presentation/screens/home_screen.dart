@@ -8,6 +8,8 @@ import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,17 +28,114 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadData().then((_) {
+      _checkBiometricPrompt();
+    });
+  }
+
+  Future<void> _checkBiometricPrompt() async {
+    const storage = FlutterSecureStorage();
+    final bioEnabled = await storage.read(key: 'bio_enabled');
+
+    // If already enabled, don't show
+    if (bioEnabled == 'true') return;
+
+    // Check if we should snooze
+    final nextPromptStr = await storage.read(key: 'next_bio_prompt');
+    if (nextPromptStr != null) {
+      final nextPrompt = DateTime.parse(nextPromptStr);
+      if (DateTime.now().isBefore(nextPrompt)) return;
+    }
+
+    // Check if device supports biometrics
+    final auth = LocalAuthentication();
+    final canAuth =
+        await auth.canCheckBiometrics || await auth.isDeviceSupported();
+    if (!canAuth) return;
+
+    if (mounted) {
+      _showBiometricDialog();
+    }
+  }
+
+  void _showBiometricDialog() {
+    final accent = InheritedThemeController.of(context).accentColor.primary;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.fingerprint, color: accent, size: 28),
+            const SizedBox(width: 12),
+            const Text('Security Prompt'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Secure your account with biometric login for faster and safer access.',
+              style: TextStyle(fontSize: 15),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'You can also enable or disable this later in Settings > Security Settings.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.color?.withOpacity(0.7),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              const storage = FlutterSecureStorage();
+              final nextDate = DateTime.now().add(const Duration(days: 7));
+              await storage.write(
+                key: 'next_bio_prompt',
+                value: nextDate.toIso8601String(),
+              );
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text(
+              'Maybe Later',
+              style: TextStyle(color: AppColors.slate500),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.push('/settings/security');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: accent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Enable Now'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _loadData() async {
     final groupsRepository = context.read<GroupsRepository>();
     final settingsRepository = context.read<SettingsRepository>();
-    
+
     final groups = await groupsRepository.getActiveGroups();
     final total = await groupsRepository.getTotalSavings();
     final profile = await settingsRepository.getUserProfile();
-    
+
     if (mounted) {
       setState(() {
         _groups = groups;
@@ -82,9 +181,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: CircleAvatar(
                           radius: 18,
                           backgroundColor: accent.withOpacity(0.12),
-                          backgroundImage: _profile?.avatarUrl.startsWith('/') == true
+                          backgroundImage:
+                              _profile?.avatarUrl.startsWith('/') == true
                               ? null
-                              : NetworkImage(_profile?.avatarUrl ?? "https://i.pravatar.cc/100?img=12") as ImageProvider,
+                              : NetworkImage(
+                                      _profile?.avatarUrl ??
+                                          "https://i.pravatar.cc/100?img=12",
+                                    )
+                                    as ImageProvider,
                           child: _profile?.avatarUrl.startsWith('/') == true
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(18),
@@ -433,7 +537,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                Icon(Icons.more_horiz, color: AppColors.slate400),
+                const Icon(Icons.more_horiz, color: AppColors.slate400),
               ],
             ),
             const SizedBox(height: 16),

@@ -5,6 +5,9 @@ import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +21,79 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController(text: '@Kamaa11');
   bool _isLoading = false;
   bool _isPasswordVisible = false;
+  bool _bioEnabled = false;
+  final LocalAuthentication auth = LocalAuthentication();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBioSettings();
+  }
+
+  Future<void> _checkBioSettings() async {
+    final enabled = await _secureStorage.read(key: 'bio_enabled');
+    if (mounted) {
+      setState(() => _bioEnabled = enabled == 'true');
+    }
+  }
+
+  Future<void> _handleBiometricLogin() async {
+    if (!_bioEnabled) return;
+
+    try {
+      final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
+      final bool canAuthenticate =
+          canAuthenticateWithBiometrics || await auth.isDeviceSupported();
+
+      if (!canAuthenticate) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Biometrics not supported on this device')),
+          );
+        }
+        return;
+      }
+
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Please authenticate to login to Hesabu Online',
+        sensitiveTransaction: true,
+      );
+
+      if (didAuthenticate && mounted) {
+        // Retrieve stored credentials
+        final email = await _secureStorage.read(key: 'bio_email');
+        final password = await _secureStorage.read(key: 'bio_password');
+
+        if (email != null && password != null) {
+          setState(() => _isLoading = true);
+          try {
+            final success = await context.read<AuthRepository>().login(
+              email,
+              password,
+            );
+            if (success && mounted) {
+              context.go('/home');
+              return;
+            }
+          } catch (e) {
+            // If API login fails with stored credentials, fallback to manual
+          } finally {
+            if (mounted) setState(() => _isLoading = false);
+          }
+        }
+
+        // Fallback or if no stored credentials, use what's in the fields
+        _handleLogin();
+      }
+    } on PlatformException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Authentication error: ${e.message}')),
+        );
+      }
+    }
+  }
 
   void _handleLogin() async {
     setState(() => _isLoading = true);
@@ -27,6 +103,16 @@ class _LoginScreenState extends State<LoginScreen> {
         _passwordController.text,
       );
       if (success && mounted) {
+        // Save credentials for biometrics automatically on login
+        await _secureStorage.write(
+          key: 'bio_email',
+          value: _emailController.text,
+        );
+        await _secureStorage.write(
+          key: 'bio_password',
+          value: _passwordController.text,
+        );
+
         context.go('/home'); // Navigate to home
       }
     } finally {
@@ -373,6 +459,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Container(
                           height: 56,
                           decoration: BoxDecoration(
+                            color: _bioEnabled ? Colors.transparent : Colors.grey.withOpacity(0.1),
                             border: Border.all(
                               color: isDark
                                   ? const Color(0xFF3b5443)
@@ -381,14 +468,29 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: InkWell(
-                            onTap: () {},
+                            onTap: _bioEnabled ? _handleBiometricLogin : null,
                             borderRadius: BorderRadius.circular(12),
                             child: Center(
-                              child: Icon(
-                                Icons.g_mobiledata,
-                                size: 40,
-                                color: theme.textTheme.bodyLarge?.color,
-                              ), // Placeholder for Google Icon
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.fingerprint,
+                                    size: 24,
+                                    color: _bioEnabled ? accent : AppColors.slate400,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Biometric',
+                                    style: TextStyle(
+                                      color: _bioEnabled 
+                                          ? theme.textTheme.bodyLarge?.color 
+                                          : AppColors.slate400,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -409,10 +511,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             onTap: () {},
                             borderRadius: BorderRadius.circular(12),
                             child: Center(
-                              child: Icon(
-                                Icons.apple,
-                                size: 30,
-                                color: theme.textTheme.bodyLarge?.color,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.apple,
+                                    size: 24,
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Apple ID',
+                                    style: TextStyle(
+                                      color: theme.textTheme.bodyLarge?.color,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

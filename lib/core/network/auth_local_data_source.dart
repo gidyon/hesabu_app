@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthLocalDataSource {
   static const String _tokenKey = 'auth_token';
@@ -8,20 +9,21 @@ class AuthLocalDataSource {
   static const String _lastLoginKey = 'last_login_timestamp';
 
   final SharedPreferences sharedPreferences;
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   AuthLocalDataSource({required this.sharedPreferences});
 
-  Future<bool> saveToken(String token) async {
+  Future<void> saveToken(String token) async {
     await sharedPreferences.setInt(_lastLoginKey, DateTime.now().millisecondsSinceEpoch);
-    return await sharedPreferences.setString(_tokenKey, token);
+    await secureStorage.write(key: _tokenKey, value: token);
   }
 
   Future<String?> getToken() async {
-    return sharedPreferences.getString(_tokenKey);
+    return await secureStorage.read(key: _tokenKey);
   }
 
-  Future<bool> clearToken() async {
-    return await sharedPreferences.remove(_tokenKey);
+  Future<void> clearToken() async {
+    await secureStorage.delete(key: _tokenKey);
   }
 
   Future<bool> saveUser(Map<String, dynamic> userJson) async {
@@ -60,7 +62,9 @@ class AuthLocalDataSource {
   }
 
   Future<void> logout() async {
-    await sharedPreferences.remove(_tokenKey);
+    await secureStorage.delete(key: _tokenKey);
+    await secureStorage.delete(key: 'bio_enabled');
+    // Note: we keep bio_email and bio_password for the biometric fallback
     await sharedPreferences.remove(_lastLoginKey);
     await sharedPreferences.remove(_userKey);
   }

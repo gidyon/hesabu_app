@@ -4,6 +4,7 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
+import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -319,7 +320,11 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
 
                               // Logout
                               InkWell(
-                                onTap: () => context.go('/login'),
+                                onTap: () async {
+                                  final authRepo = context.read<AuthRepository>();
+                                  await authRepo.logout();
+                                  if (mounted) context.go('/login');
+                                },
                                 borderRadius: BorderRadius.circular(16),
                                 child: Container(
                                   width: double.infinity,

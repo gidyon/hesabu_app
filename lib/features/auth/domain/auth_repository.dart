@@ -13,4 +13,6 @@ abstract class AuthRepository {
   Future<void> setOnboarded();
   bool hasSeenOnboarding();
   bool isSessionValid();
+  Future<String?> getLastLoginIdentifier();
+  Future<void> logout();
 }

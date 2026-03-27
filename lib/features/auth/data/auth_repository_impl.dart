@@ -91,4 +91,15 @@ class AuthRepositoryImpl implements AuthRepository {
   bool isSessionValid() {
     return localDataSource.isTokenValid();
   }
+
+  @override
+  Future<String?> getLastLoginIdentifier() async {
+    final user = await localDataSource.getUser();
+    return user?['msisdn']?.toString() ?? user?['email']?.toString();
+  }
+
+  @override
+  Future<void> logout() async {
+    await localDataSource.logout();
+  }
 }

@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 
 class SettingsSecurityScreen extends StatefulWidget {
   const SettingsSecurityScreen({super.key});
@@ -13,6 +16,104 @@ class SettingsSecurityScreen extends StatefulWidget {
 
 class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
   bool _biometricEnabled = false;
+  final _secureStorage = const FlutterSecureStorage();
+  final _auth = LocalAuthentication();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBiometricStatus();
+  }
+
+  Future<void> _checkBiometricStatus() async {
+    final enabled = await _secureStorage.read(key: 'bio_enabled');
+    if (mounted) {
+      setState(() => _biometricEnabled = enabled == 'true');
+    }
+  }
+
+  Future<void> _toggleBiometrics(bool value) async {
+    if (value) {
+      // Prompt for password to enable
+      final password = await _showPasswordPrompt();
+      if (password != null && password.isNotEmpty) {
+        // Verify password against stored password
+        final storedPassword = await _secureStorage.read(key: 'bio_password');
+
+        if (storedPassword != password) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Incorrect password. Setup failed.'),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+          return;
+        }
+
+        // Authenticate with biometrics first to ensure it works
+        try {
+          final didAuth = await _auth.authenticate(
+            localizedReason: 'Confirm identity to enable biometric login',
+          );
+
+          if (didAuth) {
+            await _secureStorage.write(key: 'bio_enabled', value: 'true');
+            setState(() => _biometricEnabled = true);
+
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Biometric login enabled successfully!'),
+                  backgroundColor: Color(0xFF2ecc71),
+                ),
+              );
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print(e.toString());
+          }
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Security error: $e')));
+          }
+        }
+      }
+    } else {
+      await _secureStorage.delete(key: 'bio_enabled');
+      await _secureStorage.delete(key: 'bio_password');
+      await _secureStorage.delete(key: 'bio_email');
+      setState(() => _biometricEnabled = false);
+    }
+  }
+
+  Future<String?> _showPasswordPrompt() async {
+    String? password;
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Password'),
+        content: TextField(
+          obscureText: true,
+          decoration: const InputDecoration(hintText: 'Enter your password'),
+          onChanged: (v) => password = v,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, password),
+            child: const Text('Enable'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +240,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                           title: 'Biometric Login',
                           subtitle: 'Use Face ID or Fingerprint',
                           value: _biometricEnabled,
-                          onChanged: (v) =>
-                              setState(() => _biometricEnabled = v),
+                          onChanged: _toggleBiometrics,
                           accent: accent,
                           showDivider: false,
                         ),
