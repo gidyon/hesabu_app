@@ -13,9 +13,12 @@ class VerifyResetCodeScreen extends StatefulWidget {
 }
 
 class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
-  final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-  
+
   Timer? _timer;
   int _start = 48; // Seconds
   int _minutes = 0;
@@ -40,34 +43,34 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
 
   void startTimer() {
     const oneSec = Duration(seconds: 1);
-    _timer = Timer.periodic(
-      oneSec,
-      (Timer timer) {
-        if (_start == 0 && _minutes == 0) {
-          setState(() {
-            timer.cancel();
-          });
-        } else if (_start == 0) {
-            setState(() {
-                _minutes--;
-                _start = 59;
-            });
-        } else {
-          setState(() {
-            _start--;
-          });
-        }
-      },
-    );
+    _timer = Timer.periodic(oneSec, (Timer timer) {
+      if (_start == 0 && _minutes == 0) {
+        setState(() {
+          timer.cancel();
+        });
+      } else if (_start == 0) {
+        setState(() {
+          _minutes--;
+          _start = 59;
+        });
+      } else {
+        setState(() {
+          _start--;
+        });
+      }
+    });
   }
 
   void _onVerify() async {
     String code = _otpControllers.map((e) => e.text).join();
     if (code.length == 6) {
-        bool verified = await context.read<AuthRepository>().verifyResetCode("test@example.com", code);
-        if (verified && mounted) {
-            context.push('/create-password');
-        }
+      bool verified = await context.read<AuthRepository>().verifyResetCode(
+        "test@example.com",
+        code,
+      );
+      if (verified && mounted) {
+        context.push('/create-password');
+      }
     }
   }
 
@@ -77,7 +80,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
       backgroundColor: AppColors.backgroundDark,
       body: Stack(
         children: [
-           // Subtle background glow
+          // Subtle background glow
           Positioned(
             top: -50,
             right: -50,
@@ -97,7 +100,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -108,26 +111,36 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                        TextButton.icon(
-                            onPressed: () => context.pop(),
-                            icon: const Icon(Icons.chevron_left, color: AppColors.primary, size: 28),
-                            label: const Text('Back', style: TextStyle(color: AppColors.primary, fontSize: 18)),
-                            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      TextButton.icon(
+                        onPressed: () => context.pop(),
+                        icon: const Icon(
+                          Icons.chevron_left,
+                          color: AppColors.primary,
+                          size: 28,
                         ),
-                        const Text(
-                            'Reset Password',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                            ),
+                        label: const Text(
+                          'Back',
+                          style: TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 18,
+                          ),
                         ),
-                        const SizedBox(width: 48), // Balance
+                        style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      ),
+                      const Text(
+                        'Reset Password',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 48), // Balance
                     ],
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Header Content
                   const Text(
                     'Verify Reset Code',
@@ -141,20 +154,29 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                   const SizedBox(height: 12),
                   RichText(
                     text: const TextSpan(
-                      style: TextStyle(color: AppColors.slate400, fontSize: 16, height: 1.5),
+                      style: TextStyle(
+                        color: AppColors.slate400,
+                        fontSize: 16,
+                        height: 1.5,
+                      ),
                       children: [
-                        TextSpan(text: "We've sent a 6-digit verification code to "),
+                        TextSpan(
+                          text: "We've sent a 6-digit verification code to ",
+                        ),
                         TextSpan(
                           text: "johndoe@email.com",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         TextSpan(text: ". Please enter it below."),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // OTP Inputs
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -179,15 +201,21 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                             fillColor: Colors.white.withOpacity(0.05),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                              borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.1),
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                              borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.1),
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.primary),
+                              borderSide: const BorderSide(
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
                           onChanged: (value) {
@@ -201,44 +229,50 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                       );
                     }),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Timer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                        _buildTimerBox(_minutes.toString().padLeft(2, '0'), 'MINUTES'),
-                        const SizedBox(width: 16),
-                        _buildTimerBox(_start.toString().padLeft(2, '0'), 'SECONDS'),
+                      _buildTimerBox(
+                        _minutes.toString().padLeft(2, '0'),
+                        'MINUTES',
+                      ),
+                      const SizedBox(width: 16),
+                      _buildTimerBox(
+                        _start.toString().padLeft(2, '0'),
+                        'SECONDS',
+                      ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   Center(
-                      child: TextButton(
-                          onPressed: null, // Disabled state as per design
-                          child: RichText(
-                              text: TextSpan(
-                                  style: const TextStyle(color: AppColors.slate400),
-                                  children: [
-                                      const TextSpan(text: "Didn't receive the code? "),
-                                      TextSpan(
-                                          text: "Resend Code",
-                                          style: TextStyle(
-                                              color: AppColors.primary.withOpacity(0.5),
-                                              fontWeight: FontWeight.bold,
-                                          ),
-                                      ),
-                                  ]
+                    child: TextButton(
+                      onPressed: null, // Disabled state as per design
+                      child: RichText(
+                        text: TextSpan(
+                          style: const TextStyle(color: AppColors.slate400),
+                          children: [
+                            const TextSpan(text: "Didn't receive the code? "),
+                            TextSpan(
+                              text: "Resend Code",
+                              style: TextStyle(
+                                color: AppColors.primary.withOpacity(0.5),
+                                fontWeight: FontWeight.bold,
                               ),
-                          )
+                            ),
+                          ],
+                        ),
                       ),
+                    ),
                   ),
 
                   const Spacer(),
-                  
+
                   // Verify Button
                   SizedBox(
                     width: double.infinity,
@@ -263,14 +297,14 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   const Center(
-                      child: Text(
-                          'Need help? Contact Hesabu Support',
-                          style: TextStyle(color: AppColors.slate400),
-                      ),
+                    child: Text(
+                      'Need help? Contact Hesabu Support',
+                      style: TextStyle(color: AppColors.slate400),
+                    ),
                   ),
                 ],
               ),
@@ -282,35 +316,35 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
   }
 
   Widget _buildTimerBox(String value, String label) {
-      return Column(
-          children: [
-              Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white.withOpacity(0.1)),
-                  ),
-                  child: Text(
-                      value,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                      ),
-                  ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                  label,
-                  style: const TextStyle(
-                      color: AppColors.slate400,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                  ),
-              ),
-          ],
-      );
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withOpacity(0.1)),
+          ),
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.slate400,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
+    );
   }
 }

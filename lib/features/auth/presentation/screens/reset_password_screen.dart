@@ -24,13 +24,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   void _handleSendResetCode() async {
     if (_emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your email or phone number')),
+        const SnackBar(
+          content: Text('Please enter your email or phone number'),
+        ),
       );
       return;
     }
     setState(() => _isLoading = true);
     try {
-      final success = await context.read<AuthRepository>().sendResetCode(_emailController.text.trim());
+      final success = await context.read<AuthRepository>().sendResetCode(
+        _emailController.text.trim(),
+      );
       if (success && mounted) {
         // Pass the email to the verify screen via extra
         context.push('/verify-reset-code', extra: _emailController.text.trim());
@@ -106,7 +110,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             color: Colors.white.withOpacity(0.05),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       const Text(
@@ -166,11 +173,26 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   // Step indicator
                   Row(
                     children: [
-                      _buildStep('1', 'Enter Email', isActive: true, isDone: false),
+                      _buildStep(
+                        '1',
+                        'Enter Email',
+                        isActive: true,
+                        isDone: false,
+                      ),
                       _buildStepConnector(isActive: false),
-                      _buildStep('2', 'Verify Code', isActive: false, isDone: false),
+                      _buildStep(
+                        '2',
+                        'Verify Code',
+                        isActive: false,
+                        isDone: false,
+                      ),
                       _buildStepConnector(isActive: false),
-                      _buildStep('3', 'New Password', isActive: false, isDone: false),
+                      _buildStep(
+                        '3',
+                        'New Password',
+                        isActive: false,
+                        isDone: false,
+                      ),
                     ],
                   ),
 
@@ -198,7 +220,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     child: Row(
                       children: [
                         const SizedBox(width: 16),
-                        const Icon(Icons.mail_outline, color: AppColors.slate400),
+                        const Icon(
+                          Icons.mail_outline,
+                          color: AppColors.slate400,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: TextField(
@@ -288,7 +313,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  Widget _buildStep(String number, String label, {required bool isActive, required bool isDone}) {
+  Widget _buildStep(
+    String number,
+    String label, {
+    required bool isActive,
+    required bool isDone,
+  }) {
     return Expanded(
       child: Column(
         children: [
@@ -307,7 +337,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   : Text(
                       number,
                       style: TextStyle(
-                        color: isActive ? AppColors.backgroundDark : AppColors.slate400,
+                        color: isActive
+                            ? AppColors.backgroundDark
+                            : AppColors.slate400,
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
                       ),

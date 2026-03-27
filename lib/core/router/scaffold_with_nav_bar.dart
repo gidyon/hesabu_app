@@ -3,10 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
-  const ScaffoldWithNavBar({
-    required this.navigationShell,
-    super.key,
-  });
+  const ScaffoldWithNavBar({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
@@ -22,7 +19,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
           color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
           border: Border(
             top: BorderSide(
-              color: isDark ? Colors.white.withOpacity(0.05) : AppColors.slate200,
+              color: isDark
+                  ? Colors.white.withOpacity(0.05)
+                  : AppColors.slate200,
             ),
           ),
           boxShadow: [
@@ -46,11 +45,18 @@ class ScaffoldWithNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
+  Widget _buildNavItem(
+    BuildContext context,
+    int index,
+    IconData icon,
+    String label,
+  ) {
     final isSelected = navigationShell.currentIndex == index;
-    final color = isSelected 
-        ? AppColors.primary 
-        : (Theme.of(context).brightness == Brightness.dark ? AppColors.slate400 : AppColors.slate500);
+    final color = isSelected
+        ? AppColors.primary
+        : (Theme.of(context).brightness == Brightness.dark
+              ? AppColors.slate400
+              : AppColors.slate500);
 
     return InkWell(
       onTap: () => _onTap(context, index),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:provider/provider.dart';
+import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 import 'package:go_router/go_router.dart';
 
 class JoinGroupScreen extends StatefulWidget {
@@ -56,13 +58,23 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
   void _joinGroup() async {
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+    final success = await context.read<GroupsRepository>().joinGroup(
+      _codeController.text.trim(),
+    );
     if (mounted) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Successfully joined the group!')),
-      );
-      context.pop();
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully joined the group!')),
+        );
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to join group. Please check the ID.'),
+          ),
+        );
+      }
     }
   }
 

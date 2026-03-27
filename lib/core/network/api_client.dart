@@ -6,22 +6,21 @@ class ApiClient {
   late final Dio dio;
 
   ApiClient({AuthLocalDataSource? authLocalDataSource}) {
-    dio = Dio(BaseOptions(
-      baseUrl: 'https://gateway.hesabu.co.ke/v1', // Using a placeholder since staging base URL is not explicitly available in the collection body
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    ));
+    dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://stagingapp.hesabuonline.com',
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
 
-    dio.interceptors.add(LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-    ));
+    dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
     if (authLocalDataSource != null) {
-      dio.interceptors.add(AuthInterceptor(authLocalDataSource: authLocalDataSource));
+      dio.interceptors.add(
+        AuthInterceptor(authLocalDataSource: authLocalDataSource),
+      );
     }
   }
 }

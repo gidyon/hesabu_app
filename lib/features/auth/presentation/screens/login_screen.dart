@@ -12,8 +12,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: '254718273753');
+  final _passwordController = TextEditingController(text: 'SecurePass123');
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
@@ -35,7 +35,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark, // Force dark for now as per design
       body: Stack(
         children: [
           // Geometric Background Elements
@@ -77,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
@@ -96,7 +95,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.white.withOpacity(0.05),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.arrow_back, color: Colors.white),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
                       ),
                       const Text(
                         'Login',
@@ -109,9 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(width: 40),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Branding
                   Center(
                     child: Container(
@@ -143,14 +145,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text(
                     'Securely access your group savings and financial management tools.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.slate400,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: AppColors.slate400, fontSize: 14),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Form
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +175,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           children: [
                             const SizedBox(width: 16),
-                            const Icon(Icons.mail_outline, color: AppColors.slate400),
+                            const Icon(
+                              Icons.mail_outline,
+                              color: AppColors.slate400,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: TextField(
@@ -184,7 +186,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: const TextStyle(color: Colors.white),
                                 decoration: const InputDecoration(
                                   hintText: 'Enter email or phone',
-                                  hintStyle: TextStyle(color: Color(0xFF9db9a6)),
+                                  hintStyle: TextStyle(
+                                    color: Color(0xFF9db9a6),
+                                  ),
                                   border: InputBorder.none,
                                 ),
                               ),
@@ -194,9 +198,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -221,7 +225,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           children: [
                             const SizedBox(width: 16),
-                            const Icon(Icons.lock_outline, color: AppColors.slate400),
+                            const Icon(
+                              Icons.lock_outline,
+                              color: AppColors.slate400,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: TextField(
@@ -230,14 +237,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: const TextStyle(color: Colors.white),
                                 decoration: const InputDecoration(
                                   hintText: 'Enter your password',
-                                  hintStyle: TextStyle(color: Color(0xFF9db9a6)),
+                                  hintStyle: TextStyle(
+                                    color: Color(0xFF9db9a6),
+                                  ),
                                   border: InputBorder.none,
                                 ),
                               ),
                             ),
                             IconButton(
                               icon: Icon(
-                                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                                 color: AppColors.slate400,
                               ),
                               onPressed: () {
@@ -264,9 +275,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   SizedBox(
                     height: 56,
                     child: ElevatedButton(
@@ -301,9 +312,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Social Login Divider
                   const Row(
                     children: [
@@ -323,9 +334,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       Expanded(child: Divider(color: Color(0xFF3b5443))),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Social Buttons
                   Row(
                     children: [
@@ -340,7 +351,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             onTap: () {},
                             borderRadius: BorderRadius.circular(12),
                             child: const Center(
-                              child: Icon(Icons.g_mobiledata, size: 40, color: Colors.white), // Placeholder for Google Icon
+                              child: Icon(
+                                Icons.g_mobiledata,
+                                size: 40,
+                                color: Colors.white,
+                              ), // Placeholder for Google Icon
                             ),
                           ),
                         ),
@@ -357,16 +372,20 @@ class _LoginScreenState extends State<LoginScreen> {
                             onTap: () {},
                             borderRadius: BorderRadius.circular(12),
                             child: const Center(
-                              child: Icon(Icons.apple, size: 30, color: Colors.white),
+                              child: Icon(
+                                Icons.apple,
+                                size: 30,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Footer
                   Center(
                     child: GestureDetector(
@@ -388,7 +407,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
                 ],
               ),

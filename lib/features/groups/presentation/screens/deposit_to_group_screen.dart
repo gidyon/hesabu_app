@@ -3,6 +3,8 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 
 class DepositToGroupScreen extends StatefulWidget {
   const DepositToGroupScreen({super.key});
@@ -18,23 +20,31 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
   String _selectedMethod = 'mpesa';
   bool _isLoading = false;
 
-  final _groups = [
-    {
-      'name': 'Hesabu Savings Circle',
-      'account': 'HSB-2024-001',
-      'balance': 'KSh 128,450',
-    },
-    {
-      'name': 'Investment Club Alpha',
-      'account': 'HSB-2024-002',
-      'balance': 'KSh 320,000',
-    },
-    {
-      'name': 'Car Club Savings',
-      'account': 'HSB-2024-003',
-      'balance': 'KSh 56,200',
-    },
-  ];
+  List<Map<String, dynamic>> _groups = [];
+  bool _isLoadingGroups = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final groups = await context.read<GroupsRepository>().getActiveGroups();
+      if (mounted) {
+        setState(() {
+          _groups = groups
+              .map(
+                (g) => {
+                  'id': g.id,
+                  'name': g.name,
+                  'account': 'Group Acct',
+                  'balance': 'KSh ${g.balance.toStringAsFixed(2)}',
+                },
+              )
+              .toList();
+          _isLoadingGroups = false;
+        });
+      }
+    });
+  }
 
   final _methods = [
     {
@@ -72,11 +82,25 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
       );
       return;
     }
+    if (_groups.isEmpty) return;
+
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+    final groupId = _groups[_selectedGroupIndex]['id'] as String;
+    final success = await context.read<GroupsRepository>().deposit(
+      groupId,
+      amount,
+      _selectedMethod,
+    );
+
     if (mounted) {
       setState(() => _isLoading = false);
-      _showSuccessSheet(amount);
+      if (success) {
+        _showSuccessSheet(amount);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Deposit failed. Please try again.')),
+        );
+      }
     }
   }
 
@@ -233,95 +257,110 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                 children: [
                   // ── Select Group ──────────────────────────────────
                   _sectionLabel('SELECT GROUP'),
-                  Column(
-                    children: _groups.asMap().entries.map((e) {
-                      final i = e.key;
-                      final g = e.value;
-                      final selected = i == _selectedGroupIndex;
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedGroupIndex = i),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: selected ? accent.withOpacity(0.08) : cardBg,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
+                  if (_isLoadingGroups)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_groups.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'No active groups found. Please join or create one.',
+                      ),
+                    )
+                  else
+                    Column(
+                      children: _groups.asMap().entries.map((e) {
+                        final i = e.key;
+                        final g = e.value;
+                        final selected = i == _selectedGroupIndex;
+                        return GestureDetector(
+                          onTap: () => setState(() => _selectedGroupIndex = i),
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
                               color: selected
-                                  ? accent.withOpacity(0.5)
-                                  : cardBorder,
-                              width: selected ? 1.5 : 1,
+                                  ? accent.withOpacity(0.08)
+                                  : cardBg,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: selected
+                                    ? accent.withOpacity(0.5)
+                                    : cardBorder,
+                                width: selected ? 1.5 : 1,
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 42,
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  color:
-                                      (selected ? accent : AppColors.slate400)
-                                          .withOpacity(0.15),
-                                  shape: BoxShape.circle,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        (selected ? accent : AppColors.slate400)
+                                            .withOpacity(0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.group,
+                                    color: selected
+                                        ? accent
+                                        : AppColors.slate400,
+                                    size: 22,
+                                  ),
                                 ),
-                                child: Icon(
-                                  Icons.group,
-                                  color: selected ? accent : AppColors.slate400,
-                                  size: 22,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      g['name']!,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        color: Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${g['account']} • ${g['balance']}',
-                                      style: const TextStyle(
-                                        color: AppColors.slate500,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                child: selected
-                                    ? Icon(
-                                        Icons.check_circle_rounded,
-                                        color: accent,
-                                        key: const ValueKey('on'),
-                                      )
-                                    : Container(
-                                        key: const ValueKey('off'),
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: AppColors.slate400
-                                                .withOpacity(0.4),
-                                          ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        g['name']!,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Theme.of(
+                                            context,
+                                          ).textTheme.bodyLarge?.color,
                                         ),
                                       ),
-                              ),
-                            ],
+                                      Text(
+                                        '${g['account']} • ${g['balance']}',
+                                        style: const TextStyle(
+                                          color: AppColors.slate500,
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  child: selected
+                                      ? Icon(
+                                          Icons.check_circle_rounded,
+                                          color: accent,
+                                          key: const ValueKey('on'),
+                                        )
+                                      : Container(
+                                          key: const ValueKey('off'),
+                                          width: 22,
+                                          height: 22,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: AppColors.slate400
+                                                  .withOpacity(0.4),
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
+                        );
+                      }).toList(),
+                    ),
 
                   const SizedBox(height: 24),
 

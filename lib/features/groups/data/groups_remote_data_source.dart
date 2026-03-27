@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:hesabu_app/core/network/api_client.dart';
+import 'package:hesabu_app/core/network/api_exception.dart';
 import 'package:hesabu_app/features/groups/data/models/group_models.dart';
 
 class GroupsRemoteDataSource {
@@ -13,9 +14,16 @@ class GroupsRemoteDataSource {
       return MyGroupsResponse.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response?.data['message'] ?? 'Failed to fetch groups');
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to fetch groups';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
       }
-      throw Exception('Network error occurred');
+      throw NetworkException();
     }
   }
 
@@ -23,48 +31,103 @@ class GroupsRemoteDataSource {
     try {
       final response = await apiClient.dio.post(
         '/groups/statements',
-        data: {
-          'group_id': groupId,
-        },
+        data: {'group_id': groupId},
       );
       return GroupStatementsResponse.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response?.data['message'] ?? 'Failed to fetch statements');
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to fetch statements';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
       }
-      throw Exception('Network error occurred');
+      throw NetworkException();
     }
   }
 
-  Future<bool> joinGroup(String groupId) async {
+  Future<bool> joinGroup(String groupId, String msisdn) async {
     try {
       final response = await apiClient.dio.post(
         '/groups/join',
-        data: {
-          'group_id': groupId,
-        },
+        data: {'group_id': groupId, 'msisdn': msisdn},
       );
       return response.statusCode == 200 || response.statusCode == 201;
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response?.data['message'] ?? 'Failed to join group');
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to join group';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
       }
-      throw Exception('Network error occurred');
+      throw NetworkException();
     }
   }
 
-  Future<bool> createGroup(Map<String, dynamic> groupData) async {
+  Future<CreateGroupResponse> createGroup(
+    Map<String, dynamic> groupData,
+  ) async {
     try {
       final response = await apiClient.dio.post(
         '/groups/create',
         data: groupData,
       );
-      return response.statusCode == 200 || response.statusCode == 201;
+      return CreateGroupResponse.fromJson(response.data);
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response?.data['message'] ?? 'Failed to create group');
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to create group';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
       }
-      throw Exception('Network error occurred');
+      throw NetworkException();
+    }
+  }
+
+  Future<bool> deposit(
+    String groupId,
+    double amount,
+    String msisdn,
+    String mainWalletAccount,
+    String payingMsisdn,
+  ) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/initiate/group/payment',
+        data: {
+          'msisdn': msisdn,
+          'amount': amount,
+          'group_id': int.tryParse(groupId) ?? 0,
+          'main_wallet_account_number': mainWalletAccount,
+          'paying_msisdn': payingMsisdn,
+        },
+      );
+      return response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          (response.data['ResponseCode'] == "0");
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['errorMessage'] != null)
+            ? data['errorMessage']
+            : 'Deposit failed';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
     }
   }
 }

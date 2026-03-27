@@ -28,18 +28,21 @@ void main() async {
   final authRemoteDataSource = AuthRemoteDataSource(apiClient: apiClient);
   final groupsRemoteDataSource = GroupsRemoteDataSource(apiClient: apiClient);
 
-  runApp(MyApp(
-    authRepository: AuthRepositoryImpl(
-      remoteDataSource: authRemoteDataSource,
-      localDataSource: authLocalDataSource,
+  runApp(
+    MyApp(
+      authRepository: AuthRepositoryImpl(
+        remoteDataSource: authRemoteDataSource,
+        localDataSource: authLocalDataSource,
+      ),
+      groupsRepository: GroupsRepositoryImpl(
+        remoteDataSource: groupsRemoteDataSource,
+        localDataSource: authLocalDataSource,
+      ),
+      settingsRepository: SettingsRepositoryImpl(
+        localDataSource: authLocalDataSource,
+      ),
     ),
-    groupsRepository: GroupsRepositoryImpl(
-      remoteDataSource: groupsRemoteDataSource,
-    ),
-    settingsRepository: SettingsRepositoryImpl(
-      localDataSource: authLocalDataSource,
-    ),
-  ));
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -63,27 +66,27 @@ class MyApp extends StatelessWidget {
         Provider<SettingsRepository>.value(value: settingsRepository),
       ],
       child: InheritedThemeController(
-      notifier: _themeController,
-      child: ListenableBuilder(
-        listenable: _themeController,
-        builder: (context, _) {
-          return MaterialApp.router(
-            title: 'Hesabu Online',
-            theme: AppTheme.themeFor(
-              _themeController.accentColor,
-              Brightness.light,
-            ),
-            darkTheme: AppTheme.themeFor(
-              _themeController.accentColor,
-              Brightness.dark,
-            ),
-            themeMode: _themeController.themeMode,
-            routerConfig: AppRouter.router,
-            debugShowCheckedModeBanner: false,
-          );
-        },
+        notifier: _themeController,
+        child: ListenableBuilder(
+          listenable: _themeController,
+          builder: (context, _) {
+            return MaterialApp.router(
+              title: 'Hesabu Online',
+              theme: AppTheme.themeFor(
+                _themeController.accentColor,
+                Brightness.light,
+              ),
+              darkTheme: AppTheme.themeFor(
+                _themeController.accentColor,
+                Brightness.dark,
+              ),
+              themeMode: _themeController.themeMode,
+              routerConfig: AppRouter.router,
+              debugShowCheckedModeBanner: false,
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 }

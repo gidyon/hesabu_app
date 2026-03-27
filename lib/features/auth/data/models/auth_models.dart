@@ -65,10 +65,7 @@ class RegisterResponse {
   final String message;
   final String status;
 
-  RegisterResponse({
-    required this.message,
-    required this.status,
-  });
+  RegisterResponse({required this.message, required this.status});
 
   factory RegisterResponse.fromJson(Map<String, dynamic> json) {
     return RegisterResponse(

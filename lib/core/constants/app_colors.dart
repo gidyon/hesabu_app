@@ -10,7 +10,7 @@ class AppColors {
   static const Color slate400 = Color(0xFF94a3b8);
   static const Color slate200 = Color(0xFFe2e8f0);
   static const Color slate100 = Color(0xFFf1f5f9);
-  
+
   // Additional colors from design
   static const Color surfaceDark = Color(0xFF1a2e20); // Darker surface
 }

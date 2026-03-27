@@ -6,7 +6,8 @@ class CreateNewPasswordScreen extends StatefulWidget {
   const CreateNewPasswordScreen({super.key});
 
   @override
-  State<CreateNewPasswordScreen> createState() => _CreateNewPasswordScreenState();
+  State<CreateNewPasswordScreen> createState() =>
+      _CreateNewPasswordScreenState();
 }
 
 class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
@@ -14,7 +15,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-  
+
   // Strength criteria
   bool _hasMinLength = false;
   bool _hasNumber = false;
@@ -40,13 +41,13 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
       _hasMinLength = password.length >= 8;
       _hasNumber = password.contains(RegExp(r'[0-9]'));
       _hasSpecialChar = password.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
-      
+
       int score = 0;
       if (_hasMinLength) score++;
       if (_hasNumber) score++;
       if (_hasSpecialChar) score++;
       if (password.length >= 12) score++;
-      
+
       _strengthLevel = score;
     });
   }
@@ -71,7 +72,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                   color: AppColors.primary.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle, color: AppColors.primary, size: 32),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: AppColors.primary,
+                  size: 32,
+                ),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -134,7 +139,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                       onPressed: () => context.pop(),
                     ),
                   ),
@@ -153,7 +162,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 ],
               ),
             ),
-            
+
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
@@ -178,9 +187,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         height: 1.5,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // New Password
                     const Padding(
                       padding: EdgeInsets.only(left: 4, bottom: 8),
@@ -198,7 +207,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -211,13 +222,17 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                                 hintText: '••••••••',
                                 hintStyle: TextStyle(color: Colors.white30),
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                               ),
                             ),
                           ),
                           IconButton(
                             icon: Icon(
-                              _isNewPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              _isNewPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.white30,
                             ),
                             onPressed: () {
@@ -229,16 +244,18 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Strength Meter
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.05),
+                        ),
                       ),
                       child: Column(
                         children: [
@@ -255,7 +272,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                                 ),
                               ),
                               Text(
-                                _strengthLevel >= 3 ? 'Strong' : (_strengthLevel >= 2 ? 'Medium' : 'Weak'),
+                                _strengthLevel >= 3
+                                    ? 'Strong'
+                                    : (_strengthLevel >= 2 ? 'Medium' : 'Weak'),
                                 style: const TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 12,
@@ -270,10 +289,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               return Expanded(
                                 child: Container(
                                   height: 6,
-                                  margin: EdgeInsets.only(right: index < 3 ? 6 : 0),
+                                  margin: EdgeInsets.only(
+                                    right: index < 3 ? 6 : 0,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: index < _strengthLevel 
-                                        ? AppColors.primary 
+                                    color: index < _strengthLevel
+                                        ? AppColors.primary
                                         : Colors.white.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
@@ -282,19 +303,28 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                             }),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Requirements
-                          _buildRequirementItem('At least 8 characters', _hasMinLength),
+                          _buildRequirementItem(
+                            'At least 8 characters',
+                            _hasMinLength,
+                          ),
                           const SizedBox(height: 8),
-                          _buildRequirementItem('At least one number', _hasNumber),
+                          _buildRequirementItem(
+                            'At least one number',
+                            _hasNumber,
+                          ),
                           const SizedBox(height: 8),
-                          _buildRequirementItem('At least one special character', _hasSpecialChar),
+                          _buildRequirementItem(
+                            'At least one special character',
+                            _hasSpecialChar,
+                          ),
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Confirm Password
                     const Padding(
                       padding: EdgeInsets.only(left: 4, bottom: 8),
@@ -312,7 +342,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -325,18 +357,23 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                                 hintText: '••••••••',
                                 hintStyle: TextStyle(color: Colors.white30),
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
                               ),
                             ),
                           ),
                           IconButton(
                             icon: Icon(
-                              _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                              _isConfirmPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                               color: Colors.white30,
                             ),
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                                _isConfirmPasswordVisible =
+                                    !_isConfirmPasswordVisible;
                               });
                             },
                           ),
@@ -347,7 +384,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 ),
               ),
             ),
-            
+
             // Bottom Action
             Padding(
               padding: const EdgeInsets.all(24),

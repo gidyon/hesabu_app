@@ -1,10 +1,15 @@
+import 'package:hesabu_app/core/network/auth_local_data_source.dart';
 import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 
 class GroupsRepositoryImpl implements GroupsRepository {
   final GroupsRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
 
-  GroupsRepositoryImpl({required this.remoteDataSource});
+  GroupsRepositoryImpl({
+    required this.remoteDataSource,
+    required this.localDataSource,
+  });
 
   @override
   Future<List<Group>> getActiveGroups() async {
@@ -14,8 +19,10 @@ class GroupsRepositoryImpl implements GroupsRepository {
         return Group(
           id: model.groupId.toString(),
           name: model.name,
-          membersCount: 'Members', // Endpoint doesn't return count directly here
-          frequency: 'Monthly', // Default/placeholder as it's not in the response
+          membersCount:
+              'Members', // Endpoint doesn't return count directly here
+          frequency:
+              'Monthly', // Default/placeholder as it's not in the response
           imageUrl: '', // Default empty image
           balance: model.availableBalance,
           goal: 0.0, // Not in API response
@@ -61,19 +68,74 @@ class GroupsRepositoryImpl implements GroupsRepository {
   @override
   Future<List<Transaction>> getRecentTransactions(String groupId) async {
     try {
-      final statementsResponse = await remoteDataSource.getGroupStatements(groupId);
+      final statementsResponse = await remoteDataSource.getGroupStatements(
+        groupId,
+      );
       return statementsResponse.statements.map((model) {
         return Transaction(
           id: model.transactionId,
           title: '${model.operation} - ${model.memberName}',
           date: model.dateCreated,
-          type: model.operation.toLowerCase() == 'deposit' ? 'Inflow' : 'Outflow',
+          type: model.operation.toLowerCase() == 'deposit'
+              ? 'Inflow'
+              : 'Outflow',
           amount: model.amount,
           method: 'Wallet', // Default
         );
       }).toList();
     } catch (e) {
       return [];
+    }
+  }
+
+  @override
+  Future<bool> joinGroup(String groupId) async {
+    try {
+      final user = await localDataSource.getUser();
+      final msisdn = user?['msisdn']?.toString() ?? '';
+      if (msisdn.isEmpty) throw Exception('No logged in user');
+      return await remoteDataSource.joinGroup(groupId, msisdn);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> createGroup(Map<String, dynamic> groupData) async {
+    try {
+      await remoteDataSource.createGroup(groupData);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> deposit(String groupId, double amount, String method) async {
+    try {
+      final user = await localDataSource.getUser();
+      final msisdn = user?['msisdn']?.toString() ?? '';
+      if (msisdn.isEmpty) throw Exception('No logged in user');
+
+      // Usually, group account is found from active groups
+      final groups = await getActiveGroups();
+      final group = groups.firstWhere(
+        (g) => g.id == groupId,
+        orElse: () => throw Exception('Group not found'),
+      );
+
+      // Typically the paying method might decide what paying_msisdn is. We just default to the user's msisdn
+      await remoteDataSource.deposit(
+        groupId,
+        amount,
+        msisdn,
+        group
+            .name, // Using name as dummy for main account if not exposed, but usually it's accountNo
+        msisdn,
+      );
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

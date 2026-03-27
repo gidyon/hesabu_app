@@ -9,7 +9,8 @@ class TreasurerDashboardScreen extends StatefulWidget {
   const TreasurerDashboardScreen({super.key});
 
   @override
-  State<TreasurerDashboardScreen> createState() => _TreasurerDashboardScreenState();
+  State<TreasurerDashboardScreen> createState() =>
+      _TreasurerDashboardScreenState();
 }
 
 class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
@@ -27,7 +28,9 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
 
   Future<void> _loadData() async {
     final groupsRepository = context.read<GroupsRepository>();
-    final transactions = await groupsRepository.getRecentTransactions('1'); // Mock ID
+    final transactions = await groupsRepository.getRecentTransactions(
+      '1',
+    ); // Mock ID
     final balance = await groupsRepository.getGroupBalance('1');
     if (mounted) {
       setState(() {
@@ -40,75 +43,85 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 0);
-    
+    final currencyFormat = NumberFormat.currency(
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
-            // Status Bar Spacer
-            Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: MediaQuery.of(context).padding.top,
-                child: Container(color: Theme.of(context).scaffoldBackgroundColor),
-            ),
-            
-            Column(
-              children: [
-                // Top Navigation Bar
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).padding.top + 10,
-                    left: 16,
-                    right: 16,
-                    bottom: 12
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_back_ios_new, size: 20, color: Theme.of(context).textTheme.bodyLarge?.color),
-                          onPressed: () => context.pop(),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Tech Founders Savings',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.file_download, color: AppColors.primary),
-                          onPressed: () {},
-                        ),
-                      ),
-                    ],
-                  ),
+          // Status Bar Spacer
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).padding.top,
+            child: Container(color: Theme.of(context).scaffoldBackgroundColor),
+          ),
+
+          Column(
+            children: [
+              // Top Navigation Bar
+              Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  left: 16,
+                  right: 16,
+                  bottom: 12,
                 ),
-                
-                Expanded(
-                  child: _isLoading 
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 20,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                        onPressed: () => context.pop(),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Tech Founders Savings',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.file_download,
+                          color: AppColors.primary,
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
                         padding: const EdgeInsets.only(bottom: 100),
@@ -121,9 +134,13 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(32),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1a2e20), // Dark surface
+                                  color: const Color(
+                                    0xFF1a2e20,
+                                  ), // Dark surface
                                   borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.05),
+                                  ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.2),
@@ -142,11 +159,14 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                         width: 100,
                                         height: 100,
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary.withOpacity(0.1),
+                                          color: AppColors.primary.withOpacity(
+                                            0.1,
+                                          ),
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color: AppColors.primary.withOpacity(0.1),
+                                              color: AppColors.primary
+                                                  .withOpacity(0.1),
                                               blurRadius: 60,
                                               spreadRadius: 20,
                                             ),
@@ -154,14 +174,16 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                         ),
                                       ),
                                     ),
-                                    
+
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           'TOTAL GROUP BALANCE',
                                           style: TextStyle(
-                                            color: AppColors.primary.withOpacity(0.7),
+                                            color: AppColors.primary
+                                                .withOpacity(0.7),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
                                             letterSpacing: 1,
@@ -169,7 +191,8 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.baseline,
                                           textBaseline: TextBaseline.alphabetic,
                                           children: [
                                             Text(
@@ -183,7 +206,9 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                             Text(
                                               '.00',
                                               style: TextStyle(
-                                                color: Colors.white.withOpacity(0.6),
+                                                color: Colors.white.withOpacity(
+                                                  0.6,
+                                                ),
                                                 fontSize: 24,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -193,12 +218,17 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                         const SizedBox(height: 16),
                                         Row(
                                           children: [
-                                            const Icon(Icons.trending_up, color: AppColors.primary, size: 16),
+                                            const Icon(
+                                              Icons.trending_up,
+                                              color: AppColors.primary,
+                                              size: 16,
+                                            ),
                                             const SizedBox(width: 4),
                                             Text(
                                               '+4.2% from last month',
                                               style: TextStyle(
-                                                color: AppColors.primary.withOpacity(0.9),
+                                                color: AppColors.primary
+                                                    .withOpacity(0.9),
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
                                               ),
@@ -211,10 +241,13 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                 ),
                               ),
                             ),
-                            
+
                             // Disburse Funds Button
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               child: SizedBox(
                                 height: 56,
                                 child: ElevatedButton.icon(
@@ -226,29 +259,40 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     elevation: 8,
-                                    shadowColor: AppColors.primary.withOpacity(0.3),
+                                    shadowColor: AppColors.primary.withOpacity(
+                                      0.3,
+                                    ),
                                   ),
                                   icon: const Icon(Icons.payments_outlined),
                                   label: const Text(
                                     'Disburse Funds',
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 24),
-                            
+
                             // Transactions Header
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'Recent Transactions',
                                     style: TextStyle(
-                                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.color,
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -266,7 +310,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                 ],
                               ),
                             ),
-                            
+
                             // Transactions List
                             ListView.builder(
                               shrinkWrap: true,
@@ -276,23 +320,34 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                 final tx = _transactions[index];
                                 final isIncome = tx.type == 'Inflow';
                                 return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
                                   leading: Container(
                                     width: 48,
                                     height: 48,
                                     decoration: BoxDecoration(
-                                      color: isIncome ? AppColors.primary.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                                      color: isIncome
+                                          ? AppColors.primary.withOpacity(0.1)
+                                          : Colors.red.withOpacity(0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
-                                      isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-                                      color: isIncome ? AppColors.primary : Colors.red,
+                                      isIncome
+                                          ? Icons.arrow_downward
+                                          : Icons.arrow_upward,
+                                      color: isIncome
+                                          ? AppColors.primary
+                                          : Colors.red,
                                     ),
                                   ),
                                   title: Text(
                                     tx.title,
                                     style: TextStyle(
-                                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                                      color: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.color,
                                       fontWeight: FontWeight.w600,
                                     ),
                                     maxLines: 1,
@@ -312,7 +367,11 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                       Text(
                                         '${isIncome ? "+" : "-"}${currencyFormat.format(tx.amount)}',
                                         style: TextStyle(
-                                          color: isIncome ? AppColors.primary : Theme.of(context).textTheme.bodyLarge?.color,
+                                          color: isIncome
+                                              ? AppColors.primary
+                                              : Theme.of(
+                                                  context,
+                                                ).textTheme.bodyLarge?.color,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
@@ -331,7 +390,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                 );
                               },
                             ),
-                            
+
                             // Quick Insights
                             Padding(
                               padding: const EdgeInsets.all(16),
@@ -341,14 +400,19 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: Theme.of(context).brightness == Brightness.dark 
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                Brightness.dark
                                             ? Colors.white.withOpacity(0.05)
                                             : AppColors.slate100,
                                         borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.05),
+                                        ),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             'TOTAL INFLOW',
@@ -377,14 +441,19 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                     child: Container(
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: Theme.of(context).brightness == Brightness.dark 
+                                        color:
+                                            Theme.of(context).brightness ==
+                                                Brightness.dark
                                             ? Colors.white.withOpacity(0.05)
                                             : AppColors.slate100,
                                         borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(color: Colors.white.withOpacity(0.05)),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.05),
+                                        ),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             'TOTAL OUTFLOW',
@@ -399,7 +468,9 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                           Text(
                                             '\$1,200',
                                             style: TextStyle(
-                                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                                              color: Theme.of(
+                                                context,
+                                              ).textTheme.bodyLarge?.color,
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -413,10 +484,10 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                             ),
                           ],
                         ),
-                    ),
-                ),
-              ],
-            ),
+                      ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -7,13 +7,16 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor({required this.authLocalDataSource});
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final token = await authLocalDataSource.getToken();
 
     if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = token;
+      options.headers['Authorization'] = 'Bearer $token';
     }
 
-    super.onRequest(options, handler);
+    handler.next(options);
   }
 }

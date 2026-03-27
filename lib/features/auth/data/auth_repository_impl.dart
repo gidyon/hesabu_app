@@ -27,13 +27,25 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> register(String fullName, String email, String phone, String password) async {
+  Future<bool> register(
+    String fullName,
+    String email,
+    String phone,
+    String password,
+  ) async {
     try {
       List<String> names = fullName.split(' ');
       String firstName = names.isNotEmpty ? names.first : 'User';
-      String otherNames = names.length > 1 ? names.sublist(1).join(' ') : 'Name';
+      String otherNames = names.length > 1
+          ? names.sublist(1).join(' ')
+          : 'Name';
 
-      final response = await remoteDataSource.register(firstName, otherNames, phone, password);
+      await remoteDataSource.register(
+        firstName,
+        otherNames,
+        phone,
+        password,
+      );
 
       return true; // if no error was thrown, consider it success
     } catch (e) {

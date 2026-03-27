@@ -75,7 +75,9 @@ class GroupStatementsResponse {
     return GroupStatementsResponse(
       filterMsisdn: json['filter_msisdn']?.toString(),
       groupId: json['group_id']?.toString() ?? '',
-      statements: statementsJson.map((e) => StatementModel.fromJson(e)).toList(),
+      statements: statementsJson
+          .map((e) => StatementModel.fromJson(e))
+          .toList(),
       totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
       totalTransactions: json['total_transactions'] as int? ?? 0,
     );
@@ -116,6 +118,26 @@ class StatementModel {
       msisdn: json['msisdn']?.toString() ?? '',
       operation: json['operation']?.toString() ?? '',
       transactionId: json['transaction_id']?.toString() ?? '',
+    );
+  }
+}
+
+class CreateGroupResponse {
+  final String accountNo;
+  final int groupId;
+  final String message;
+
+  CreateGroupResponse({
+    required this.accountNo,
+    required this.groupId,
+    required this.message,
+  });
+
+  factory CreateGroupResponse.fromJson(Map<String, dynamic> json) {
+    return CreateGroupResponse(
+      accountNo: json['account_no']?.toString() ?? '',
+      groupId: json['group_id'] as int? ?? 0,
+      message: json['message']?.toString() ?? '',
     );
   }
 }

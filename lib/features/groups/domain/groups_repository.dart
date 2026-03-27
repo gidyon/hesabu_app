@@ -45,4 +45,7 @@ abstract class GroupsRepository {
   Future<double> getTotalSavings();
   Future<List<Transaction>> getRecentTransactions(String groupId);
   Future<double> getGroupBalance(String groupId);
+  Future<bool> joinGroup(String groupId);
+  Future<bool> createGroup(Map<String, dynamic> groupData);
+  Future<bool> deposit(String groupId, double amount, String method);
 }

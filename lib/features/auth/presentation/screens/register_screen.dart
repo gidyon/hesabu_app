@@ -33,9 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _handleRegister() async {
     if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
     setState(() => _isLoading = true);
@@ -120,7 +120,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: Colors.white.withOpacity(0.05),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.arrow_back, color: Colors.white),
+                          child: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       const Text(
@@ -168,10 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const Text(
                     'Join Hesabu and take control of your group savings and finances.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppColors.slate400,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: AppColors.slate400, fontSize: 14),
                   ),
 
                   const SizedBox(height: 40),
@@ -232,7 +232,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     isPassword: true,
                     isVisible: _isConfirmPasswordVisible,
                     onToggleVisibility: () {
-                      setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
+                      setState(
+                        () => _isConfirmPasswordVisible =
+                            !_isConfirmPasswordVisible,
+                      );
                     },
                   ),
 
