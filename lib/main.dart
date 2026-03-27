@@ -18,6 +18,7 @@ import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:hesabu_app/features/settings/data/settings_repository_impl.dart';
 
 late ThemeController _themeController;
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -59,6 +59,14 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: bgColor,
+        surfaceTintColor: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
     );
   }
 

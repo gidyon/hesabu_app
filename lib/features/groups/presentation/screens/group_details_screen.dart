@@ -97,12 +97,32 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             children: [
               _buildTopNav(context, titleColor, accent),
               Expanded(
-                child: _buildBody(
-                  currencyFormat,
-                  isAdmin,
-                  accent,
-                  titleColor,
-                  cardColor,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeInOut,
+                  switchOutCurve: Curves.easeInOut,
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: ScaleTransition(
+                        scale: Tween<double>(begin: 0.98, end: 1.0).animate(
+                          animation,
+                        ),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: KeyedSubtree(
+                    key: ValueKey<int>(_currentIndex),
+                    child: _buildBody(
+                      currencyFormat,
+                      isAdmin,
+                      accent,
+                      titleColor,
+                      cardColor,
+                    ),
+                  ),
                 ),
               ),
               SafeArea(
@@ -689,7 +709,6 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         border: Border(top: BorderSide(color: titleColor.withOpacity(0.05))),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildNavItem(
             Icons.home_outlined,
@@ -737,30 +756,33 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color titleColor,
   ) {
     final isDisabled = index == 0;
-    return GestureDetector(
-      onTap: isDisabled ? null : () => setState(() => _currentIndex = index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isDisabled
-                ? titleColor.withOpacity(0.1)
-                : (isActive ? accent : titleColor.withOpacity(0.24)),
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: isDisabled ? null : () => setState(() => _currentIndex = index),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color: isDisabled
                   ? titleColor.withOpacity(0.1)
                   : (isActive ? accent : titleColor.withOpacity(0.24)),
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
+              size: 24,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isDisabled
+                    ? titleColor.withOpacity(0.1)
+                    : (isActive ? accent : titleColor.withOpacity(0.24)),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

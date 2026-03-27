@@ -23,6 +23,7 @@ import 'package:hesabu_app/features/groups/presentation/screens/deposit_to_group
 import 'package:hesabu_app/features/groups/presentation/screens/group_details_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/invite_members_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/activity_screen.dart';
+import 'package:hesabu_app/main.dart';
 
 // Placeholder screens for Wallet and Stats
 class PlaceholderScreen extends StatelessWidget {
@@ -49,6 +50,7 @@ class AppRouter {
   static GoRouter createRouter(String initialLocation) => GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: initialLocation,
+    observers: [routeObserver],
     routes: [
       // ── Auth Routes (outside shell) ──────────────────────────
       GoRoute(path: '/intro', builder: (context, state) => const IntroScreen()),

@@ -12,7 +12,24 @@ class ScaffoldWithNavBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: navigationShell,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: 0.98, end: 1.0).animate(animation),
+              child: child,
+            ),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey<int>(navigationShell.currentIndex),
+          child: navigationShell,
+        ),
+      ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 80, // Height matching design
@@ -34,7 +51,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(context, 0, Icons.home_outlined, 'Home'),
               _buildNavItem(context, 1, Icons.group_outlined, 'Groups'),
@@ -59,27 +75,28 @@ class ScaffoldWithNavBar extends StatelessWidget {
         ? (isDark ? Colors.white : AppColors.primary)
         : (isDark ? AppColors.slate400 : AppColors.slate500);
 
-    return InkWell(
-      onTap: () => _onTap(context, index),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: color,
-            size: 28,
-            // fill: isSelected ? 1.0 : 0.0, // Removing fill property as standard IconData doesn't support it directly without specific font setup
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
+    return Expanded(
+      child: InkWell(
+        onTap: () => _onTap(context, index),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color: color,
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              size: 24, // Slightly smaller for more compact feel if needed, but keeping UX clear
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
