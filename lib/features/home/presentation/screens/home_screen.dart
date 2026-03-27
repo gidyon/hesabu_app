@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _totalSavings = 0.0;
   bool _isLoading = true;
   bool _isBalanceVisible = true;
+  UserProfile? _profile;
 
   @override
   void initState() {
@@ -28,12 +31,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     final groupsRepository = context.read<GroupsRepository>();
+    final settingsRepository = context.read<SettingsRepository>();
+    
     final groups = await groupsRepository.getActiveGroups();
     final total = await groupsRepository.getTotalSavings();
+    final profile = await settingsRepository.getUserProfile();
+    
     if (mounted) {
       setState(() {
         _groups = groups;
         _totalSavings = total;
+        _profile = profile;
         _isLoading = false;
       });
     }
@@ -71,11 +79,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           border: Border.all(color: accent.withOpacity(0.3)),
                           color: accent.withOpacity(0.12),
                         ),
-                        child: const CircleAvatar(
+                        child: CircleAvatar(
                           radius: 18,
-                          backgroundImage: NetworkImage(
-                            "https://i.pravatar.cc/100?img=12",
-                          ),
+                          backgroundColor: accent.withOpacity(0.12),
+                          backgroundImage: _profile?.avatarUrl.startsWith('/') == true
+                              ? null
+                              : NetworkImage(_profile?.avatarUrl ?? "https://i.pravatar.cc/100?img=12") as ImageProvider,
+                          child: _profile?.avatarUrl.startsWith('/') == true
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: Image.file(
+                                    File(_profile!.avatarUrl),
+                                    fit: BoxFit.cover,
+                                    width: 36,
+                                    height: 36,
+                                  ),
+                                )
+                              : null,
                         ),
                       ),
                       Row(

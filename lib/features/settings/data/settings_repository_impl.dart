@@ -25,7 +25,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
           msisdn: model.msisdn ?? '',
           membershipType: 'Standard Member',
           activeGroupName: 'My Groups',
-          avatarUrl:
+          avatarUrl: model.avatarUrl ??
               'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random',
         );
       }
@@ -60,6 +60,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
         updatedUser['first_name'] = profileData['first_name'];
         updatedUser['other_names'] = profileData['other_names'];
         updatedUser['msisdn'] = profileData['msisdn'];
+        updatedUser['avatar_url'] = profileData['avatar_url'];
 
         await localDataSource.saveUser(updatedUser);
         return true;

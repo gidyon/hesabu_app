@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
@@ -120,12 +121,15 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                         color: accent.withOpacity(0.3),
                                         width: 4,
                                       ),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          _profile!.avatarUrl,
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                                      image: _profile!.avatarUrl.startsWith('/')
+                                          ? DecorationImage(
+                                              image: FileImage(File(_profile!.avatarUrl)),
+                                              fit: BoxFit.cover,
+                                            )
+                                          : DecorationImage(
+                                              image: NetworkImage(_profile!.avatarUrl),
+                                              fit: BoxFit.cover,
+                                            ),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.2),
