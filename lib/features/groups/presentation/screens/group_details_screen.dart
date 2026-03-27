@@ -105,7 +105,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   cardColor,
                 ),
               ),
-              _buildBottomNavBar(accent, titleColor),
+              SafeArea(
+                top: false,
+                child: _buildBottomNavBar(accent, titleColor),
+              ),
             ],
           ),
           if (_currentIndex == 1)
@@ -290,8 +293,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color cardColor,
     Color titleColor,
   ) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Positioned(
-      bottom: 80, // Above bottom nav
+      bottom: bottomPadding + 96, // Positioned higher above the Bottom Nav Bar
       left: 20,
       right: 20,
       child: Container(

@@ -191,22 +191,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // Header
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withOpacity(0.05)
-                              : Colors.black.withOpacity(0.05),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: theme.textTheme.bodyLarge?.color,
-                        ),
-                      ),
                       Text(
                         'Login',
                         style: TextStyle(
@@ -215,7 +201,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 40),
                     ],
                   ),
 
@@ -246,19 +231,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 4, bottom: 8),
-                        child: Text(
-                          'Email or Phone Number',
-                          style: TextStyle(
-                            color: AppColors.slate200,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
                       Container(
-                        height: 56,
+                        height: 56, // Increased slightly to accommodate floating labels
                         decoration: BoxDecoration(
                           color: isDark
                               ? const Color(0xFF1c271f)
@@ -285,13 +259,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: theme.textTheme.bodyLarge?.color,
                                 ),
                                 decoration: InputDecoration(
+                                  labelText: 'Email or Phone Number',
+                                  labelStyle: const TextStyle(
+                                    color: AppColors.slate400,
+                                    fontSize: 14,
+                                  ),
+                                  floatingLabelStyle: TextStyle(
+                                    color: accent,
+                                    fontSize: 12,
+                                  ),
                                   hintText: 'Enter email or phone',
                                   hintStyle: TextStyle(
                                     color: isDark
-                                        ? const Color(0xFF9db9a6)
-                                        : AppColors.slate400,
+                                        ? const Color(0xFF9db9a6).withOpacity(0.5)
+                                        : AppColors.slate400.withOpacity(0.5),
                                   ),
                                   border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
                                 ),
                               ),
                             ),
@@ -301,22 +285,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Padding(
-                        padding: EdgeInsets.only(left: 4, bottom: 8),
-                        child: Text(
-                          'Password',
-                          style: TextStyle(
-                            color: AppColors.slate200,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
                       Container(
                         height: 56,
                         decoration: BoxDecoration(
@@ -346,13 +319,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: theme.textTheme.bodyLarge?.color,
                                 ),
                                 decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  labelStyle: const TextStyle(
+                                    color: AppColors.slate400,
+                                    fontSize: 14,
+                                  ),
+                                  floatingLabelStyle: TextStyle(
+                                    color: accent,
+                                    fontSize: 12,
+                                  ),
                                   hintText: 'Enter your password',
                                   hintStyle: TextStyle(
                                     color: isDark
-                                        ? const Color(0xFF9db9a6)
-                                        : AppColors.slate400,
+                                        ? const Color(0xFF9db9a6).withOpacity(0.5)
+                                        : AppColors.slate400.withOpacity(0.5),
                                   ),
                                   border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
                                 ),
                               ),
                             ),
@@ -391,7 +374,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 16),
 
                   SizedBox(
-                    height: 56,
+                    height: 48,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
@@ -427,7 +410,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
 
                   // Social Login Divider
                   Row(
@@ -468,7 +451,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 56,
+                          height: 48,
                           decoration: BoxDecoration(
                             color: _bioEnabled
                                 ? Colors.transparent
@@ -501,7 +484,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       color: _bioEnabled
                                           ? theme.textTheme.bodyLarge?.color
                                           : AppColors.slate400,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -513,7 +496,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: Container(
-                          height: 56,
+                          height: 48,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: isDark
@@ -539,7 +522,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     'Apple ID',
                                     style: TextStyle(
                                       color: theme.textTheme.bodyLarge?.color,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -551,7 +534,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 24),
 
                   // Footer
                   Center(
@@ -575,7 +558,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

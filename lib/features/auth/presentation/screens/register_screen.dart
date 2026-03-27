@@ -183,45 +183,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(color: AppColors.slate400, fontSize: 14),
                   ),
 
-                  const SizedBox(height: 40),
-
-                  // Full Name Field
-                  _buildLabel('Full Name'),
+                  const SizedBox(height: 16),
                   _buildInputField(
                     controller: _fullNameController,
                     icon: Icons.person_outline,
+                    labelText: 'Full Name',
                     hintText: 'Enter your full name',
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Email Field
-                  _buildLabel('Email Address'),
+                  const SizedBox(height: 8),
                   _buildInputField(
                     controller: _emailController,
                     icon: Icons.mail_outline,
+                    labelText: 'Email Address',
                     hintText: 'Enter your email address',
                     keyboardType: TextInputType.emailAddress,
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Phone Field
-                  _buildLabel('Phone Number'),
+                  const SizedBox(height: 8),
                   _buildInputField(
                     controller: _phoneController,
                     icon: Icons.phone_outlined,
+                    labelText: 'Phone Number',
                     hintText: 'e.g. +254 712 345 678',
                     keyboardType: TextInputType.phone,
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Password Field
-                  _buildLabel('Password'),
+                  const SizedBox(height: 8),
                   _buildInputField(
                     controller: _passwordController,
                     icon: Icons.lock_outline,
+                    labelText: 'Password',
                     hintText: 'Create a strong password',
                     isPassword: true,
                     isVisible: _isPasswordVisible,
@@ -229,14 +218,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       setState(() => _isPasswordVisible = !_isPasswordVisible);
                     },
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Confirm Password Field
-                  _buildLabel('Confirm Password'),
+                  const SizedBox(height: 8),
                   _buildInputField(
                     controller: _confirmPasswordController,
                     icon: Icons.lock_outline,
+                    labelText: 'Confirm Password',
                     hintText: 'Re-enter your password',
                     isPassword: true,
                     isVisible: _isConfirmPasswordVisible,
@@ -247,12 +233,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       );
                     },
                   ),
-
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
 
                   // Register Button
                   SizedBox(
-                    height: 56,
+                    height: 48,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _handleRegister,
                       style: ElevatedButton.styleFrom(
@@ -322,29 +307,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.slate200,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
-
   Widget _buildInputField({
     required TextEditingController controller,
     required IconData icon,
+    required String labelText,
     required String hintText,
     TextInputType keyboardType = TextInputType.text,
     bool isPassword = false,
     bool isVisible = false,
     VoidCallback? onToggleVisibility,
   }) {
+    final accent = InheritedThemeController.of(context).accentColor.primary;
     return Container(
       height: 56,
       decoration: BoxDecoration(
@@ -372,13 +345,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
               decoration: InputDecoration(
+                labelText: labelText,
+                labelStyle: const TextStyle(
+                  color: AppColors.slate400,
+                  fontSize: 14,
+                ),
+                floatingLabelStyle: TextStyle(
+                  color: accent,
+                  fontSize: 12,
+                ),
                 hintText: hintText,
                 hintStyle: TextStyle(
                   color: InheritedThemeController.of(context).isDark
-                      ? const Color(0xFF9db9a6)
-                      : AppColors.slate400,
+                      ? const Color(0xFF9db9a6).withOpacity(0.5)
+                      : AppColors.slate400.withOpacity(0.5),
                 ),
                 border: InputBorder.none,
+                contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
               ),
             ),
           ),

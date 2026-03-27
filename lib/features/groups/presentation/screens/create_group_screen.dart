@@ -135,54 +135,47 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildLabel('Group Name'),
               _buildInputField(
                 controller: _nameController,
+                labelText: 'Group Name',
                 hintText: 'e.g. Family Savings, Chama 2024',
                 validator: (v) => v!.isEmpty ? 'Name is required' : null,
               ),
-              const SizedBox(height: 20),
-              _buildLabel('Description'),
+              const SizedBox(height: 12),
               _buildInputField(
                 controller: _descriptionController,
+                labelText: 'Description',
                 hintText: 'What is this group for?',
                 maxLines: 3,
               ),
-              const SizedBox(height: 20),
-              _buildLabel('Location'),
+              const SizedBox(height: 12),
               _buildInputField(
                 controller: _locationController,
+                labelText: 'Location',
                 hintText: 'e.g. Utawala, Nairobi',
                 validator: (v) => v!.isEmpty ? 'Location is required' : null,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Contribution Target'),
-                        _buildInputField(
-                          controller: _targetController,
-                          hintText: 'KSh 0.00',
-                          keyboardType: TextInputType.number,
-                          validator: (v) =>
-                              v!.isEmpty ? 'Target is required' : null,
-                        ),
-                      ],
+                    child: _buildInputField(
+                      controller: _targetController,
+                      labelText: 'Contribution Target',
+                      hintText: 'KSh 0.00',
+                      keyboardType: TextInputType.number,
+                      validator: (v) =>
+                          v!.isEmpty ? 'Target is required' : null,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [_buildLabel('Frequency'), _buildDropdown()],
-                    ),
+                    child: _buildDropdown(),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildTermsAndConditions(),
               const SizedBox(height: 32),
               ElevatedButton(
@@ -219,28 +212,18 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     );
   }
 
-  Widget _buildLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: AppColors.slate400,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
   Widget _buildInputField({
     required TextEditingController controller,
+    required String labelText,
     required String hintText,
     int maxLines = 1,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
-    final isDark = InheritedThemeController.of(context).isDark;
+    final themeController = InheritedThemeController.of(context);
+    final accent = themeController.accentColor.primary;
+    final isDark = themeController.isDark;
+
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1c271f) : Colors.white,
@@ -254,23 +237,41 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         maxLines: maxLines,
         keyboardType: keyboardType,
         validator: validator,
-        style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+        style: TextStyle(
+          color: Theme.of(context).textTheme.bodyLarge?.color,
+          fontSize: 14,
+        ),
         decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: const TextStyle(
+            color: AppColors.slate400,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: TextStyle(
+            color: accent,
+            fontSize: 12,
+          ),
           hintText: hintText,
           hintStyle: TextStyle(
-            color: isDark ? const Color(0xFF9db9a6) : AppColors.slate400,
+            color: isDark
+                ? const Color(0xFF9db9a6).withOpacity(0.5)
+                : AppColors.slate400.withOpacity(0.5),
+            fontSize: 14,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
   }
 
   Widget _buildDropdown() {
-    final isDark = InheritedThemeController.of(context).isDark;
+    final themeController = InheritedThemeController.of(context);
+    final accent = themeController.accentColor.primary;
+    final isDark = themeController.isDark;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1c271f) : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -278,20 +279,38 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
         ),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _frequency,
-          isExpanded: true,
-          dropdownColor: isDark ? const Color(0xFF1c271f) : Colors.white,
-          style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
-          items: [
-            'Daily',
-            'Weekly',
-            'Monthly',
-            'Quarterly',
-          ].map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
-          onChanged: (v) => setState(() => _frequency = v!),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Frequency',
+            style: TextStyle(
+              color: accent,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _frequency,
+              isExpanded: true,
+              isDense: true,
+              dropdownColor: isDark ? const Color(0xFF1c271f) : Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+                fontSize: 14,
+              ),
+              items: [
+                'Daily',
+                'Weekly',
+                'Monthly',
+                'Quarterly',
+              ].map((f) => DropdownMenuItem(value: f, child: Text(f))).toList(),
+              onChanged: (v) => setState(() => _frequency = v!),
+            ),
+          ),
+        ],
       ),
     );
   }

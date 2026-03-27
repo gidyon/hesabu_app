@@ -315,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // Actions Row
                   // Quick Actions Row
                   Row(
@@ -351,16 +351,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 20),
                   Text(
                     'Your Active Groups',
                     style: TextStyle(
                       color: titleColor,
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 12),
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : _groups.isEmpty
