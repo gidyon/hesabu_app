@@ -52,11 +52,10 @@ class ScaffoldWithNavBar extends StatelessWidget {
     String label,
   ) {
     final isSelected = navigationShell.currentIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = isSelected
-        ? AppColors.primary
-        : (Theme.of(context).brightness == Brightness.dark
-              ? AppColors.slate400
-              : AppColors.slate500);
+        ? (isDark ? Colors.white : AppColors.primary)
+        : (isDark ? AppColors.slate400 : AppColors.slate500);
 
     return InkWell(
       onTap: () => _onTap(context, index),
