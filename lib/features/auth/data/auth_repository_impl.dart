@@ -22,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return false;
     } catch (e) {
-      return false;
+      rethrow;
     }
   }
 
@@ -49,7 +49,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return true; // if no error was thrown, consider it success
     } catch (e) {
-      return false;
+      rethrow;
     }
   }
 

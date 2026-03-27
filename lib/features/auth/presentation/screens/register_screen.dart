@@ -58,6 +58,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
           context.go('/groups');
         }
       }
+    } catch (e) {
+      if (mounted) {
+        String message = e.toString().contains('ApiException')
+            ? e.toString().split(':').last.trim()
+            : 'Registration failed. Please try again.';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

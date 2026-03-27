@@ -13,33 +13,35 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: Container(
-        height: 80, // Height matching design
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
-          border: Border(
-            top: BorderSide(
-              color: isDark
-                  ? Colors.white.withOpacity(0.05)
-                  : AppColors.slate200,
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 80, // Height matching design
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
+            border: Border(
+              top: BorderSide(
+                color: isDark
+                    ? Colors.white.withOpacity(0.05)
+                    : AppColors.slate200,
+              ),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -5),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(context, 0, Icons.home_outlined, 'Home'),
-            _buildNavItem(context, 1, Icons.group_outlined, 'Groups'),
-            _buildNavItem(context, 2, Icons.notifications_none, 'Activity'),
-            _buildNavItem(context, 3, Icons.settings_outlined, 'Settings'),
-          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(context, 0, Icons.home_outlined, 'Home'),
+              _buildNavItem(context, 1, Icons.group_outlined, 'Groups'),
+              _buildNavItem(context, 2, Icons.notifications_none, 'Activity'),
+              _buildNavItem(context, 3, Icons.settings_outlined, 'Settings'),
+            ],
+          ),
         ),
       ),
     );

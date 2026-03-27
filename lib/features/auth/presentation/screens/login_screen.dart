@@ -117,6 +117,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
         context.go('/home'); // Navigate to home
       }
+    } catch (e) {
+      if (mounted) {
+        String message = e.toString().contains('ApiException')
+            ? e.toString().split(':').last.trim()
+            : 'Login failed. Please check your credentials.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
