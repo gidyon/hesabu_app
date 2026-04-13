@@ -3,6 +3,8 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:hesabu_app/core/widgets/app_logo.dart';
+
 import 'dart:async';
 
 class VerifyResetCodeScreen extends StatefulWidget {
@@ -141,7 +143,9 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Header Content
+                  // Branding
+                  const Center(child: AppLogo(size: 80)),
+                  const SizedBox(height: 32),
                   const Text(
                     'Verify Reset Code',
                     style: TextStyle(

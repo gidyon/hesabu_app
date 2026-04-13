@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/widgets/app_logo.dart';
+
 
 class CreateNewPasswordScreen extends StatefulWidget {
   const CreateNewPasswordScreen({super.key});
@@ -169,6 +171,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Branding
+                    const Center(child: AppLogo(size: 80)),
+                    const SizedBox(height: 32),
                     const Text(
                       'Set your new password',
                       style: TextStyle(
