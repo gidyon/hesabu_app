@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
@@ -12,6 +13,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBody: true,
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         switchInCurve: Curves.easeInOut,
@@ -30,35 +32,43 @@ class ScaffoldWithNavBar extends StatelessWidget {
           child: navigationShell,
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 80, // Height matching design
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).scaffoldBackgroundColor.withValues(alpha: 0.95),
-            border: Border(
-              top: BorderSide(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.05)
-                    : AppColors.slate200,
+      bottomNavigationBar: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: SafeArea(
+            child: Container(
+              height: 65, // YouTube style compact height
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).scaffoldBackgroundColor.withValues(alpha: 0.75),
+                border: Border(
+                  top: BorderSide(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.05)
+                        : AppColors.slate200.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  _buildNavItem(context, 0, Icons.home_outlined, 'Home'),
+                  _buildNavItem(context, 1, Icons.group_outlined, 'Groups'),
+                  _buildNavItem(
+                    context,
+                    2,
+                    Icons.notifications_none,
+                    'Activity',
+                  ),
+                  _buildNavItem(
+                    context,
+                    3,
+                    Icons.settings_outlined,
+                    'Settings',
+                  ),
+                ],
               ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              _buildNavItem(context, 0, Icons.home_outlined, 'Home'),
-              _buildNavItem(context, 1, Icons.group_outlined, 'Groups'),
-              _buildNavItem(context, 2, Icons.notifications_none, 'Activity'),
-              _buildNavItem(context, 3, Icons.settings_outlined, 'Settings'),
-            ],
           ),
         ),
       ),
@@ -74,7 +84,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
     final isSelected = navigationShell.currentIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final color = isSelected
-        ? (isDark ? Colors.white : AppColors.primary)
+        ? (isDark ? Colors.white : Theme.of(context).primaryColor)
         : (isDark ? AppColors.slate400 : AppColors.slate500);
 
     return Expanded(

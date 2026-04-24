@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
@@ -60,6 +61,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
           // Top Nav Bar
           Positioned(
             top: 0,
@@ -179,7 +181,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     Color accent,
     bool isDark,
   ) {
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 
@@ -11,18 +12,17 @@ class ActivityScreen extends StatelessWidget {
     final themeController = InheritedThemeController.of(context);
     final isDark = themeController.isDark;
     final accent = themeController.accentColor.primary;
-    final backgroundColor = isDark
-        ? themeController.accentColor.darkBackground
-        : AppColors.backgroundLight;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final titleColor = isDark ? Colors.white : AppColors.textLight;
     final cardColor = isDark
-        ? Colors.white.withValues(alpha: 0.05)
+        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
         : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
           // Top Nav Bar
           Positioned(
             top: 0,

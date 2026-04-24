@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
@@ -193,222 +194,225 @@ class _HomeScreenState extends State<HomeScreen>
     final titleColor = isDark ? Colors.white : Colors.black87;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? controller.accentColor.darkBackground
-          : Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).padding.top + 10,
-                    width: 0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
+          CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: accent.withValues(alpha: 0.3),
-                          ),
-                          color: accent.withValues(alpha: 0.12),
-                        ),
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: accent.withValues(alpha: 0.12),
-                          backgroundImage:
-                              _profile?.avatarUrl.startsWith('/') == true
-                              ? null
-                              : NetworkImage(
-                                      _profile?.avatarUrl ??
-                                          "https://i.pravatar.cc/100?img=12",
-                                    )
-                                    as ImageProvider,
-                          child: _profile?.avatarUrl.startsWith('/') == true
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(18),
-                                  child: Image.file(
-                                    File(_profile!.avatarUrl),
-                                    fit: BoxFit.cover,
-                                    width: 36,
-                                    height: 36,
-                                  ),
-                                )
-                              : null,
-                        ),
+                      SizedBox(
+                        height: MediaQuery.of(context).padding.top + 10,
+                        width: 0,
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildHeaderIcon(
-                            context,
-                            Icons.notifications_outlined,
-                            isDark,
-                            onTap: () => context.go('/activity'),
-                          ),
-                          const SizedBox(width: 8),
-                          _buildHeaderIcon(
-                            context,
-                            _isBalanceVisible
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            isDark,
-                            onTap: () => setState(
-                              () => _isBalanceVisible = !_isBalanceVisible,
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: accent.withValues(alpha: 0.3),
+                              ),
+                              color: accent.withValues(alpha: 0.12),
+                            ),
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: accent.withValues(alpha: 0.12),
+                              backgroundImage:
+                                  _profile?.avatarUrl.startsWith('/') == true
+                                  ? null
+                                  : NetworkImage(
+                                          _profile?.avatarUrl ??
+                                              "https://i.pravatar.cc/100?img=12",
+                                        )
+                                        as ImageProvider,
+                              child: _profile?.avatarUrl.startsWith('/') == true
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(18),
+                                      child: Image.file(
+                                        File(_profile!.avatarUrl),
+                                        fit: BoxFit.cover,
+                                        width: 36,
+                                        height: 36,
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Welcome, ${_profile?.name.split(' ').first ?? 'User'}',
-                    style: TextStyle(
-                      color: titleColor,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Total Savings Hero Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [accent, accent.withValues(alpha: 0.8)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: accent.withValues(alpha: 0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'TOTAL GROUP SAVINGS',
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _isBalanceVisible
-                              ? NumberFormat.currency(
-                                  symbol: 'KSh ',
-                                  decimalDigits: 2,
-                                ).format(_totalSavings)
-                              : 'KSh ••••••••',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
+                          Row(
                             children: [
-                              Icon(
-                                Icons.trending_up,
-                                size: 14,
-                                color: Colors.white,
+                              _buildHeaderIcon(
+                                context,
+                                Icons.notifications_outlined,
+                                isDark,
+                                onTap: () => context.go('/activity'),
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                '+12.5% from last month',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                              const SizedBox(width: 8),
+                              _buildHeaderIcon(
+                                context,
+                                _isBalanceVisible
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                isDark,
+                                onTap: () => setState(
+                                  () => _isBalanceVisible = !_isBalanceVisible,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Actions Row
-                  // Quick Actions Row
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _quickAction(
-                          context,
-                          icon: Icons.group_add_outlined,
-                          label: 'Join Group',
-                          accent: accent,
-                          onTap: () => context.push('/groups/join'),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Welcome, ${_profile?.name.split(' ').first ?? 'User'}',
+                        style: TextStyle(
+                          color: titleColor,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _quickAction(
-                          context,
-                          icon: Icons.savings_outlined,
-                          label: 'Deposit',
-                          accent: accent,
-                          onTap: () => context.push('/groups/deposit'),
+                      const SizedBox(height: 20),
+                      // Total Savings Hero Card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [accent, accent.withValues(alpha: 0.8)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: accent.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'TOTAL GROUP SAVINGS',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _isBalanceVisible
+                                  ? NumberFormat.currency(
+                                      symbol: 'KSh ',
+                                      decimalDigits: 2,
+                                    ).format(_totalSavings)
+                                  : 'KSh ••••••••',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.trending_up,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    '+12.5% from last month',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _quickAction(
-                          context,
-                          icon: Icons.add_circle_outline_rounded,
-                          label: 'New Group',
-                          accent: accent,
-                          onTap: () => context.push('/groups/create'),
+                      const SizedBox(height: 16),
+                      // Actions Row
+                      // Quick Actions Row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _quickAction(
+                              context,
+                              icon: Icons.group_add_outlined,
+                              label: 'Join Group',
+                              accent: accent,
+                              onTap: () => context.push('/groups/join'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _quickAction(
+                              context,
+                              icon: Icons.savings_outlined,
+                              label: 'Deposit',
+                              accent: accent,
+                              onTap: () => context.push('/groups/deposit'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _quickAction(
+                              context,
+                              icon: Icons.add_circle_outline_rounded,
+                              label: 'New Group',
+                              accent: accent,
+                              onTap: () => context.push('/groups/create'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Your Active Groups',
+                        style: TextStyle(
+                          color: titleColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : _groups.isEmpty
+                          ? _buildEmptyGroups(accent, titleColor)
+                          : _buildGroupsList(accent, titleColor, isDark),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Your Active Groups',
-                    style: TextStyle(
-                      color: titleColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _groups.isEmpty
-                      ? _buildEmptyGroups(accent, titleColor)
-                      : _buildGroupsList(accent, titleColor, isDark),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ],
       ),
@@ -428,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
+          color: isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: isDark
               ? Border.all(color: Colors.white.withValues(alpha: 0.05))
@@ -524,7 +528,7 @@ class _HomeScreenState extends State<HomeScreen>
     Color accent,
     bool isDark,
   ) {
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color primary = Color(0xFF2bee6c);
-  static const Color backgroundLight = Color(0xFFf1f5f9); // Slate 100
+  static const Color backgroundLight = Color(0xFFe2e8f0); // Slate 200
   static const Color backgroundDark = Color(0xFF102216);
   static const Color textLight = Color(0xFF334155); // Slate 700 (softer than 900)
   static const Color textDark = Color(0xFFFFFFFF);

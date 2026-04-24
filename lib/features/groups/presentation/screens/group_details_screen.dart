@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/core/api/api_response.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
@@ -134,18 +136,17 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final themeController = InheritedThemeController.of(context);
     final isDark = themeController.isDark;
     final accent = themeController.accentColor.primary;
-    final backgroundColor = isDark
-        ? themeController.accentColor.darkBackground
-        : Colors.white;
-    final titleColor = isDark ? Colors.white : Colors.black87;
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final titleColor = isDark ? Colors.white : AppColors.textLight;
     final cardColor = isDark
-        ? Colors.white.withValues(alpha: 0.05)
-        : Colors.black.withValues(alpha: 0.03);
+        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
+        : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
           Column(
             children: [
               _buildTopNav(context, titleColor, accent),
@@ -185,13 +186,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       accent,
                       titleColor,
                       cardColor,
+                      isDark,
                     ),
                   ),
                 ),
               ),
               SafeArea(
                 top: false,
-                child: _buildBottomNavBar(accent, titleColor),
+                child: _buildBottomNavBar(accent, titleColor, isDark),
               ),
             ],
           ),
@@ -202,6 +204,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               cardColor,
               titleColor,
               backgroundColor,
+              isDark,
             ),
         ],
       ),
@@ -243,15 +246,23 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color accent,
     Color titleColor,
     Color cardColor,
+    bool isDark,
   ) {
     if (_currentIndex == 0) {
-      return _buildHomeView(fmt, isAdmin, accent, titleColor, cardColor);
+      return _buildHomeView(
+        fmt,
+        isAdmin,
+        accent,
+        titleColor,
+        cardColor,
+        isDark,
+      );
     } else if (_currentIndex == 1) {
-      return _buildWalletView(fmt, accent, titleColor);
+      return _buildWalletView(fmt, accent, titleColor, isDark);
     } else if (_currentIndex == 2) {
-      return _buildMembersView(accent, titleColor, isAdmin);
+      return _buildMembersView(accent, titleColor, isAdmin, isDark);
     } else if (_currentIndex == 3) {
-      return _buildSettingsView(titleColor);
+      return _buildSettingsView(titleColor, isDark);
     }
     return const SizedBox.shrink();
   }
@@ -262,6 +273,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color accent,
     Color titleColor,
     Color cardColor,
+    bool isDark,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -269,9 +281,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          _buildBalanceCard(fmt, accent, titleColor, cardColor),
+          _buildBalanceCard(fmt, accent, titleColor, cardColor, isDark),
           const SizedBox(height: 24),
-          _buildMainActionButton(isAdmin, accent, titleColor),
+          _buildMainActionButton(isAdmin, accent, titleColor, isDark),
           const SizedBox(height: 32),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -306,14 +318,19 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _buildTransactionsList(fmt, accent, titleColor),
+          _buildTransactionsList(fmt, accent, titleColor, isDark),
           const SizedBox(height: 120), // Spacer for fixed inflow/outflow
         ],
       ),
     );
   }
 
-  Widget _buildWalletView(NumberFormat fmt, Color accent, Color titleColor) {
+  Widget _buildWalletView(
+    NumberFormat fmt,
+    Color accent,
+    Color titleColor,
+    bool isDark,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -329,7 +346,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          _buildTransactionsList(fmt, accent, titleColor),
+          _buildTransactionsList(fmt, accent, titleColor, isDark),
           const SizedBox(height: 40),
         ],
       ),
@@ -341,6 +358,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color accent,
     Color titleColor,
     Color cardColor,
+    bool isDark,
   ) {
     return Container(
       width: double.infinity,
@@ -411,6 +429,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color cardColor,
     Color titleColor,
     Color backgroundColor,
+    bool isDark,
   ) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Positioned(
@@ -426,6 +445,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               accent,
               cardColor,
               backgroundColor,
+              isDark,
             ),
           ),
           const SizedBox(width: 16),
@@ -436,6 +456,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               titleColor,
               cardColor,
               backgroundColor,
+              isDark,
             ),
           ),
         ],
@@ -449,13 +470,27 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color amountColor,
     Color cardColor,
     Color backgroundColor,
+    bool isDark,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Color.alphaBlend(cardColor, backgroundColor),
+        color: isDark
+            ? Color.alphaBlend(cardColor, backgroundColor)
+            : cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: isDark
+            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,7 +498,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.5)
+                  : AppColors.slate500,
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -483,7 +520,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildMainActionButton(bool isAdmin, Color accent, Color titleColor) {
+  Widget _buildMainActionButton(
+    bool isAdmin,
+    Color accent,
+    Color titleColor,
+    bool isDark,
+  ) {
     final btnColor = accent;
     return Container(
       width: double.infinity,
@@ -536,10 +578,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     NumberFormat fmt,
     Color accent,
     Color titleColor,
+    bool isDark,
   ) {
-    if (_isLoading)
+    if (_isLoading) {
       return Center(child: CircularProgressIndicator(color: accent));
-    if (_transactions.isEmpty)
+    }
+    if (_transactions.isEmpty) {
       return Container(
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.only(top: 40),
@@ -548,6 +592,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           style: TextStyle(color: titleColor.withValues(alpha: 0.4)),
         ),
       );
+    }
 
     return ListView.builder(
       shrinkWrap: true,
@@ -557,85 +602,115 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         final tx = _transactions[index];
         final isInflow = tx.type == 'Inflow';
         final amountColor = isInflow ? accent : titleColor;
+        final cardBg = isDark
+            ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
+            : Colors.white;
         return Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: (isInflow ? accent : Colors.red).withValues(
-                    alpha: 0.08,
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cardBg,
+              borderRadius: BorderRadius.circular(16),
+              border: isDark
+                  ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+                  : Border.all(
+                      color: AppColors.slate200.withValues(alpha: 0.5),
+                    ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: (isInflow ? accent : Colors.red).withValues(
+                      alpha: 0.08,
+                    ),
+                    shape: BoxShape.circle,
                   ),
-                  shape: BoxShape.circle,
+                  child: Icon(
+                    isInflow
+                        ? Icons.arrow_downward_rounded
+                        : Icons.arrow_upward_rounded,
+                    color: isInflow ? accent : Colors.red,
+                    size: 22,
+                  ),
                 ),
-                child: Icon(
-                  isInflow
-                      ? Icons.arrow_downward_rounded
-                      : Icons.arrow_upward_rounded,
-                  color: isInflow ? accent : Colors.red,
-                  size: 22,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tx.title,
+                        style: TextStyle(
+                          color: titleColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${tx.type} • ${tx.date}',
+                        style: TextStyle(
+                          color: titleColor.withValues(alpha: 0.5),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      tx.title,
+                      '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}',
                       style: TextStyle(
-                        color: titleColor,
+                        color: amountColor,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
-                      '${tx.type} • ${tx.date}',
+                      tx.method.toUpperCase(),
                       style: TextStyle(
                         color: titleColor.withValues(alpha: 0.5),
-                        fontSize: 12,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}',
-                    style: TextStyle(
-                      color: amountColor,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    tx.method.toUpperCase(),
-                    style: TextStyle(
-                      color: titleColor.withValues(alpha: 0.5),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildMembersView(Color accent, Color titleColor, bool isAdmin) {
-    if (_isLoading)
+  Widget _buildMembersView(
+    Color accent,
+    Color titleColor,
+    bool isAdmin,
+    bool isDark,
+  ) {
+    if (_isLoading) {
       return Center(child: CircularProgressIndicator(color: accent));
+    }
     return Column(
       children: [
         Padding(
@@ -682,67 +757,97 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   itemBuilder: (context, index) {
                     final member = _members[index];
                     final isMemberAdmin = member.role.toLowerCase() == 'admin';
+                    final cardBg = isDark
+                        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
+                        : Colors.white;
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundColor: titleColor.withValues(alpha: 0.05),
-                            child: Text(
-                              member.name.isNotEmpty ? member.name[0] : '?',
-                              style: TextStyle(
-                                color: accent,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  member.name.isNotEmpty
-                                      ? member.name
-                                      : member.msisdn,
-                                  style: TextStyle(
-                                    color: titleColor,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: cardBg,
+                          borderRadius: BorderRadius.circular(16),
+                          border: isDark
+                              ? Border.all(
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                )
+                              : Border.all(
+                                  color: AppColors.slate200.withValues(
+                                    alpha: 0.5,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  member.msisdn,
-                                  style: TextStyle(
-                                    color: titleColor.withValues(alpha: 0.4),
-                                    fontSize: 12,
+                          boxShadow: isDark
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (isMemberAdmin)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: accent.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
+                                ],
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor: titleColor.withValues(
+                                alpha: 0.05,
                               ),
                               child: Text(
-                                'ADMIN',
+                                member.name.isNotEmpty ? member.name[0] : '?',
                                 style: TextStyle(
                                   color: accent,
-                                  fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                        ],
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    member.name.isNotEmpty
+                                        ? member.name
+                                        : member.msisdn,
+                                    style: TextStyle(
+                                      color: titleColor,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    member.msisdn,
+                                    style: TextStyle(
+                                      color: titleColor.withValues(alpha: 0.4),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isMemberAdmin)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: accent.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  'ADMIN',
+                                  style: TextStyle(
+                                    color: accent,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -752,7 +857,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildSettingsView(Color titleColor) {
+  Widget _buildSettingsView(Color titleColor, bool isDark) {
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
@@ -880,7 +985,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildBottomNavBar(Color accent, Color titleColor) {
+  Widget _buildBottomNavBar(Color accent, Color titleColor, bool isDark) {
     return Container(
       padding: const EdgeInsets.only(top: 12, bottom: 20),
       decoration: BoxDecoration(
