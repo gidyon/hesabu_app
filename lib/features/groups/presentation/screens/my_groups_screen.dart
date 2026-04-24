@@ -177,9 +177,6 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     bool isDark,
   ) {
     final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
-    final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
-        : AppColors.slate100;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),
@@ -188,7 +185,6 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cardBorder),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
