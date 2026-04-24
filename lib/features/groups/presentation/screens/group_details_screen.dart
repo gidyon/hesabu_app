@@ -127,8 +127,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Widget build(BuildContext context) {
     final isAdmin = widget.group.role.toLowerCase() == 'admin';
     final currencyFormat = NumberFormat.currency(
-      symbol: '\$',
-      decimalDigits: 0,
+      symbol: 'KSh ',
+      decimalDigits: 2,
     );
 
     final themeController = InheritedThemeController.of(context);
@@ -196,7 +196,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ],
           ),
           if (_currentIndex == 0)
-            _buildFixedInsights(currencyFormat, accent, cardColor, titleColor, backgroundColor),
+            _buildFixedInsights(
+              currencyFormat,
+              accent,
+              cardColor,
+              titleColor,
+              backgroundColor,
+            ),
         ],
       ),
     );
@@ -437,7 +443,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildInsightCard(String label, String amount, Color amountColor, Color cardColor, Color backgroundColor) {
+  Widget _buildInsightCard(
+    String label,
+    String amount,
+    Color amountColor,
+    Color cardColor,
+    Color backgroundColor,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -553,8 +565,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (isInflow ? accent : Colors.red)
-                      .withOpacity(0.08),
+                  color: (isInflow ? accent : Colors.red).withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -595,7 +606,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}.00',
+                    '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}',
                     style: TextStyle(
                       color: amountColor,
                       fontSize: 15,

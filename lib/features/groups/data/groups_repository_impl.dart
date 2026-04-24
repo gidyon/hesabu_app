@@ -3,6 +3,7 @@ import 'package:hesabu_app/core/network/api_exception.dart';
 import 'package:hesabu_app/core/network/auth_local_data_source.dart';
 import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/core/utils/phone_utils.dart';
 
 class GroupsRepositoryImpl implements GroupsRepository {
   final GroupsRemoteDataSource remoteDataSource;
@@ -12,19 +13,6 @@ class GroupsRepositoryImpl implements GroupsRepository {
     required this.remoteDataSource,
     required this.localDataSource,
   });
-
-  String _formatMsisdn(String input) {
-    String formatted = input.trim().replaceAll(' ', '');
-    if (formatted.startsWith('+')) {
-      formatted = formatted.substring(1);
-    }
-    if (formatted.startsWith('07')) {
-      formatted = '2547${formatted.substring(2)}';
-    } else if (formatted.startsWith('01')) {
-      formatted = '2541${formatted.substring(2)}';
-    }
-    return formatted;
-  }
 
   @override
   Future<ApiResponse<List<Group>>> getActiveGroups() async {
@@ -82,7 +70,9 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
-  Future<ApiResponse<List<Transaction>>> getRecentTransactions(String groupId) async {
+  Future<ApiResponse<List<Transaction>>> getRecentTransactions(
+    String groupId,
+  ) async {
     try {
       final statementsResponse = await remoteDataSource.getGroupStatements(
         groupId,
@@ -106,6 +96,23 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
+  Future<ApiResponse<GroupPreview>> previewGroup(String groupId) async {
+    try {
+      final model = await remoteDataSource.previewGroup(groupId);
+      return ApiResponse.success(GroupPreview(
+        id: model.id,
+        name: model.name,
+        balance: model.balance,
+        membersCount: model.membersCount,
+        adminName: model.adminName,
+        description: model.description,
+      ));
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
+  }
+
+  @override
   Future<ApiResponse<bool>> joinGroup(String groupId) async {
     try {
       final user = await localDataSource.getUser();
@@ -118,6 +125,7 @@ class GroupsRepositoryImpl implements GroupsRepository {
     }
   }
 
+
   @override
   Future<ApiResponse<bool>> createGroup(Map<String, dynamic> groupData) async {
     try {
@@ -129,7 +137,10 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
-  Future<ApiResponse<bool>> editGroup(String groupId, Map<String, dynamic> groupData) async {
+  Future<ApiResponse<bool>> editGroup(
+    String groupId,
+    Map<String, dynamic> groupData,
+  ) async {
     try {
       final success = await remoteDataSource.editGroup(groupId, groupData);
       return ApiResponse.success(success);
@@ -141,7 +152,10 @@ class GroupsRepositoryImpl implements GroupsRepository {
   @override
   Future<ApiResponse<bool>> inviteMember(String groupId, String msisdn) async {
     try {
-      final success = await remoteDataSource.inviteMember(groupId, _formatMsisdn(msisdn));
+      final success = await remoteDataSource.inviteMember(
+        groupId,
+        PhoneUtils.formatMsisdn(msisdn),
+      );
       return ApiResponse.success(success);
     } catch (e) {
       return ApiResponse.error(e is ApiException ? e.message : e.toString());
@@ -169,15 +183,20 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
-  Future<ApiResponse<bool>> deposit(String groupId, double amount, String method) async {
+  Future<ApiResponse<bool>> deposit(
+    String groupId,
+    double amount,
+    String method,
+  ) async {
     try {
       final user = await localDataSource.getUser();
       final msisdn = user?['msisdn']?.toString() ?? '';
       if (msisdn.isEmpty) throw Exception('No logged in user');
 
       final groupsResponse = await getActiveGroups();
-      if (groupsResponse.hasError) return ApiResponse.error(groupsResponse.errorMessage!);
-      
+      if (groupsResponse.hasError)
+        return ApiResponse.error(groupsResponse.errorMessage!);
+
       final group = groupsResponse.data!.firstWhere(
         (g) => g.id == groupId,
         orElse: () => throw Exception('Group not found'),
@@ -197,16 +216,24 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
-  Future<ApiResponse<bool>> withdraw(
-    String groupId,
-    double amount,
-    String destination,
-  ) async {
+  Future<ApiResponse<bool>> withdraw({
+    required String groupId,
+    required double amount,
+    required String withdrawalType,
+    required String destination,
+    String? billerType,
+    String? billerNumber,
+  }) async {
     try {
       final success = await remoteDataSource.withdraw(
-        groupId,
-        amount,
-        _formatMsisdn(destination),
+        groupId: groupId,
+        amount: amount,
+        withdrawalType: withdrawalType,
+        destination: withdrawalType == 'INDIVIDUAL'
+            ? PhoneUtils.formatMsisdn(destination)
+            : destination,
+        billerType: billerType,
+        billerNumber: billerNumber,
       );
       return ApiResponse.success(success);
     } catch (e) {

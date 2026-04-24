@@ -5,10 +5,11 @@ import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/core/utils/phone_utils.dart';
 
 class DisburseFundsScreen extends StatefulWidget {
   final Group? group;
-  
+
   const DisburseFundsScreen({super.key, this.group});
 
   @override
@@ -18,13 +19,16 @@ class DisburseFundsScreen extends StatefulWidget {
 class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
   final _amountController = TextEditingController();
   final _destController = TextEditingController();
+  final _billerNumberController = TextEditingController();
   bool _isIndividual = true;
+  String _businessType = 'TILLNO'; // 'TILLNO' or 'PAYBILL'
   bool _isLoading = false;
 
   @override
   void dispose() {
     _amountController.dispose();
     _destController.dispose();
+    _billerNumberController.dispose();
     super.dispose();
   }
 
@@ -33,18 +37,44 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
     final dest = _destController.text.trim();
     if (amount == null || amount <= 0 || dest.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid amount and destination')),
+        const SnackBar(
+          content: Text('Please enter a valid amount and destination'),
+        ),
       );
       return;
     }
 
     if (widget.group == null) return;
 
+    // Validate phone number if individual
+    if (_isIndividual && !PhoneUtils.isValidMsisdn(dest)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid phone number (e.g. 0712...)'),
+        ),
+      );
+      return;
+    }
+
+    // Validate Paybill number if needed
+    final billerNumber = _billerNumberController.text.trim();
+    if (!_isIndividual && _businessType == 'PAYBILL' && billerNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a Paybill number')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     final response = await context.read<GroupsRepository>().withdraw(
-      widget.group!.id,
-      amount,
-      dest,
+      groupId: widget.group!.id,
+      amount: amount,
+      withdrawalType: _isIndividual ? 'INDIVIDUAL' : 'BUSINESS',
+      destination: dest,
+      billerType: _isIndividual ? null : _businessType,
+      billerNumber: (!_isIndividual && _businessType == 'PAYBILL')
+          ? billerNumber
+          : null,
     );
 
     if (mounted) {
@@ -54,7 +84,9 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Disbursement failed. Please try again.'),
+            content: Text(
+              response.errorMessage ?? 'Disbursement failed. Please try again.',
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -90,7 +122,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'KES ${amount.toStringAsFixed(2)} has been disbursed.',
+              'KSh ${amount.toStringAsFixed(2)} has been disbursed.',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.slate500,
@@ -131,7 +163,9 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
     final cardBg = isDark ? Colors.white.withOpacity(0.03) : Colors.white;
-    final cardBorder = isDark ? Colors.white.withOpacity(0.05) : AppColors.slate200;
+    final cardBorder = isDark
+        ? Colors.white.withOpacity(0.05)
+        : AppColors.slate200;
     final titleColor = isDark ? Colors.white : Colors.black87;
 
     return Scaffold(
@@ -183,7 +217,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Available: KES ${widget.group?.balance.toStringAsFixed(2) ?? '0.00'}',
+                          'Available: KSh ${widget.group?.balance.toStringAsFixed(2) ?? '0.00'}',
                           style: TextStyle(
                             color: titleColor.withOpacity(0.6),
                             fontSize: 13,
@@ -192,7 +226,10 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                       ],
                     ),
                   ),
-                  Icon(Icons.keyboard_arrow_down, color: titleColor.withOpacity(0.5)),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: titleColor.withOpacity(0.5),
+                  ),
                 ],
               ),
             ),
@@ -220,7 +257,9 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         child: Text(
                           'INDIVIDUAL',
                           style: TextStyle(
-                            color: _isIndividual ? Colors.white : titleColor.withOpacity(0.5),
+                            color: _isIndividual
+                                ? Colors.white
+                                : titleColor.withOpacity(0.5),
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -240,7 +279,9 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         child: Text(
                           'BUSINESS',
                           style: TextStyle(
-                            color: !_isIndividual ? Colors.white : titleColor.withOpacity(0.5),
+                            color: !_isIndividual
+                                ? Colors.white
+                                : titleColor.withOpacity(0.5),
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -253,8 +294,108 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
             ),
             const SizedBox(height: 24),
 
+            if (!_isIndividual) ...[
+              _sectionLabel('BUSINESS TYPE'),
+              Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardBorder),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _businessType = 'TILLNO'),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _businessType == 'TILLNO'
+                                ? accent.withOpacity(0.1)
+                                : Colors.transparent,
+                            borderRadius: const BorderRadius.horizontal(
+                              left: Radius.circular(12),
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'TILL',
+                            style: TextStyle(
+                              color: _businessType == 'TILLNO'
+                                  ? accent
+                                  : titleColor.withOpacity(0.5),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    VerticalDivider(color: cardBorder, width: 1),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _businessType = 'PAYBILL'),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _businessType == 'PAYBILL'
+                                ? accent.withOpacity(0.1)
+                                : Colors.transparent,
+                            borderRadius: const BorderRadius.horizontal(
+                              right: Radius.circular(12),
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'PAYBILL',
+                            style: TextStyle(
+                              color: _businessType == 'PAYBILL'
+                                  ? accent
+                                  : titleColor.withOpacity(0.5),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+
             // Destination
-            _sectionLabel('DESTINATION'),
+            if (!_isIndividual && _businessType == 'PAYBILL') ...[
+              _sectionLabel('PAYBILL NUMBER'),
+              Container(
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cardBorder),
+                ),
+                child: TextField(
+                  controller: _billerNumberController,
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(color: titleColor),
+                  decoration: InputDecoration(
+                    hintText: 'Enter Paybill No (e.g. 247247)',
+                    hintStyle: TextStyle(color: titleColor.withOpacity(0.3)),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              _sectionLabel('ACCOUNT NUMBER'),
+            ] else if (!_isIndividual && _businessType == 'TILLNO') ...[
+              _sectionLabel('TILL NUMBER'),
+            ] else ...[
+              _sectionLabel('PHONE NUMBER'),
+            ],
+
             Container(
               decoration: BoxDecoration(
                 color: cardBg,
@@ -263,14 +404,25 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
               ),
               child: TextField(
                 controller: _destController,
-                keyboardType: TextInputType.phone,
+                keyboardType: _isIndividual
+                    ? TextInputType.phone
+                    : TextInputType.text,
                 style: TextStyle(color: titleColor),
                 decoration: InputDecoration(
-                  hintText: 'Phone Number or ID',
+                  hintText: _isIndividual
+                      ? 'Phone Number'
+                      : (_businessType == 'TILLNO'
+                            ? 'Till Number'
+                            : 'Account Number'),
                   hintStyle: TextStyle(color: titleColor.withOpacity(0.3)),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  suffixIcon: Icon(Icons.contacts, color: titleColor.withOpacity(0.5)),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  suffixIcon: _isIndividual
+                      ? Icon(Icons.contacts, color: titleColor.withOpacity(0.5))
+                      : null,
                 ),
               ),
             ),
@@ -311,9 +463,13 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                           ),
                           decoration: InputDecoration(
                             hintText: '0.00',
-                            hintStyle: TextStyle(color: titleColor.withOpacity(0.2)),
+                            hintStyle: TextStyle(
+                              color: titleColor.withOpacity(0.2),
+                            ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 24),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 24,
+                            ),
                           ),
                           onChanged: (_) => setState(() {}),
                         ),
@@ -323,9 +479,14 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.05),
+                      color: isDark
+                          ? Colors.white.withOpacity(0.05)
+                          : Colors.black.withOpacity(0.05),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -376,7 +537,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Footer Text
             Center(
               child: Text(

@@ -177,9 +177,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildDropdown(),
-                  ),
+                  Expanded(child: _buildDropdown()),
                 ],
               ),
               const SizedBox(height: 20),
@@ -250,14 +248,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         ),
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: const TextStyle(
-            color: AppColors.slate400,
-            fontSize: 14,
-          ),
-          floatingLabelStyle: TextStyle(
-            color: accent,
-            fontSize: 12,
-          ),
+          labelStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
+          floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
           hintText: hintText,
           hintStyle: TextStyle(
             color: isDark
@@ -266,7 +258,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             fontSize: 14,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
     );

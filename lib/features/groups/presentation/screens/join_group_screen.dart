@@ -5,6 +5,7 @@ import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 class JoinGroupScreen extends StatefulWidget {
   const JoinGroupScreen({super.key});
@@ -18,8 +19,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
   bool _isLoading = false;
   bool _isSearching = false;
 
-  // Mock result after searching
-  Map<String, dynamic>? _foundGroup;
+  GroupPreview? _foundGroup;
 
   @override
   void dispose() {
@@ -28,7 +28,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
   }
 
   void _searchGroup() async {
-    if (_codeController.text.trim().isEmpty) {
+    final groupId = _codeController.text.trim();
+    if (groupId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please enter a Group ID or Account Number'),
@@ -40,26 +41,46 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       _isSearching = true;
       _foundGroup = null;
     });
-    await Future.delayed(const Duration(milliseconds: 900));
+
+    final response = await context.read<GroupsRepository>().previewGroup(
+      groupId,
+    );
+
     if (mounted) {
       setState(() {
         _isSearching = false;
-        _foundGroup = {
-          'name': 'Hesabu Savings Circle',
-          'members': 24,
-          'frequency': 'Monthly',
-          'balance': 'KSh 128,450.00',
-          'admin': 'Jane Wanjiku',
-          'code': _codeController.text.trim(),
-        };
+        if (!response.hasError && response.data != null) {
+          _foundGroup = response.data;
+        } else {
+          // Fallback if preview fails
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                response.errorMessage ??
+                    'Failed to get preview continue anyways',
+              ),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          // Create a minimal preview object so they can still try to join
+          _foundGroup = GroupPreview(
+            id: groupId,
+            name: 'Group: $groupId',
+            balance: 0.0,
+            membersCount: 0,
+            adminName: 'Unknown',
+            description: 'No description available',
+          );
+        }
       });
     }
   }
 
   void _joinGroup() async {
+    if (_foundGroup == null) return;
     setState(() => _isLoading = true);
     final response = await context.read<GroupsRepository>().joinGroup(
-      _codeController.text.trim(),
+      _foundGroup!.id,
     );
     if (mounted) {
       setState(() => _isLoading = false);
@@ -71,7 +92,10 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Failed to join group. Please check the ID.'),
+            content: Text(
+              response.errorMessage ??
+                  'Failed to join group. Please check the ID.',
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -244,11 +268,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                               ).textTheme.bodyLarge?.color,
                             ),
                             textCapitalization: TextCapitalization.characters,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'e.g. HSB-2024-001',
-                              hintStyle: const TextStyle(
-                                color: AppColors.slate400,
-                              ),
+                              hintStyle: TextStyle(color: AppColors.slate400),
                               border: InputBorder.none,
                             ),
                             onChanged: (_) => setState(() {}),
@@ -256,7 +278,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                         ),
                         if (_codeController.text.isNotEmpty)
                           IconButton(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.clear,
                               color: AppColors.slate400,
                               size: 18,
@@ -377,11 +399,15 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
   Widget _resultCard(
     BuildContext context,
-    Map<String, dynamic> group,
+    GroupPreview group,
     Color accent,
     Color bg,
     Color border,
   ) {
+    final currencyFormat = NumberFormat.currency(
+      symbol: 'KSh ',
+      decimalDigits: 2,
+    );
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -409,7 +435,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      group['name'],
+                      group.name,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -417,7 +443,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                       ),
                     ),
                     Text(
-                      'Admin: ${group['admin']}',
+                      'Admin: ${group.adminName}',
                       style: const TextStyle(
                         color: AppColors.slate500,
                         fontSize: 12,
@@ -442,9 +468,14 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _stat(context, 'Members', '${group['members']}', accent),
-              _stat(context, 'Frequency', group['frequency'], accent),
-              _stat(context, 'Balance', group['balance'], accent),
+              _stat(context, 'Members', '${group.membersCount}', accent),
+              _stat(context, 'Status', 'Active', accent),
+              _stat(
+                context,
+                'Balance',
+                currencyFormat.format(group.balance),
+                accent,
+              ),
             ],
           ),
         ],

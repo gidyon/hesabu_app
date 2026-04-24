@@ -49,7 +49,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   void _updateStrength() {
     final password = _newPasswordController.text;
     setState(() {
-      _hasMinLength = password.length >= 8;
+      _hasMinLength = password.length >= 4;
       _hasNumber = password.contains(RegExp(r'[0-9]'));
       _hasSpecialChar = password.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
 
@@ -57,7 +57,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
       if (_hasMinLength) score++;
       if (_hasNumber) score++;
       if (_hasSpecialChar) score++;
-      if (password.length >= 12) score++;
+      if (password.length >= 8) score++;
 
       _strengthLevel = score;
     });
@@ -314,90 +314,6 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
-
-                    // Strength Meter
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.05),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'PASSWORD STRENGTH',
-                                style: TextStyle(
-                                  color: AppColors.slate400,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1,
-                                ),
-                              ),
-                              Text(
-                                _strengthLevel >= 3
-                                    ? 'Strong'
-                                    : (_strengthLevel >= 2 ? 'Medium' : 'Weak'),
-                                style: TextStyle(
-                                  color: accent,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: List.generate(4, (index) {
-                              return Expanded(
-                                child: Container(
-                                  height: 6,
-                                  margin: EdgeInsets.only(
-                                    right: index < 3 ? 6 : 0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: index < _strengthLevel
-                                        ? accent
-                                        : titleColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Requirements
-                          _buildRequirementItem(
-                            'At least 8 characters',
-                            _hasMinLength,
-                            accent,
-                            titleColor,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildRequirementItem(
-                            'At least one number',
-                            _hasNumber,
-                            accent,
-                            titleColor,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildRequirementItem(
-                            'At least one special character',
-                            _hasSpecialChar,
-                            accent,
-                            titleColor,
-                          ),
-                        ],
-                      ),
-                    ),
-
                     const SizedBox(height: 24),
 
                     // Confirm Password
@@ -457,6 +373,92 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         ],
                       ),
                     ),
+
+                    const SizedBox(height: 24),
+
+                    // Strength Meter
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.black.withOpacity(0.03),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: titleColor.withOpacity(0.05),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'PASSWORD STRENGTH',
+                                style: TextStyle(
+                                  color: AppColors.slate400,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              Text(
+                                _strengthLevel >= 3
+                                    ? 'Strong'
+                                    : (_strengthLevel >= 2 ? 'Medium' : 'Weak'),
+                                style: TextStyle(
+                                  color: accent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: List.generate(4, (index) {
+                              return Expanded(
+                                child: Container(
+                                  height: 6,
+                                  margin: EdgeInsets.only(
+                                    right: index < 3 ? 6 : 0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: index < _strengthLevel
+                                        ? accent
+                                        : titleColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Requirements
+                          _buildRequirementItem(
+                            'At least 4 characters',
+                            _hasMinLength,
+                            accent,
+                            titleColor,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildRequirementItem(
+                            'At least one number',
+                            _hasNumber,
+                            accent,
+                            titleColor,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildRequirementItem(
+                            'At least one special character',
+                            _hasSpecialChar,
+                            accent,
+                            titleColor,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -471,7 +473,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: (_strengthLevel >= 3 && !_isLoading)
+                      onPressed: (_hasMinLength && !_isLoading)
                           ? _onSubmit
                           : null,
                       style: ElevatedButton.styleFrom(

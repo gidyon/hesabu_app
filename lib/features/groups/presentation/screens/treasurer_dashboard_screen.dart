@@ -56,8 +56,8 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
         : Colors.black.withOpacity(0.02);
 
     final currencyFormat = NumberFormat.currency(
-      symbol: '\$',
-      decimalDigits: 0,
+      symbol: 'KSh ',
+      decimalDigits: 2,
     );
 
     return Scaffold(
@@ -300,7 +300,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                             children: [
                               _buildInsightCard(
                                 'TOTAL INFLOW',
-                                '\$2,850',
+                                'KSh 2,850.00',
                                 accent,
                                 cardColor,
                                 titleColor,
@@ -308,7 +308,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                               const SizedBox(width: 16),
                               _buildInsightCard(
                                 'TOTAL OUTFLOW',
-                                '\$1,200',
+                                'KSh 1,200.00',
                                 titleColor,
                                 cardColor,
                                 titleColor,

@@ -107,7 +107,9 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Deposit failed. Please try again.'),
+            content: Text(
+              response.errorMessage ?? 'Deposit failed. Please try again.',
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );

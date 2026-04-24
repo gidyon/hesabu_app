@@ -6,6 +6,7 @@ import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:hesabu_app/core/widgets/auth_icon.dart';
+import 'package:hesabu_app/core/utils/phone_utils.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -228,9 +229,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       labelText: 'Phone Number',
                       hintText: 'e.g. +254 712 345 678',
                       keyboardType: TextInputType.phone,
-                      validator: (value) => (value == null || value.isEmpty)
-                          ? 'Phone is required'
-                          : null,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return 'Phone is required';
+                        if (!PhoneUtils.isValidMsisdn(value))
+                          return 'Invalid phone number format';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 8),
                     _buildInputField(
@@ -248,8 +253,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       validator: (value) {
                         if (value == null || value.isEmpty)
                           return 'Password is required';
-                        if (value.length < 6)
-                          return 'At least 6 characters required';
+                        if (value.length < 4)
+                          return 'At least 4 characters required';
                         return null;
                       },
                     ),

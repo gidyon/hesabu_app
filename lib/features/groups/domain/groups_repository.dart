@@ -68,16 +68,43 @@ class Transaction {
   });
 }
 
+class GroupPreview {
+  final String id;
+  final String name;
+  final double balance;
+  final int membersCount;
+  final String adminName;
+  final String description;
+
+  GroupPreview({
+    required this.id,
+    required this.name,
+    required this.balance,
+    required this.membersCount,
+    required this.adminName,
+    required this.description,
+  });
+}
+
 abstract class GroupsRepository {
   Future<ApiResponse<List<Group>>> getActiveGroups();
   Future<ApiResponse<double>> getTotalSavings();
   Future<ApiResponse<List<Transaction>>> getRecentTransactions(String groupId);
   Future<ApiResponse<double>> getGroupBalance(String groupId);
+  Future<ApiResponse<GroupPreview>> previewGroup(String groupId);
   Future<ApiResponse<bool>> joinGroup(String groupId);
   Future<ApiResponse<bool>> createGroup(Map<String, dynamic> groupData);
+
   Future<ApiResponse<bool>> editGroup(String groupId, Map<String, dynamic> groupData);
   Future<ApiResponse<bool>> inviteMember(String groupId, String msisdn);
   Future<ApiResponse<List<Member>>> getMembers(String groupId);
   Future<ApiResponse<bool>> deposit(String groupId, double amount, String method);
-  Future<ApiResponse<bool>> withdraw(String groupId, double amount, String destination);
+  Future<ApiResponse<bool>> withdraw({
+    required String groupId,
+    required double amount,
+    required String withdrawalType,
+    required String destination,
+    String? billerType,
+    String? billerNumber,
+  });
 }

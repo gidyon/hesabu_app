@@ -68,8 +68,9 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
     final themeController = InheritedThemeController.of(context);
     final isDark = themeController.isDark;
     final accent = themeController.accentColor.primary;
-    final backgroundColor =
-        isDark ? themeController.accentColor.darkBackground : Colors.white;
+    final backgroundColor = isDark
+        ? themeController.accentColor.darkBackground
+        : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final inputColor = isDark
         ? Colors.white.withOpacity(0.05)
@@ -105,7 +106,10 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
             const SizedBox(height: 12),
             Text(
               'Add members to your group by entering their phone number or email address.',
-              style: TextStyle(color: titleColor.withOpacity(0.7), fontSize: 15),
+              style: TextStyle(
+                color: titleColor.withOpacity(0.7),
+                fontSize: 15,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),

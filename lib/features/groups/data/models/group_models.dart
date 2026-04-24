@@ -196,3 +196,33 @@ class MemberModel {
     );
   }
 }
+
+class GroupPreviewModel {
+  final String id;
+  final String name;
+  final double balance;
+  final int membersCount;
+  final String adminName;
+  final String description;
+
+  GroupPreviewModel({
+    required this.id,
+    required this.name,
+    required this.balance,
+    required this.membersCount,
+    required this.adminName,
+    required this.description,
+  });
+
+  factory GroupPreviewModel.fromJson(Map<String, dynamic> json) {
+    return GroupPreviewModel(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      balance: (json['balance'] as num?)?.toDouble() ?? 0.0,
+      membersCount: json['members_count'] as int? ?? 0,
+      adminName: json['admin_name']?.toString() ?? '',
+      description: json['description']?.toString() ?? json['dexcription']?.toString() ?? '',
+    );
+  }
+}
+

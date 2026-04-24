@@ -200,20 +200,34 @@ class GroupsRemoteDataSource {
     }
   }
 
-  Future<bool> withdraw(
-    String groupId,
-    double amount,
-    String destination,
-  ) async {
+  Future<bool> withdraw({
+    required String groupId,
+    required double amount,
+    required String withdrawalType,
+    required String destination,
+    String? billerType,
+    String? billerNumber,
+  }) async {
     try {
+      final Map<String, dynamic> data = {
+        'group_id': groupId,
+        'amount': amount.toString(),
+        'withdrawal_type': withdrawalType,
+        'destination': destination,
+      };
+
+      if (billerType != null) {
+        data['biller_type'] = billerType;
+      }
+
+      if (billerNumber != null) {
+        // Based on user example, Paybill uses "BILLER_NUMBER"
+        data['BILLER_NUMBER'] = billerNumber;
+      }
+
       final response = await apiClient.dio.post(
         '/groups/withdraw',
-        data: {
-          'group_id': groupId,
-          'amount': amount.toString(),
-          'withdrawal_type': 'INDIVIDUAL',
-          'destination': destination,
-        },
+        data: data,
       );
       return response.statusCode == 200 || response.statusCode == 201;
     } on DioException catch (e) {
@@ -222,6 +236,24 @@ class GroupsRemoteDataSource {
         final message = (data is Map && data['message'] != null)
             ? data['message']
             : 'Failed to withdraw funds';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
+    }
+  }
+  Future<GroupPreviewModel> previewGroup(String id) async {
+    try {
+      final response = await apiClient.dio.get('/groups/preview/$id');
+      return GroupPreviewModel.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to preview group';
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,
