@@ -96,7 +96,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
               response.errorMessage ??
                   'Failed to join group. Please check the ID.',
             ),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

@@ -15,9 +15,12 @@ class GroupsRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final data = e.response?.data;
-        final message = (data is Map && data['message'] != null)
-            ? data['message']
-            : 'Failed to fetch groups';
+        String message = 'Failed to fetch groups';
+        if (data is Map) {
+          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+        } else {
+          message = e.response?.statusMessage ?? message;
+        }
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,
@@ -37,9 +40,12 @@ class GroupsRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final data = e.response?.data;
-        final message = (data is Map && data['message'] != null)
-            ? data['message']
-            : 'Failed to fetch statements';
+        String message = 'Failed to fetch statements';
+        if (data is Map) {
+          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+        } else {
+          message = e.response?.statusMessage ?? message;
+        }
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,
@@ -59,9 +65,12 @@ class GroupsRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final data = e.response?.data;
-        final message = (data is Map && data['message'] != null)
-            ? data['message']
-            : 'Failed to fetch members';
+        String message = 'Failed to fetch members';
+        if (data is Map) {
+          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+        } else {
+          message = e.response?.statusMessage ?? message;
+        }
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,
@@ -81,9 +90,12 @@ class GroupsRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final data = e.response?.data;
-        final message = (data is Map && data['message'] != null)
-            ? data['message']
-            : 'Failed to join group';
+        String message = 'Failed to join group';
+        if (data is Map) {
+          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+        } else {
+          message = e.response?.statusMessage ?? message;
+        }
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,
@@ -251,9 +263,12 @@ class GroupsRemoteDataSource {
     } on DioException catch (e) {
       if (e.response != null) {
         final data = e.response?.data;
-        final message = (data is Map && data['message'] != null)
-            ? data['message']
-            : 'Failed to preview group';
+        String message = 'Failed to preview group';
+        if (data is Map) {
+          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+        } else {
+          message = e.response?.statusMessage ?? message;
+        }
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,

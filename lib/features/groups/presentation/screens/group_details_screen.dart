@@ -111,7 +111,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(error ?? 'Error loading some data'),
-              backgroundColor: Colors.redAccent,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }

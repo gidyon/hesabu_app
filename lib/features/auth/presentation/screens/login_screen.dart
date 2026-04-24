@@ -126,17 +126,22 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Login failed. Please check your credentials.'),
-            backgroundColor: Colors.redAccent,
+            content: Text(
+              response.errorMessage ??
+                  'Login failed. Please check your credentials.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('An unexpected error occurred. Please try again.'),
-            backgroundColor: Colors.redAccent,
+          SnackBar(
+            content: const Text(
+              'An unexpected error occurred. Please try again.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

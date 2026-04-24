@@ -38,7 +38,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(response.errorMessage ?? 'Failed to load groups.'),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

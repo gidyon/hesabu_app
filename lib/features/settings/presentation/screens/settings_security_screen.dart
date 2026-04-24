@@ -43,9 +43,9 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
         if (storedPassword != password) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Incorrect password. Setup failed.'),
-                backgroundColor: Colors.redAccent,
+              SnackBar(
+                content: const Text('Incorrect password. Setup failed.'),
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }

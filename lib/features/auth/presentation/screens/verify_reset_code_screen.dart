@@ -82,7 +82,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(response.errorMessage ?? 'Verification failed.'),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

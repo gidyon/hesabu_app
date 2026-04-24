@@ -64,17 +64,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Registration failed. Please try again.'),
-            backgroundColor: Colors.redAccent,
+            content: Text(
+              response.errorMessage ?? 'Registration failed. Please try again.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('An unexpected error occurred. Please try again.'),
-            backgroundColor: Colors.redAccent,
+          SnackBar(
+            content: const Text(
+              'An unexpected error occurred. Please try again.',
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }

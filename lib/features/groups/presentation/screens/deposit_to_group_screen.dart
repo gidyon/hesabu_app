@@ -46,7 +46,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response.errorMessage ?? 'Failed to load groups.'),
-              backgroundColor: Colors.redAccent,
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -110,7 +110,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
             content: Text(
               response.errorMessage ?? 'Deposit failed. Please try again.',
             ),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -125,58 +125,64 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: accent.withOpacity(0.15),
-                shape: BoxShape.circle,
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: accent.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_rounded,
+                  color: accent,
+                  size: 32,
+                ),
               ),
-              child: Icon(Icons.check_circle_rounded, color: accent, size: 32),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Deposit Successful!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'KSh ${amount.toStringAsFixed(2)} has been deposited\nto ${group['name']}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.slate500,
-                fontSize: 14,
-                height: 1.5,
+              const SizedBox(height: 16),
+              const Text(
+                'Deposit Successful!',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  context.pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+              const SizedBox(height: 8),
+              Text(
+                'KSh ${amount.toStringAsFixed(2)} has been deposited\nto ${group['name']}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.slate500,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

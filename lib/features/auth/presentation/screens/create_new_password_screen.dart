@@ -160,7 +160,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
               response.errorMessage ??
                   'Failed to reset password. Please try again.',
             ),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
