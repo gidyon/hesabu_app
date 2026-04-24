@@ -5,6 +5,7 @@ import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:hesabu_app/core/widgets/auth_icon.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -142,6 +143,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
 
                     const SizedBox(height: 64),
+
+                    const Center(child: AuthIcon()),
+                    const SizedBox(height: 24),
 
                     Text(
                       'Forgot Password?',

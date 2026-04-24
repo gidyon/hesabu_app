@@ -3,6 +3,7 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
+import 'package:hesabu_app/core/widgets/auth_icon.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
   final String msisdn;
@@ -208,6 +209,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Center(child: AuthIcon()),
+                    const SizedBox(height: 24),
+
                     const Text(
                       'Set your new password',
                       style: TextStyle(

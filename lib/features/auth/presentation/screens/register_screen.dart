@@ -5,6 +5,7 @@ import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:hesabu_app/core/widgets/auth_icon.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -168,6 +169,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
 
                     const SizedBox(height: 48),
+
+                    const Center(child: AuthIcon()),
+                    const SizedBox(height: 24),
 
                     Text(
                       'Create Account',

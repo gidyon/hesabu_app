@@ -3,6 +3,7 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:hesabu_app/core/widgets/auth_icon.dart';
 
 import 'dart:async';
 
@@ -145,6 +146,9 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                   ),
 
                   const SizedBox(height: 40),
+
+                  const Center(child: AuthIcon()),
+                  const SizedBox(height: 24),
 
                   const Text(
                     'Verify Reset Code',

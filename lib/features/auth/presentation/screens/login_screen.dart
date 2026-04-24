@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hesabu_app/core/widgets/auth_icon.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -213,6 +214,9 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                     ),
 
                     const SizedBox(height: 48),
+
+                    const Center(child: AuthIcon()),
+                    const SizedBox(height: 24),
 
                     Text(
                       'Welcome Back',
