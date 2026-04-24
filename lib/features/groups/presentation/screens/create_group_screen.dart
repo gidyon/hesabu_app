@@ -255,8 +255,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           hintText: hintText,
           hintStyle: TextStyle(
             color: isDark
-                ? const Color(0xFF9db9a6).withOpacity(0.5)
-                : AppColors.slate400.withOpacity(0.5),
+                ? const Color(0xFF9db9a6).withValues(alpha: 0.5)
+                : AppColors.slate400.withValues(alpha: 0.5),
             fontSize: 14,
           ),
           border: InputBorder.none,

@@ -52,8 +52,8 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
         : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final cardColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.02);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.02);
 
     final currencyFormat = NumberFormat.currency(
       symbol: 'KSh ',
@@ -115,10 +115,10 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                             decoration: BoxDecoration(
                               color: isDark
                                   ? const Color(0xFF1a2e20)
-                                  : accent.withOpacity(0.1),
+                                  : accent.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: titleColor.withOpacity(0.05),
+                                color: titleColor.withValues(alpha: 0.05),
                               ),
                             ),
                             child: Column(
@@ -127,7 +127,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                 Text(
                                   'TOTAL GROUP BALANCE',
                                   style: TextStyle(
-                                    color: accent.withOpacity(0.7),
+                                    color: accent.withValues(alpha: 0.7),
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 1,
@@ -150,7 +150,9 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                     Text(
                                       '.00',
                                       style: TextStyle(
-                                        color: titleColor.withOpacity(0.6),
+                                        color: titleColor.withValues(
+                                          alpha: 0.6,
+                                        ),
                                         fontSize: 24,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -243,7 +245,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                 height: 48,
                                 decoration: BoxDecoration(
                                   color: (isIncome ? accent : Colors.red)
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -263,7 +265,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                               subtitle: Text(
                                 '${tx.type} • ${tx.date}',
                                 style: TextStyle(
-                                  color: titleColor.withOpacity(0.4),
+                                  color: titleColor.withValues(alpha: 0.4),
                                   fontSize: 12,
                                 ),
                               ),
@@ -282,7 +284,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
                                   Text(
                                     tx.method.toUpperCase(),
                                     style: TextStyle(
-                                      color: titleColor.withOpacity(0.4),
+                                      color: titleColor.withValues(alpha: 0.4),
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -339,7 +341,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: titleColor.withOpacity(0.05)),
+          border: Border.all(color: titleColor.withValues(alpha: 0.05)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +349,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
             Text(
               label,
               style: TextStyle(
-                color: titleColor.withOpacity(0.4),
+                color: titleColor.withValues(alpha: 0.4),
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
@@ -373,7 +375,9 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
       padding: const EdgeInsets.only(top: 12, bottom: 20),
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border(top: BorderSide(color: titleColor.withOpacity(0.05))),
+        border: Border(
+          top: BorderSide(color: titleColor.withValues(alpha: 0.05)),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -417,14 +421,14 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
       children: [
         Icon(
           icon,
-          color: isActive ? Colors.white : titleColor.withOpacity(0.24),
+          color: isActive ? Colors.white : titleColor.withValues(alpha: 0.24),
           size: 24,
         ),
         const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            color: isActive ? Colors.white : titleColor.withOpacity(0.24),
+            color: isActive ? Colors.white : titleColor.withValues(alpha: 0.24),
             fontSize: 10,
             fontWeight: FontWeight.bold,
           ),

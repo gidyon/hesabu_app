@@ -75,8 +75,8 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
         : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final inputColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.03);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.03);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -109,7 +109,7 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
             Text(
               'Add members to your group by entering their phone number or email address.',
               style: TextStyle(
-                color: titleColor.withOpacity(0.7),
+                color: titleColor.withValues(alpha: 0.7),
                 fontSize: 15,
               ),
               textAlign: TextAlign.center,
@@ -126,9 +126,9 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.05),
+                color: Colors.orange.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.2)),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
               ),
               child: const Row(
                 children: [
@@ -188,7 +188,7 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
       child: Text(
         label,
         style: TextStyle(
-          color: titleColor.withOpacity(0.4),
+          color: titleColor.withValues(alpha: 0.4),
           fontSize: 13,
           fontWeight: FontWeight.w600,
         ),
@@ -206,14 +206,14 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
       decoration: BoxDecoration(
         color: inputColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: titleColor.withOpacity(0.05)),
+        border: Border.all(color: titleColor.withValues(alpha: 0.05)),
       ),
       child: TextFormField(
         controller: controller,
         style: TextStyle(color: titleColor),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(color: titleColor.withOpacity(0.2)),
+          hintStyle: TextStyle(color: titleColor.withValues(alpha: 0.2)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(18),
         ),

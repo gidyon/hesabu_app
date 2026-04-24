@@ -43,9 +43,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     final controller = InheritedThemeController.of(context);
     final isDark = controller.isDark;
     final accent = controller.accentColor.primary;
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
+        ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
 
     return Scaffold(
@@ -64,7 +64,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -119,7 +121,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: accent.withOpacity(0.3),
+                                        color: accent.withValues(alpha: 0.3),
                                         width: 4,
                                       ),
                                       image: _profile!.avatarUrl.startsWith('/')
@@ -137,7 +139,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                             ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.2),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.2,
+                                          ),
                                           blurRadius: 10,
                                           offset: const Offset(0, 5),
                                         ),
@@ -196,7 +200,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: accent.withOpacity(0.1),
+                                  color: accent.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Row(
@@ -329,10 +333,10 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: Colors.red.withOpacity(0.1),
+                                    color: Colors.red.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: Colors.red.withOpacity(0.3),
+                                      color: Colors.red.withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: const Row(
@@ -370,8 +374,8 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                     Text(
                                       'Made with precision for financial growth',
                                       style: TextStyle(
-                                        color: AppColors.slate500.withOpacity(
-                                          0.7,
+                                        color: AppColors.slate500.withValues(
+                                          alpha: 0.7,
                                         ),
                                         fontSize: 10,
                                       ),
@@ -424,7 +428,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
           border: showDivider
               ? Border(
                   bottom: BorderSide(
-                    color: Theme.of(context).dividerColor.withOpacity(0.08),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.08),
                   ),
                 )
               : null,
@@ -435,7 +441,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.15),
+                color: iconColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: iconColor),

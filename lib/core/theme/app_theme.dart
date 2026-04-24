@@ -36,23 +36,59 @@ class AppTheme {
       visualDensity: VisualDensity.compact,
       textTheme: GoogleFonts.interTextTheme(
         (isDark ? ThemeData.dark().textTheme : ThemeData.light().textTheme)
-          .copyWith(
-            displayLarge: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            displayMedium: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            displaySmall: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            headlineLarge: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            headlineMedium: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            headlineSmall: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            titleLarge: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            titleMedium: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-            titleSmall: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            bodyLarge: const TextStyle(fontSize: 14),
-            bodyMedium: const TextStyle(fontSize: 12),
-            bodySmall: const TextStyle(fontSize: 11),
-            labelLarge: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            labelMedium: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-            labelSmall: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
-          )
+            .copyWith(
+              displayLarge: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              displayMedium: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+              displaySmall: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              headlineLarge: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+              headlineMedium: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              headlineSmall: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              titleLarge: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              titleMedium: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              titleSmall: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+              bodyLarge: const TextStyle(fontSize: 14),
+              bodyMedium: const TextStyle(fontSize: 12),
+              bodySmall: const TextStyle(fontSize: 11),
+              labelLarge: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+              labelMedium: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+              ),
+              labelSmall: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
       ).apply(bodyColor: textColor, displayColor: textColor),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,

@@ -26,7 +26,7 @@ extension AppAccentColorX on AppAccentColor {
   Color get primary {
     switch (this) {
       case AppAccentColor.emerald:
-        return const Color(0xFF2bee6c);
+        return const Color(0xFF4ade80);
       case AppAccentColor.brownish:
         return const Color(0xFFc47c3c);
       case AppAccentColor.orangish:

@@ -107,9 +107,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
+        ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
 
     return Scaffold(
@@ -124,7 +124,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
               width: 220,
               height: 220,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.08),
+                color: accent.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
             ),
@@ -142,7 +142,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -153,7 +155,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                       height: 40,
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.07)
+                            ? Colors.white.withValues(alpha: 0.07)
                             : AppColors.slate100,
                         shape: BoxShape.circle,
                       ),
@@ -197,7 +199,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                           width: 72,
                           height: 72,
                           decoration: BoxDecoration(
-                            color: accent.withOpacity(0.15),
+                            color: accent.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -250,7 +252,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: _codeController.text.isNotEmpty
-                            ? accent.withOpacity(0.5)
+                            ? accent.withValues(alpha: 0.5)
                             : cardBorder,
                       ),
                     ),
@@ -413,7 +415,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: accent.withOpacity(0.4), width: 1.5),
+        border: Border.all(color: accent.withValues(alpha: 0.4), width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -424,7 +426,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(0.15),
+                  color: accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.group, color: accent, size: 24),
@@ -455,7 +457,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(0.1),
+                  color: accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(Icons.check_circle, color: accent, size: 18),
@@ -463,7 +465,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Divider(color: accent.withOpacity(0.15)),
+          Divider(color: accent.withValues(alpha: 0.15)),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -542,7 +544,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                 ? BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: Theme.of(context).dividerColor.withOpacity(0.08),
+                        color: Theme.of(
+                          context,
+                        ).dividerColor.withValues(alpha: 0.08),
                       ),
                     ),
                   )
@@ -553,7 +557,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.12),
+                    color: accent.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Center(

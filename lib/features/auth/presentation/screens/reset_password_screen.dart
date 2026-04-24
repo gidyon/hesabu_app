@@ -46,7 +46,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Failed to send reset code. Please try again.'),
+            content: Text(
+              response.errorMessage ??
+                  'Failed to send reset code. Please try again.',
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
@@ -76,11 +79,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               width: 256,
               height: 256,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
+                color: accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(128),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha: 0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -95,11 +98,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               width: 384,
               height: 384,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.05),
+                color: accent.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(192),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.05),
+                    color: accent.withValues(alpha: 0.05),
                     blurRadius: 120,
                     spreadRadius: 20,
                   ),
@@ -128,8 +131,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.white.withOpacity(0.05)
-                                  : Colors.black.withOpacity(0.05),
+                                  ? Colors.white.withValues(alpha: 0.05)
+                                  : Colors.black.withValues(alpha: 0.05),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -228,11 +231,11 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       constraints: const BoxConstraints(minHeight: 56),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.black.withOpacity(0.03),
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: titleColor.withOpacity(0.1),
+                          color: titleColor.withValues(alpha: 0.1),
                         ),
                       ),
                       child: Row(
@@ -262,7 +265,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Enter your email or phone',
                                 hintStyle: TextStyle(
-                                  color: titleColor.withOpacity(0.3),
+                                  color: titleColor.withValues(alpha: 0.3),
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: const EdgeInsets.only(
@@ -373,7 +376,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: isActive || isDone ? accent : accent.withOpacity(0.15),
+              color: isActive || isDone
+                  ? accent
+                  : accent.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -414,7 +419,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Container(
       width: 24,
       height: 2,
-      color: isActive ? accent : accent.withOpacity(0.2),
+      color: isActive ? accent : accent.withValues(alpha: 0.2),
       margin: const EdgeInsets.only(bottom: 20),
     );
   }

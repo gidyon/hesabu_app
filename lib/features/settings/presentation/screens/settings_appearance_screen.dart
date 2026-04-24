@@ -12,9 +12,9 @@ class SettingsAppearanceScreen extends StatelessWidget {
     final controller = InheritedThemeController.of(context);
     final isDark = controller.isDark;
     final accent = controller.accentColor;
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
+        ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
 
     return Scaffold(
@@ -33,7 +33,9 @@ class SettingsAppearanceScreen extends StatelessWidget {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -91,7 +93,7 @@ class SettingsAppearanceScreen extends StatelessWidget {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.purple.withOpacity(0.2),
+                              color: Colors.purple.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -170,15 +172,15 @@ class SettingsAppearanceScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          accent.primary.withOpacity(0.15),
-                          accent.darkBackground.withOpacity(0.8),
+                          accent.primary.withValues(alpha: 0.15),
+                          accent.darkBackground.withValues(alpha: 0.8),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: accent.primary.withOpacity(0.3),
+                        color: accent.primary.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -283,7 +285,9 @@ class SettingsAppearanceScreen extends StatelessWidget {
           border: showDivider
               ? Border(
                   bottom: BorderSide(
-                    color: Theme.of(context).dividerColor.withOpacity(0.07),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.07),
                   ),
                 )
               : null,
@@ -295,10 +299,10 @@ class SettingsAppearanceScreen extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: primary.withOpacity(0.15),
+                color: primary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? primary : primary.withOpacity(0.3),
+                  color: isSelected ? primary : primary.withValues(alpha: 0.3),
                   width: isSelected ? 2.5 : 1,
                 ),
               ),
@@ -339,7 +343,7 @@ class SettingsAppearanceScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.slate400.withOpacity(0.4),
+                          color: AppColors.slate400.withValues(alpha: 0.4),
                         ),
                       ),
                     ),

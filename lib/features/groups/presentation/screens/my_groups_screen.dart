@@ -72,7 +72,9 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -147,20 +149,22 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : AppColors.slate100,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.05)
+            : AppColors.slate100,
         borderRadius: BorderRadius.circular(16),
       ),
       child: TextField(
         decoration: InputDecoration(
           hintText: 'Search groups...',
           hintStyle: TextStyle(
-            color: titleColor.withOpacity(0.4),
+            color: titleColor.withValues(alpha: 0.4),
             fontSize: 14,
           ),
           border: InputBorder.none,
           icon: Icon(
             Icons.search,
-            color: titleColor.withOpacity(0.4),
+            color: titleColor.withValues(alpha: 0.4),
             size: 20,
           ),
         ),
@@ -175,7 +179,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     Color accent,
     bool isDark,
   ) {
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),
@@ -184,13 +188,18 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: isDark
+              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
         ),
         child: Column(
           children: [
@@ -201,7 +210,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.15),
+                    color: accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ClipRRect(
@@ -273,7 +282,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -293,7 +302,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
               child: LinearProgressIndicator(
                 value: group.progressPercentage,
                 backgroundColor: isDark
-                    ? Colors.white.withOpacity(0.1)
+                    ? Colors.white.withValues(alpha: 0.1)
                     : AppColors.slate100,
                 valueColor: AlwaysStoppedAnimation<Color>(accent),
                 minHeight: 8,
@@ -314,13 +323,13 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.1),
+              color: accent.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.groups_outlined,
               size: 80,
-              color: accent.withOpacity(0.5),
+              color: accent.withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 32),

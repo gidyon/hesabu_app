@@ -12,7 +12,7 @@ class AuthIcon extends StatelessWidget {
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.15),
+        color: accent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(child: Icon(Icons.wallet_rounded, color: accent, size: 32)),

@@ -108,7 +108,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.2),
+                        color: accent.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.check_circle, color: accent, size: 32),
@@ -198,8 +198,8 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     height: 40,
                     decoration: BoxDecoration(
                       color: isDark
-                          ? Colors.white.withOpacity(0.1)
-                          : Colors.black.withOpacity(0.05),
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -273,10 +273,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       height: 56,
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.black.withOpacity(0.03),
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: titleColor.withOpacity(0.1)),
+                        border: Border.all(
+                          color: titleColor.withValues(alpha: 0.1),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -288,7 +290,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               decoration: InputDecoration(
                                 hintText: '••••••••',
                                 hintStyle: TextStyle(
-                                  color: titleColor.withOpacity(0.3),
+                                  color: titleColor.withValues(alpha: 0.3),
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: const EdgeInsets.symmetric(
@@ -302,7 +304,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               _isNewPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color: titleColor.withOpacity(0.3),
+                              color: titleColor.withValues(alpha: 0.3),
                             ),
                             onPressed: () {
                               setState(() {
@@ -332,10 +334,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       height: 56,
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.black.withOpacity(0.03),
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: titleColor.withOpacity(0.1)),
+                        border: Border.all(
+                          color: titleColor.withValues(alpha: 0.1),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -347,7 +351,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               decoration: InputDecoration(
                                 hintText: '••••••••',
                                 hintStyle: TextStyle(
-                                  color: titleColor.withOpacity(0.3),
+                                  color: titleColor.withValues(alpha: 0.3),
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: const EdgeInsets.symmetric(
@@ -361,7 +365,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               _isConfirmPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color: titleColor.withOpacity(0.3),
+                              color: titleColor.withValues(alpha: 0.3),
                             ),
                             onPressed: () {
                               setState(() {
@@ -381,11 +385,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.05)
-                            : Colors.black.withOpacity(0.03),
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: titleColor.withOpacity(0.05),
+                          color: titleColor.withValues(alpha: 0.05),
                         ),
                       ),
                       child: Column(
@@ -426,7 +430,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                                   decoration: BoxDecoration(
                                     color: index < _strengthLevel
                                         ? accent
-                                        : titleColor.withOpacity(0.1),
+                                        : titleColor.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),
@@ -482,7 +486,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        shadowColor: accent.withOpacity(0.2),
+                        shadowColor: accent.withValues(alpha: 0.2),
                         elevation: 10,
                       ),
                       child: _isLoading
@@ -558,7 +562,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
       children: [
         Icon(
           Icons.check_circle,
-          color: isMet ? accent : titleColor.withOpacity(0.3),
+          color: isMet ? accent : titleColor.withValues(alpha: 0.3),
           size: 18,
         ),
         const SizedBox(width: 8),

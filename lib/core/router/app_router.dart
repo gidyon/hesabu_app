@@ -3,7 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hesabu_app/core/router/scaffold_with_nav_bar.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/intro_screen.dart';
 import 'package:hesabu_app/features/home/presentation/screens/home_screen.dart';
-import 'package:hesabu_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:hesabu_app/features/auth/presentation/screens/login_screen.dart'
+    hide Center;
 import 'package:hesabu_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/verify_reset_code_screen.dart';

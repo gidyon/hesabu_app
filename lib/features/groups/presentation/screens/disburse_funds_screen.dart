@@ -111,7 +111,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(0.15),
+                  color: accent.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -168,9 +168,9 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withOpacity(0.03) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.05)
+        ? Colors.white.withValues(alpha: 0.05)
         : AppColors.slate200;
     final titleColor = isDark ? Colors.white : Colors.black87;
 
@@ -216,7 +216,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         Text(
                           widget.group?.name ?? 'Unknown Group',
                           style: TextStyle(
-                            color: accent.withOpacity(0.9),
+                            color: accent.withValues(alpha: 0.9),
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                           ),
@@ -225,7 +225,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         Text(
                           'Available: KSh ${widget.group?.balance.toStringAsFixed(2) ?? '0.00'}',
                           style: TextStyle(
-                            color: titleColor.withOpacity(0.6),
+                            color: titleColor.withValues(alpha: 0.6),
                             fontSize: 13,
                           ),
                         ),
@@ -234,7 +234,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                   ),
                   Icon(
                     Icons.keyboard_arrow_down,
-                    color: titleColor.withOpacity(0.5),
+                    color: titleColor.withValues(alpha: 0.5),
                   ),
                 ],
               ),
@@ -265,7 +265,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                           style: TextStyle(
                             color: _isIndividual
                                 ? Colors.white
-                                : titleColor.withOpacity(0.5),
+                                : titleColor.withValues(alpha: 0.5),
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -287,7 +287,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                           style: TextStyle(
                             color: !_isIndividual
                                 ? Colors.white
-                                : titleColor.withOpacity(0.5),
+                                : titleColor.withValues(alpha: 0.5),
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -317,7 +317,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: _businessType == 'TILLNO'
-                                ? accent.withOpacity(0.1)
+                                ? accent.withValues(alpha: 0.1)
                                 : Colors.transparent,
                             borderRadius: const BorderRadius.horizontal(
                               left: Radius.circular(12),
@@ -329,7 +329,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                             style: TextStyle(
                               color: _businessType == 'TILLNO'
                                   ? accent
-                                  : titleColor.withOpacity(0.5),
+                                  : titleColor.withValues(alpha: 0.5),
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),
@@ -344,7 +344,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: _businessType == 'PAYBILL'
-                                ? accent.withOpacity(0.1)
+                                ? accent.withValues(alpha: 0.1)
                                 : Colors.transparent,
                             borderRadius: const BorderRadius.horizontal(
                               right: Radius.circular(12),
@@ -356,7 +356,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                             style: TextStyle(
                               color: _businessType == 'PAYBILL'
                                   ? accent
-                                  : titleColor.withOpacity(0.5),
+                                  : titleColor.withValues(alpha: 0.5),
                               fontWeight: FontWeight.bold,
                               fontSize: 12,
                             ),
@@ -385,7 +385,9 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                   style: TextStyle(color: titleColor),
                   decoration: InputDecoration(
                     hintText: 'Enter Paybill No (e.g. 247247)',
-                    hintStyle: TextStyle(color: titleColor.withOpacity(0.3)),
+                    hintStyle: TextStyle(
+                      color: titleColor.withValues(alpha: 0.3),
+                    ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -420,14 +422,19 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                       : (_businessType == 'TILLNO'
                             ? 'Till Number'
                             : 'Account Number'),
-                  hintStyle: TextStyle(color: titleColor.withOpacity(0.3)),
+                  hintStyle: TextStyle(
+                    color: titleColor.withValues(alpha: 0.3),
+                  ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,
                   ),
                   suffixIcon: _isIndividual
-                      ? Icon(Icons.contacts, color: titleColor.withOpacity(0.5))
+                      ? Icon(
+                          Icons.contacts,
+                          color: titleColor.withValues(alpha: 0.5),
+                        )
                       : null,
                 ),
               ),
@@ -470,7 +477,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                           decoration: InputDecoration(
                             hintText: '0.00',
                             hintStyle: TextStyle(
-                              color: titleColor.withOpacity(0.2),
+                              color: titleColor.withValues(alpha: 0.2),
                             ),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
@@ -491,14 +498,14 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? Colors.white.withOpacity(0.05)
-                          : Colors.black.withOpacity(0.05),
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.black.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       'Fee: KES 15.00',
                       style: TextStyle(
-                        color: titleColor.withOpacity(0.8),
+                        color: titleColor.withValues(alpha: 0.8),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -550,7 +557,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
                 'Funds will be disbursed instantly to the\nverified recipient.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: titleColor.withOpacity(0.5),
+                  color: titleColor.withValues(alpha: 0.5),
                   fontSize: 13,
                   height: 1.5,
                 ),

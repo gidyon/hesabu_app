@@ -64,9 +64,9 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
+        ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
 
     return Scaffold(
@@ -84,7 +84,9 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -130,7 +132,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.15),
+                        color: Colors.blue.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -276,7 +278,9 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
             ? BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Theme.of(context).dividerColor.withOpacity(0.08),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.08),
                   ),
                 ),
               )
@@ -287,7 +291,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.15),
+                color: iconColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: iconColor),
@@ -340,7 +344,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
           ? BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).dividerColor.withOpacity(0.08),
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.08),
                 ),
               ),
             )
@@ -351,7 +355,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
+              color: iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: iconColor),
@@ -397,7 +401,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.08),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.08),
           ),
         ),
       ),
@@ -407,8 +411,8 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: (isCurrent ? accent : AppColors.slate400).withOpacity(
-                0.15,
+              color: (isCurrent ? accent : AppColors.slate400).withValues(
+                alpha: 0.15,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -443,7 +447,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.15),
+                color: accent.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

@@ -64,7 +64,7 @@ class _IntroScreenState extends State<IntroScreen> {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
+                color: accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -92,7 +92,7 @@ class _IntroScreenState extends State<IntroScreen> {
                             Container(
                               padding: const EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color: accent.withOpacity(0.1),
+                                color: accent.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(32),
                               ),
                               child: Icon(item.icon, size: 64, color: accent),
@@ -137,7 +137,7 @@ class _IntroScreenState extends State<IntroScreen> {
                       decoration: BoxDecoration(
                         color: _currentPage == index
                             ? accent
-                            : accent.withOpacity(0.2),
+                            : accent.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),

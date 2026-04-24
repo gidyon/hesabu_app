@@ -11,9 +11,9 @@ class SettingsHelpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
+        ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
 
     return Scaffold(
@@ -31,7 +31,9 @@ class SettingsHelpScreen extends StatelessWidget {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -78,14 +80,14 @@ class SettingsHelpScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          accent.withOpacity(0.15),
-                          accent.withOpacity(0.05),
+                          accent.withValues(alpha: 0.15),
+                          accent.withValues(alpha: 0.05),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: accent.withOpacity(0.2)),
+                      border: Border.all(color: accent.withValues(alpha: 0.2)),
                     ),
                     child: Column(
                       children: [
@@ -201,7 +203,9 @@ class SettingsHelpScreen extends StatelessWidget {
             ? BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Theme.of(context).dividerColor.withOpacity(0.08),
+                    color: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.08),
                   ),
                 ),
               )
@@ -212,7 +216,7 @@ class SettingsHelpScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color),
@@ -306,7 +310,9 @@ class _FaqTileState extends State<_FaqTile> {
         color: widget.cardBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _open ? widget.accent.withOpacity(0.4) : widget.cardBorder,
+          color: _open
+              ? widget.accent.withValues(alpha: 0.4)
+              : widget.cardBorder,
         ),
       ),
       child: InkWell(

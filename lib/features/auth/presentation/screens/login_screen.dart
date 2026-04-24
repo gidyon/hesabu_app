@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Check biometrics after first frame to determine default view
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final securityController = context.read<SecurityController>();
@@ -124,6 +124,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
         await _secureStorage.write(key: 'bio_email', value: loginEmail);
         await _secureStorage.write(key: 'bio_password', value: loginPassword);
 
+        // ignore: use_build_context_synchronously
         context.go('/home'); // Navigate to home
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -171,11 +172,11 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
               width: 256,
               height: 256,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
+                color: accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(128),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha: 0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -190,11 +191,11 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
               width: 384,
               height: 384,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.05),
+                color: accent.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(192),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.05),
+                    color: accent.withValues(alpha: 0.05),
                     blurRadius: 120,
                     spreadRadius: 20,
                   ),
@@ -263,10 +264,10 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                     width: 100,
                                     height: 100,
                                     decoration: BoxDecoration(
-                                      color: accent.withOpacity(0.1),
+                                      color: accent.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: accent.withOpacity(0.2),
+                                        color: accent.withValues(alpha: 0.2),
                                         width: 2,
                                       ),
                                     ),
@@ -280,7 +281,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                               ),
                               const SizedBox(height: 16),
                               const Text(
-                                'Tap to Login with Biometrics',
+                                'Tap above to use Biometrics',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: AppColors.slate500,
@@ -290,7 +291,8 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                               ),
                               const SizedBox(height: 48),
                               TextButton(
-                                onPressed: () => setState(() => _showLoginForm = true),
+                                onPressed: () =>
+                                    setState(() => _showLoginForm = true),
                                 child: Text(
                                   'Use Password Instead',
                                   style: TextStyle(
@@ -310,41 +312,80 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  constraints: const BoxConstraints(minHeight: 56),
+                                  constraints: const BoxConstraints(
+                                    minHeight: 56,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF1c271f) : Colors.white,
+                                    color: isDark
+                                        ? const Color(0xFF1c271f)
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
+                                      color: isDark
+                                          ? const Color(0xFF3b5443)
+                                          : AppColors.slate200,
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Padding(
-                                        padding: EdgeInsets.only(left: 16, top: 16),
-                                        child: Icon(Icons.mail_outline, color: AppColors.slate400),
+                                        padding: EdgeInsets.only(
+                                          left: 16,
+                                          top: 16,
+                                        ),
+                                        child: Icon(
+                                          Icons.mail_outline,
+                                          color: AppColors.slate400,
+                                        ),
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: TextFormField(
                                           controller: _emailController,
-                                          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                                          style: TextStyle(
+                                            color: theme
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.color,
+                                          ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) return 'Email or phone is required';
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Email or phone is required';
+                                            }
                                             return null;
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Email or Phone Number',
-                                            labelStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
-                                            floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
+                                            labelStyle: const TextStyle(
+                                              color: AppColors.slate400,
+                                              fontSize: 14,
+                                            ),
+                                            floatingLabelStyle: TextStyle(
+                                              color: accent,
+                                              fontSize: 12,
+                                            ),
                                             hintText: 'Enter email or phone',
                                             hintStyle: TextStyle(
-                                              color: isDark ? const Color(0xFF9db9a6).withOpacity(0.5) : AppColors.slate400.withOpacity(0.5),
+                                              color: isDark
+                                                  ? const Color(
+                                                      0xFF9db9a6,
+                                                    ).withValues(alpha: 0.5)
+                                                  : AppColors.slate400
+                                                        .withValues(alpha: 0.5),
                                             ),
                                             border: InputBorder.none,
-                                            contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
-                                            errorStyle: const TextStyle(fontSize: 12, height: 1),
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                  top: 8,
+                                                  bottom: 8,
+                                                ),
+                                            errorStyle: const TextStyle(
+                                              fontSize: 12,
+                                              height: 1,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -359,43 +400,84 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  constraints: const BoxConstraints(minHeight: 56),
+                                  constraints: const BoxConstraints(
+                                    minHeight: 56,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF1c271f) : Colors.white,
+                                    color: isDark
+                                        ? const Color(0xFF1c271f)
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
+                                      color: isDark
+                                          ? const Color(0xFF3b5443)
+                                          : AppColors.slate200,
                                     ),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Padding(
-                                        padding: EdgeInsets.only(left: 16, top: 16),
-                                        child: Icon(Icons.lock_outline, color: AppColors.slate400),
+                                        padding: EdgeInsets.only(
+                                          left: 16,
+                                          top: 16,
+                                        ),
+                                        child: Icon(
+                                          Icons.lock_outline,
+                                          color: AppColors.slate400,
+                                        ),
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: TextFormField(
                                           controller: _passwordController,
                                           obscureText: !_isPasswordVisible,
-                                          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                                          style: TextStyle(
+                                            color: theme
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.color,
+                                          ),
                                           validator: (value) {
-                                            if (value == null || value.isEmpty) return 'Password is required';
-                                            if (value.length < 4) return 'Password too short';
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Password is required';
+                                            }
+                                            if (value.length < 4) {
+                                              return 'Password too short';
+                                            }
                                             return null;
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Password',
-                                            labelStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
-                                            floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
+                                            labelStyle: const TextStyle(
+                                              color: AppColors.slate400,
+                                              fontSize: 14,
+                                            ),
+                                            floatingLabelStyle: TextStyle(
+                                              color: accent,
+                                              fontSize: 12,
+                                            ),
                                             hintText: 'Enter your password',
                                             hintStyle: TextStyle(
-                                              color: isDark ? const Color(0xFF9db9a6).withOpacity(0.5) : AppColors.slate400.withOpacity(0.5),
+                                              color: isDark
+                                                  ? const Color(
+                                                      0xFF9db9a6,
+                                                    ).withValues(alpha: 0.5)
+                                                  : AppColors.slate400
+                                                        .withValues(alpha: 0.5),
                                             ),
                                             border: InputBorder.none,
-                                            contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
-                                            errorStyle: const TextStyle(fontSize: 12, height: 1),
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                  top: 8,
+                                                  bottom: 8,
+                                                ),
+                                            errorStyle: const TextStyle(
+                                              fontSize: 12,
+                                              height: 1,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -403,10 +485,15 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                         padding: const EdgeInsets.only(top: 4),
                                         child: IconButton(
                                           icon: Icon(
-                                            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                            _isPasswordVisible
+                                                ? Icons.visibility
+                                                : Icons.visibility_off,
                                             color: AppColors.slate400,
                                           ),
-                                          onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                                          onPressed: () => setState(
+                                            () => _isPasswordVisible =
+                                                !_isPasswordVisible,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -415,10 +502,14 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                 Align(
                                   alignment: Alignment.centerRight,
                                   child: TextButton(
-                                    onPressed: () => context.push('/reset-password'),
+                                    onPressed: () =>
+                                        context.push('/reset-password'),
                                     child: Text(
                                       'Forgot Password?',
-                                      style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+                                      style: TextStyle(
+                                        color: accent,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -432,20 +523,33 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                 onPressed: _isLoading ? null : _handleLogin,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: accent,
-                                  foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  foregroundColor: isDark
+                                      ? AppColors.backgroundDark
+                                      : Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   elevation: 0,
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(
                                         height: 24,
                                         width: 24,
-                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
                                       )
                                     : const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                          Text(
+                                            'Login',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                           SizedBox(width: 8),
                                           Icon(Icons.login),
                                         ],
@@ -455,11 +559,15 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                             if (security.biometricEnabled) ...[
                               const SizedBox(height: 24),
                               TextButton.icon(
-                                onPressed: () => setState(() => _showLoginForm = false),
+                                onPressed: () =>
+                                    setState(() => _showLoginForm = false),
                                 icon: Icon(Icons.fingerprint, color: accent),
                                 label: Text(
                                   'Use Biometric Login',
-                                  style: TextStyle(color: accent, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: accent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],

@@ -109,11 +109,11 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
+                color: accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha: 0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -134,17 +134,10 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                     children: [
                       TextButton.icon(
                         onPressed: () => context.pop(),
-                        icon: Icon(
-                          Icons.chevron_left,
-                          color: accent,
-                          size: 28,
-                        ),
+                        icon: Icon(Icons.chevron_left, color: accent, size: 28),
                         label: Text(
                           'Back',
-                          style: TextStyle(
-                            color: accent,
-                            fontSize: 18,
-                          ),
+                          style: TextStyle(color: accent, fontSize: 18),
                         ),
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       ),
@@ -222,25 +215,23 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                             counterText: "",
                             filled: true,
                             fillColor: isDark
-                                ? Colors.white.withOpacity(0.05)
-                                : Colors.black.withOpacity(0.03),
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : Colors.black.withValues(alpha: 0.03),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: titleColor.withOpacity(0.1),
+                                color: titleColor.withValues(alpha: 0.1),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: titleColor.withOpacity(0.1),
+                                color: titleColor.withValues(alpha: 0.1),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: accent,
-                              ),
+                              borderSide: BorderSide(color: accent),
                             ),
                           ),
                           onChanged: (value) {
@@ -292,7 +283,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                             TextSpan(
                               text: "Resend Code",
                               style: TextStyle(
-                                color: accent.withOpacity(0.5),
+                                color: accent.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -316,7 +307,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        shadowColor: accent.withOpacity(0.2),
+                        shadowColor: accent.withValues(alpha: 0.2),
                         elevation: 10,
                       ),
                       child: const Text(
@@ -370,15 +361,23 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
     );
   }
 
-  Widget _buildTimerBox(String value, String label, Color accent, bool isDark, Color titleColor) {
+  Widget _buildTimerBox(
+    String value,
+    String label,
+    Color accent,
+    bool isDark,
+    Color titleColor,
+  ) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: titleColor.withOpacity(0.1)),
+            border: Border.all(color: titleColor.withValues(alpha: 0.1)),
           ),
           child: Text(
             value,

@@ -106,11 +106,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 256,
               height: 256,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.1),
+                color: accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(128),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.1),
+                    color: accent.withValues(alpha: 0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -125,11 +125,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 384,
               height: 384,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.05),
+                color: accent.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(192),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.05),
+                    color: accent.withValues(alpha: 0.05),
                     blurRadius: 120,
                     spreadRadius: 20,
                   ),
@@ -158,8 +158,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.white.withOpacity(0.05)
-                                  : Colors.black.withOpacity(0.05),
+                                  ? Colors.white.withValues(alpha: 0.05)
+                                  : Colors.black.withValues(alpha: 0.05),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -413,8 +413,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 hintText: hintText,
                 hintStyle: TextStyle(
                   color: InheritedThemeController.of(context).isDark
-                      ? const Color(0xFF9db9a6).withOpacity(0.5)
-                      : AppColors.slate400.withOpacity(0.5),
+                      ? const Color(0xFF9db9a6).withValues(alpha: 0.5)
+                      : AppColors.slate400.withValues(alpha: 0.5),
                 ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.only(top: 8, bottom: 8),

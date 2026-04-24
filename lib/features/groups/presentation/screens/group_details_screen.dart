@@ -139,8 +139,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final cardColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.03);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.black.withValues(alpha: 0.03);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -347,12 +347,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [accent, accent.withOpacity(0.8)],
+          colors: [accent, accent.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,7 +360,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Text(
             'TOTAL GROUP BALANCE',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
@@ -393,7 +393,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               Text(
                 '+4.2% from last month',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -455,7 +455,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       decoration: BoxDecoration(
         color: Color.alphaBlend(cardColor, backgroundColor),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,7 +463,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -492,7 +492,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: btnColor.withOpacity(0.2),
+            color: btnColor.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),
@@ -545,7 +545,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         padding: const EdgeInsets.only(top: 40),
         child: Text(
           'No transactions yet',
-          style: TextStyle(color: titleColor.withOpacity(0.4)),
+          style: TextStyle(color: titleColor.withValues(alpha: 0.4)),
         ),
       );
 
@@ -565,7 +565,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (isInflow ? accent : Colors.red).withOpacity(0.08),
+                  color: (isInflow ? accent : Colors.red).withValues(
+                    alpha: 0.08,
+                  ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -595,7 +597,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     Text(
                       '${tx.type} • ${tx.date}',
                       style: TextStyle(
-                        color: titleColor.withOpacity(0.5),
+                        color: titleColor.withValues(alpha: 0.5),
                         fontSize: 12,
                       ),
                     ),
@@ -617,7 +619,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   Text(
                     tx.method.toUpperCase(),
                     style: TextStyle(
-                      color: titleColor.withOpacity(0.5),
+                      color: titleColor.withValues(alpha: 0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
                     ),
@@ -671,7 +673,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   padding: const EdgeInsets.only(top: 40),
                   child: Text(
                     'No members yet',
-                    style: TextStyle(color: titleColor.withOpacity(0.4)),
+                    style: TextStyle(color: titleColor.withValues(alpha: 0.4)),
                   ),
                 )
               : ListView.builder(
@@ -686,7 +688,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         children: [
                           CircleAvatar(
                             radius: 22,
-                            backgroundColor: titleColor.withOpacity(0.05),
+                            backgroundColor: titleColor.withValues(alpha: 0.05),
                             child: Text(
                               member.name.isNotEmpty ? member.name[0] : '?',
                               style: TextStyle(
@@ -714,7 +716,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                 Text(
                                   member.msisdn,
                                   style: TextStyle(
-                                    color: titleColor.withOpacity(0.4),
+                                    color: titleColor.withValues(alpha: 0.4),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -728,7 +730,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: accent.withOpacity(0.1),
+                                color: accent.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -776,7 +778,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           'Notification Settings',
           titleColor: titleColor,
         ),
-        Divider(color: titleColor.withOpacity(0.1), height: 40),
+        Divider(color: titleColor.withValues(alpha: 0.1), height: 40),
         _buildSettingsItem(
           Icons.logout,
           'Exit Group',
@@ -812,12 +814,22 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       onTap: onTap,
-      leading: Icon(icon, color: effectiveColor.withOpacity(0.6), size: 22),
+      leading: Icon(
+        icon,
+        color: effectiveColor.withValues(alpha: 0.6),
+        size: 22,
+      ),
       title: Text(
         title,
-        style: TextStyle(color: effectiveColor.withOpacity(0.8), fontSize: 15),
+        style: TextStyle(
+          color: effectiveColor.withValues(alpha: 0.8),
+          fontSize: 15,
+        ),
       ),
-      trailing: Icon(Icons.chevron_right, color: titleColor.withOpacity(0.1)),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: titleColor.withValues(alpha: 0.1),
+      ),
     );
   }
 
@@ -837,14 +849,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         title: Text(title, style: TextStyle(color: titleColor)),
         content: Text(
           message,
-          style: TextStyle(color: titleColor.withOpacity(0.7)),
+          style: TextStyle(color: titleColor.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => context.pop(),
             child: Text(
               'Cancel',
-              style: TextStyle(color: titleColor.withOpacity(0.5)),
+              style: TextStyle(color: titleColor.withValues(alpha: 0.5)),
             ),
           ),
           TextButton(
@@ -873,7 +885,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       padding: const EdgeInsets.only(top: 12, bottom: 20),
       decoration: BoxDecoration(
         color: Colors.transparent,
-        border: Border(top: BorderSide(color: titleColor.withOpacity(0.05))),
+        border: Border(
+          top: BorderSide(color: titleColor.withValues(alpha: 0.05)),
+        ),
       ),
       child: Row(
         children: [
@@ -938,14 +952,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? accent : titleColor.withOpacity(0.24),
+              color: isSelected ? accent : titleColor.withValues(alpha: 0.24),
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? accent : titleColor.withOpacity(0.24),
+                color: isSelected ? accent : titleColor.withValues(alpha: 0.24),
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),

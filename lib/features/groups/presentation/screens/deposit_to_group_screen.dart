@@ -135,7 +135,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(0.15),
+                  color: accent.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -192,9 +192,9 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withOpacity(0.1)
+        ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
 
     return Scaffold(
@@ -209,7 +209,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.07),
+                color: accent.withValues(alpha: 0.07),
                 shape: BoxShape.circle,
               ),
             ),
@@ -227,7 +227,9 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                 left: 16,
                 right: 16,
               ),
-              color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -238,7 +240,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                       height: 40,
                       decoration: BoxDecoration(
                         color: isDark
-                            ? Colors.white.withOpacity(0.07)
+                            ? Colors.white.withValues(alpha: 0.07)
                             : AppColors.slate100,
                         shape: BoxShape.circle,
                       ),
@@ -298,12 +300,12 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               color: selected
-                                  ? accent.withOpacity(0.08)
+                                  ? accent.withValues(alpha: 0.08)
                                   : cardBg,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: selected
-                                    ? accent.withOpacity(0.5)
+                                    ? accent.withValues(alpha: 0.5)
                                     : cardBorder,
                                 width: selected ? 1.5 : 1,
                               ),
@@ -316,7 +318,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                                   decoration: BoxDecoration(
                                     color:
                                         (selected ? accent : AppColors.slate400)
-                                            .withOpacity(0.15),
+                                            .withValues(alpha: 0.15),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -369,7 +371,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: AppColors.slate400
-                                                  .withOpacity(0.4),
+                                                  .withValues(alpha: 0.4),
                                             ),
                                           ),
                                         ),
@@ -391,7 +393,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: _amountController.text.isNotEmpty
-                            ? accent.withOpacity(0.5)
+                            ? accent.withValues(alpha: 0.5)
                             : cardBorder,
                       ),
                     ),
@@ -460,12 +462,12 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             decoration: BoxDecoration(
                               color: _amountController.text == v.toString()
-                                  ? accent.withOpacity(0.1)
+                                  ? accent.withValues(alpha: 0.1)
                                   : cardBg,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: _amountController.text == v.toString()
-                                    ? accent.withOpacity(0.4)
+                                    ? accent.withValues(alpha: 0.4)
                                     : cardBorder,
                               ),
                             ),
@@ -506,11 +508,13 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
-                              color: selected ? color.withOpacity(0.1) : cardBg,
+                              color: selected
+                                  ? color.withValues(alpha: 0.1)
+                                  : cardBg,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color: selected
-                                    ? color.withOpacity(0.5)
+                                    ? color.withValues(alpha: 0.5)
                                     : cardBorder,
                                 width: selected ? 1.5 : 1,
                               ),
@@ -573,9 +577,11 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.08),
+                        color: accent.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: accent.withOpacity(0.25)),
+                        border: Border.all(
+                          color: accent.withValues(alpha: 0.25),
+                        ),
                       ),
                       child: Column(
                         children: [

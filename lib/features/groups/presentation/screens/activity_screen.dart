@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 
@@ -12,11 +13,11 @@ class ActivityScreen extends StatelessWidget {
     final accent = themeController.accentColor.primary;
     final backgroundColor = isDark
         ? themeController.accentColor.darkBackground
-        : Colors.white;
-    final titleColor = isDark ? Colors.white : Colors.black87;
+        : AppColors.backgroundLight;
+    final titleColor = isDark ? Colors.white : AppColors.textLight;
     final cardColor = isDark
-        ? Colors.white.withOpacity(0.05)
-        : Colors.black.withOpacity(0.02);
+        ? Colors.white.withValues(alpha: 0.05)
+        : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -34,7 +35,7 @@ class ActivityScreen extends StatelessWidget {
                 left: 16,
                 right: 16,
               ),
-              color: backgroundColor.withOpacity(0.9),
+              color: backgroundColor.withValues(alpha: 0.9),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -78,10 +79,10 @@ class ActivityScreen extends StatelessWidget {
               physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
               children: [
-                _buildPushToggle(cardColor, titleColor, accent),
+                _buildPushToggle(cardColor, titleColor, accent, isDark),
                 const SizedBox(height: 24),
                 _buildSectionHeader('TODAY', titleColor),
-                _buildMemberJoinRequest(cardColor, titleColor, accent),
+                _buildMemberJoinRequest(cardColor, titleColor, accent, isDark),
                 const SizedBox(height: 16),
                 _buildActivityCard(
                   icon: Icons.account_balance_wallet,
@@ -92,6 +93,7 @@ class ActivityScreen extends StatelessWidget {
                   cardColor: cardColor,
                   titleColor: titleColor,
                   accent: accent,
+                  isDark: isDark,
                 ),
                 const SizedBox(height: 24),
                 _buildSectionHeader('YESTERDAY', titleColor),
@@ -105,6 +107,7 @@ class ActivityScreen extends StatelessWidget {
                   cardColor: cardColor,
                   titleColor: titleColor,
                   accent: accent,
+                  isDark: isDark,
                 ),
                 const SizedBox(height: 16),
                 _buildActivityCard(
@@ -117,6 +120,7 @@ class ActivityScreen extends StatelessWidget {
                   cardColor: cardColor,
                   titleColor: titleColor,
                   accent: accent,
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -126,19 +130,36 @@ class ActivityScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPushToggle(Color cardColor, Color titleColor, Color accent) {
+  Widget _buildPushToggle(
+    Color cardColor,
+    Color titleColor,
+    Color accent,
+    bool isDark,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.1),
+              color: accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(Icons.notifications_active, color: accent, size: 24),
@@ -159,7 +180,7 @@ class ActivityScreen extends StatelessWidget {
                 Text(
                   'Receive group activity alerts',
                   style: TextStyle(
-                    color: titleColor.withOpacity(0.5),
+                    color: titleColor.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -178,7 +199,7 @@ class ActivityScreen extends StatelessWidget {
       child: Text(
         title,
         style: TextStyle(
-          color: titleColor.withOpacity(0.5),
+          color: titleColor.withValues(alpha: 0.5),
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1,
@@ -191,13 +212,25 @@ class ActivityScreen extends StatelessWidget {
     Color cardColor,
     Color titleColor,
     Color accent,
+    bool isDark,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: accent, width: 4)),
+        border: isDark
+            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Column(
         children: [
@@ -229,7 +262,7 @@ class ActivityScreen extends StatelessWidget {
                         Text(
                           '2m ago',
                           style: TextStyle(
-                            color: titleColor.withOpacity(0.4),
+                            color: titleColor.withValues(alpha: 0.4),
                             fontSize: 10,
                           ),
                         ),
@@ -239,7 +272,7 @@ class ActivityScreen extends StatelessWidget {
                     RichText(
                       text: TextSpan(
                         style: TextStyle(
-                          color: titleColor.withOpacity(0.7),
+                          color: titleColor.withValues(alpha: 0.7),
                           fontSize: 13,
                         ),
                         children: [
@@ -290,7 +323,7 @@ class ActivityScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: titleColor.withOpacity(0.1),
+                    backgroundColor: titleColor.withValues(alpha: 0.1),
                     foregroundColor: titleColor,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -319,12 +352,25 @@ class ActivityScreen extends StatelessWidget {
     required Color cardColor,
     required Color titleColor,
     required Color accent,
+    required bool isDark,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,7 +378,7 @@ class ActivityScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 24),
@@ -356,7 +402,7 @@ class ActivityScreen extends StatelessWidget {
                     Text(
                       time,
                       style: TextStyle(
-                        color: titleColor.withOpacity(0.4),
+                        color: titleColor.withValues(alpha: 0.4),
                         fontSize: 10,
                       ),
                     ),
@@ -366,7 +412,7 @@ class ActivityScreen extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: titleColor.withOpacity(0.6),
+                    color: titleColor.withValues(alpha: 0.6),
                     fontSize: 13,
                     height: 1.4,
                   ),

@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
                 fontSize: 12,
                 color: Theme.of(
                   context,
-                ).textTheme.bodySmall?.color?.withOpacity(0.7),
+                ).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -214,12 +214,14 @@ class _HomeScreenState extends State<HomeScreen>
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: accent.withOpacity(0.3)),
-                          color: accent.withOpacity(0.12),
+                          border: Border.all(
+                            color: accent.withValues(alpha: 0.3),
+                          ),
+                          color: accent.withValues(alpha: 0.12),
                         ),
                         child: CircleAvatar(
                           radius: 18,
-                          backgroundColor: accent.withOpacity(0.12),
+                          backgroundColor: accent.withValues(alpha: 0.12),
                           backgroundImage:
                               _profile?.avatarUrl.startsWith('/') == true
                               ? null
@@ -281,14 +283,14 @@ class _HomeScreenState extends State<HomeScreen>
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [accent, accent.withOpacity(0.8)],
+                        colors: [accent, accent.withValues(alpha: 0.8)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: accent.withOpacity(0.3),
+                          color: accent.withValues(alpha: 0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -300,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen>
                         Text(
                           'TOTAL GROUP SAVINGS',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
@@ -328,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen>
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Row(
@@ -426,8 +428,20 @@ class _HomeScreenState extends State<HomeScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(14),
+          border: isDark
+              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           children: [
@@ -435,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen>
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.12),
+                color: accent.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: accent, size: 20),
@@ -467,7 +481,9 @@ class _HomeScreenState extends State<HomeScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: isDark ? Colors.white.withOpacity(0.1) : AppColors.slate100,
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : AppColors.slate100,
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -508,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen>
     Color accent,
     bool isDark,
   ) {
-    final cardBg = isDark ? Colors.white.withOpacity(0.05) : Colors.white;
+    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),
@@ -517,13 +533,18 @@ class _HomeScreenState extends State<HomeScreen>
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          border: isDark
+              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
         ),
         child: Column(
           children: [
@@ -534,7 +555,7 @@ class _HomeScreenState extends State<HomeScreen>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.15),
+                    color: accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ClipRRect(
@@ -616,7 +637,7 @@ class _HomeScreenState extends State<HomeScreen>
               child: LinearProgressIndicator(
                 value: group.progressPercentage,
                 backgroundColor: isDark
-                    ? Colors.white.withOpacity(0.1)
+                    ? Colors.white.withValues(alpha: 0.1)
                     : AppColors.slate100,
                 valueColor: AlwaysStoppedAnimation<Color>(accent),
                 minHeight: 8,
@@ -636,12 +657,12 @@ class _HomeScreenState extends State<HomeScreen>
           Icon(
             Icons.group_outlined,
             size: 48,
-            color: titleColor.withOpacity(0.2),
+            color: titleColor.withValues(alpha: 0.2),
           ),
           const SizedBox(height: 12),
           Text(
             'No groups yet',
-            style: TextStyle(color: titleColor.withOpacity(0.5)),
+            style: TextStyle(color: titleColor.withValues(alpha: 0.5)),
           ),
         ],
       ),
