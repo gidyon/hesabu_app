@@ -11,6 +11,19 @@ class GroupsRepositoryImpl implements GroupsRepository {
     required this.localDataSource,
   });
 
+  String _formatMsisdn(String input) {
+    String formatted = input.trim().replaceAll(' ', '');
+    if (formatted.startsWith('+')) {
+      formatted = formatted.substring(1);
+    }
+    if (formatted.startsWith('07')) {
+      formatted = '2547${formatted.substring(2)}';
+    } else if (formatted.startsWith('01')) {
+      formatted = '2541${formatted.substring(2)}';
+    }
+    return formatted;
+  }
+
   @override
   Future<List<Group>> getActiveGroups() async {
     try {
@@ -116,8 +129,8 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
-  Future<bool> inviteMember(String groupId, String contact) async {
-    return await remoteDataSource.inviteMember(groupId, contact);
+  Future<bool> inviteMember(String groupId, String msisdn) async {
+    return await remoteDataSource.inviteMember(groupId, _formatMsisdn(msisdn));
   }
 
   @override
@@ -163,6 +176,23 @@ class GroupsRepositoryImpl implements GroupsRepository {
         msisdn,
       );
       return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> withdraw(
+    String groupId,
+    double amount,
+    String destination,
+  ) async {
+    try {
+      return await remoteDataSource.withdraw(
+        groupId,
+        amount,
+        _formatMsisdn(destination),
+      );
     } catch (e) {
       return false;
     }

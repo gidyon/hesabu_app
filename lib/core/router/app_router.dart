@@ -22,6 +22,7 @@ import 'package:hesabu_app/features/groups/presentation/screens/join_group_scree
 import 'package:hesabu_app/features/groups/presentation/screens/deposit_to_group_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/group_details_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/invite_members_screen.dart';
+import 'package:hesabu_app/features/groups/presentation/screens/disburse_funds_screen.dart';
 import 'package:hesabu_app/features/groups/presentation/screens/activity_screen.dart';
 import 'package:hesabu_app/main.dart';
 
@@ -136,6 +137,14 @@ class AppRouter {
         path: '/groups/deposit',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const DepositToGroupScreen(),
+      ),
+      GoRoute(
+        path: '/groups/withdraw',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final group = state.extra as Group?;
+          return DisburseFundsScreen(group: group);
+        },
       ),
       GoRoute(
         path: '/groups/create',

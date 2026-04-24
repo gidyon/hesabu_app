@@ -142,11 +142,11 @@ class GroupsRemoteDataSource {
     }
   }
 
-  Future<bool> inviteMember(String groupId, String contact) async {
+  Future<bool> inviteMember(String groupId, String msisdn) async {
     try {
       final response = await apiClient.dio.post(
-        '/groups/invite',
-        data: {'group_id': groupId, 'contact': contact},
+        '/groups/join',
+        data: {'group_id': groupId, 'msisdn': msisdn},
       );
       return response.statusCode == 200 || response.statusCode == 201;
     } on DioException catch (e) {
@@ -191,6 +191,37 @@ class GroupsRemoteDataSource {
         final message = (data is Map && data['errorMessage'] != null)
             ? data['errorMessage']
             : 'Deposit failed';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
+    }
+  }
+
+  Future<bool> withdraw(
+    String groupId,
+    double amount,
+    String destination,
+  ) async {
+    try {
+      final response = await apiClient.dio.post(
+        '/groups/withdraw',
+        data: {
+          'group_id': groupId,
+          'amount': amount.toString(),
+          'withdrawal_type': 'INDIVIDUAL',
+          'destination': destination,
+        },
+      );
+      return response.statusCode == 200 || response.statusCode == 201;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message']
+            : 'Failed to withdraw funds';
         throw ApiException(
           message: message,
           statusCode: e.response?.statusCode,

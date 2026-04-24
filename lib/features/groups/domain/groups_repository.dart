@@ -74,7 +74,8 @@ abstract class GroupsRepository {
   Future<bool> joinGroup(String groupId);
   Future<bool> createGroup(Map<String, dynamic> groupData);
   Future<bool> editGroup(String groupId, Map<String, dynamic> groupData);
-  Future<bool> inviteMember(String groupId, String contact);
+  Future<bool> inviteMember(String groupId, String msisdn);
   Future<List<Member>> getMembers(String groupId);
   Future<bool> deposit(String groupId, double amount, String method);
+  Future<bool> withdraw(String groupId, double amount, String destination);
 }

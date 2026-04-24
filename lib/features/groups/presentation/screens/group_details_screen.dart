@@ -16,13 +16,47 @@ class GroupDetailsScreen extends StatefulWidget {
 }
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
-  int _currentIndex = 1; // Default to Wallet tab
+  int _currentIndex = 0; // Default to Home tab
   List<Transaction> _transactions = [];
   List<Member> _members = [];
   double _balance = 0.0;
   bool _isLoading = true;
   double _totalInflow = 0.0;
   double _totalOutflow = 0.0;
+
+  Future<void> _fetchTransactions() async {
+    final repo = context.read<GroupsRepository>();
+    try {
+      final txs = await repo.getRecentTransactions(widget.group.id);
+      if (mounted) {
+        setState(() {
+          _transactions = txs;
+          _totalInflow = _transactions
+              .where((t) => t.type == 'Inflow')
+              .fold(0.0, (sum, item) => sum + item.amount);
+          _totalOutflow = _transactions
+              .where((t) => t.type == 'Outflow')
+              .fold(0.0, (sum, item) => sum + item.amount);
+        });
+      }
+    } catch (e) {
+      // Ignore silently for background refresh
+    }
+  }
+
+  Future<void> _fetchMembers() async {
+    final repo = context.read<GroupsRepository>();
+    try {
+      final members = await repo.getMembers(widget.group.id);
+      if (mounted) {
+        setState(() {
+          _members = members;
+        });
+      }
+    } catch (e) {
+      // Ignore silently for background refresh
+    }
+  }
 
   @override
   void initState() {
@@ -99,20 +133,31 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
+                  layoutBuilder:
+                      (Widget? currentChild, List<Widget> previousChildren) {
+                        return Stack(
+                          alignment: Alignment.topCenter,
+                          children: <Widget>[
+                            ...previousChildren,
+                            if (currentChild != null) currentChild,
+                          ],
+                        );
+                      },
                   switchInCurve: Curves.easeInOut,
                   switchOutCurve: Curves.easeInOut,
                   transitionBuilder:
                       (Widget child, Animation<double> animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: ScaleTransition(
-                        scale: Tween<double>(begin: 0.98, end: 1.0).animate(
-                          animation,
-                        ),
-                        child: child,
-                      ),
-                    );
-                  },
+                        return FadeTransition(
+                          opacity: animation,
+                          child: ScaleTransition(
+                            scale: Tween<double>(
+                              begin: 0.98,
+                              end: 1.0,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        );
+                      },
                   child: KeyedSubtree(
                     key: ValueKey<int>(_currentIndex),
                     child: _buildBody(
@@ -131,7 +176,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               ),
             ],
           ),
-          if (_currentIndex == 1)
+          if (_currentIndex == 0)
             _buildFixedInsights(currencyFormat, accent, cardColor, titleColor),
         ],
       ),
@@ -174,17 +219,19 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color titleColor,
     Color cardColor,
   ) {
-    if (_currentIndex == 1) {
-      return _buildWalletView(fmt, isAdmin, accent, titleColor, cardColor);
+    if (_currentIndex == 0) {
+      return _buildHomeView(fmt, isAdmin, accent, titleColor, cardColor);
+    } else if (_currentIndex == 1) {
+      return _buildWalletView(fmt, accent, titleColor);
     } else if (_currentIndex == 2) {
-      return _buildMembersView(accent, titleColor);
+      return _buildMembersView(accent, titleColor, isAdmin);
     } else if (_currentIndex == 3) {
       return _buildSettingsView(titleColor);
     }
     return const SizedBox.shrink();
   }
 
-  Widget _buildWalletView(
+  Widget _buildHomeView(
     NumberFormat fmt,
     bool isAdmin,
     Color accent,
@@ -199,19 +246,66 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           const SizedBox(height: 16),
           _buildBalanceCard(fmt, accent, titleColor, cardColor),
           const SizedBox(height: 24),
-          _buildMainActionButton(isAdmin, accent),
+          _buildMainActionButton(isAdmin, accent, titleColor),
           const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Transactions',
+                style: TextStyle(
+                  color: titleColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () {
+                  setState(() => _currentIndex = 1);
+                  _fetchTransactions();
+                },
+                child: Text(
+                  'See All',
+                  style: TextStyle(
+                    color: const Color(0xFF00E676),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildTransactionsList(fmt, accent, titleColor),
+          const SizedBox(height: 120), // Spacer for fixed inflow/outflow
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWalletView(NumberFormat fmt, Color accent, Color titleColor) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
           Text(
-            'Recent Transactions',
+            'Group Statements',
             style: TextStyle(
               color: titleColor,
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 20),
           _buildTransactionsList(fmt, accent, titleColor),
-          const SizedBox(height: 120), // Spacer for fixed inflow/outflow
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -227,45 +321,25 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: cardColor,
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3B29), Color(0xFF132A1C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: titleColor.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'TOTAL GROUP BALANCE',
-                style: TextStyle(
-                  color: accent,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    color: titleColor.withOpacity(0.4),
-                    size: 12,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    widget.group.location.isEmpty
-                        ? 'Not Set'
-                        : widget.group.location,
-                    style: TextStyle(
-                      color: titleColor.withOpacity(0.4),
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          Text(
+            'TOTAL GROUP BALANCE',
+            style: TextStyle(
+              color: const Color(0xFF00E676).withOpacity(0.8),
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
           ),
           const SizedBox(height: 12),
           Row(
@@ -274,33 +348,32 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             children: [
               Text(
                 fmt.format(_balance),
-                style: TextStyle(
-                  color: titleColor,
+                style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 '.00',
-                style: TextStyle(
-                  color: titleColor.withOpacity(0.6),
-                  fontSize: 20,
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 20),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            widget.group.description.isEmpty
-                ? 'No description provided for this group.'
-                : widget.group.description,
-            style: TextStyle(
-              color: titleColor.withOpacity(0.54),
-              fontSize: 13,
-              height: 1.4,
-            ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            children: [
+              Icon(Icons.trending_up, color: const Color(0xFF00E676), size: 14),
+              const SizedBox(width: 6),
+              Text(
+                '+4.2% from last month',
+                style: TextStyle(
+                  color: const Color(0xFF00E676).withOpacity(0.9),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -315,92 +388,92 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   ) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Positioned(
-      bottom: bottomPadding + 96, // Positioned higher above the Bottom Nav Bar
+      bottom: bottomPadding + 96,
       left: 20,
       right: 20,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: titleColor.withOpacity(0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.4),
-              blurRadius: 20,
-              offset: const Offset(0, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildInsightCard(
+              'TOTAL INFLOW',
+              fmt.format(_totalInflow),
+              const Color(0xFF00E676),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildInsightItem(
-                'TOTAL INFLOW',
-                fmt.format(_totalInflow),
-                accent,
-                titleColor,
-              ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildInsightCard(
+              'TOTAL OUTFLOW',
+              fmt.format(_totalOutflow),
+              Colors.white,
             ),
-            Container(
-              width: 1,
-              height: 32,
-              color: titleColor.withOpacity(0.1),
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            Expanded(
-              child: _buildInsightItem(
-                'TOTAL OUTFLOW',
-                fmt.format(_totalOutflow),
-                titleColor,
-                titleColor,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInsightItem(
-    String label,
-    String amount,
-    Color amountColor,
-    Color titleColor,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: titleColor.withOpacity(0.38),
-            fontSize: 9,
-            fontWeight: FontWeight.bold,
+  Widget _buildInsightCard(String label, String amount, Color amountColor) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2B22), // Dark greenish card
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          amount,
-          style: TextStyle(
-            color: amountColor,
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
+          const SizedBox(height: 8),
+          Text(
+            amount,
+            style: TextStyle(
+              color: amountColor,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildMainActionButton(bool isAdmin, Color accent) {
-    return SizedBox(
+  Widget _buildMainActionButton(bool isAdmin, Color accent, Color titleColor) {
+    final btnColor = const Color(0xFF00E676);
+    return Container(
       width: double.infinity,
       height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: btnColor.withOpacity(0.2),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () {
+          if (isAdmin) {
+            context
+                .push('/groups/withdraw', extra: widget.group)
+                .then((_) => _loadData());
+          } else {
+            context.push('/groups/deposit').then((_) => _loadData());
+          }
+        },
         style: ElevatedButton.styleFrom(
-          backgroundColor: accent,
+          backgroundColor: btnColor,
           foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -409,10 +482,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         icon: Icon(
           isAdmin ? Icons.payments_outlined : Icons.savings_outlined,
           size: 20,
+          color: Colors.black,
         ),
         label: Text(
           isAdmin ? 'Disburse Funds' : 'Deposit Funds',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+          ),
         ),
       ),
     );
@@ -426,7 +504,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     if (_isLoading)
       return Center(child: CircularProgressIndicator(color: accent));
     if (_transactions.isEmpty)
-      return Center(
+      return Container(
+        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.only(top: 40),
         child: Text(
           'No transactions yet',
           style: TextStyle(color: titleColor.withOpacity(0.4)),
@@ -440,6 +520,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       itemBuilder: (context, index) {
         final tx = _transactions[index];
         final isInflow = tx.type == 'Inflow';
+        final amountColor = isInflow ? const Color(0xFF00E676) : titleColor;
         return Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child: Row(
@@ -448,14 +529,15 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (isInflow ? accent : Colors.red).withOpacity(0.08),
+                  color: (isInflow ? const Color(0xFF00E676) : Colors.red)
+                      .withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   isInflow
-                      ? Icons.file_download_outlined
-                      : Icons.file_upload_outlined,
-                  color: isInflow ? accent : Colors.red,
+                      ? Icons.arrow_downward_rounded
+                      : Icons.arrow_upward_rounded,
+                  color: isInflow ? const Color(0xFF00E676) : Colors.red,
                   size: 22,
                 ),
               ),
@@ -471,12 +553,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      tx.date,
+                      '${tx.type} • ${tx.date}',
                       style: TextStyle(
-                        color: titleColor.withOpacity(0.4),
+                        color: titleColor.withOpacity(0.5),
                         fontSize: 12,
                       ),
                     ),
@@ -489,7 +573,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   Text(
                     '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}.00',
                     style: TextStyle(
-                      color: isInflow ? accent : titleColor,
+                      color: amountColor,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
@@ -498,9 +582,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   Text(
                     tx.method.toUpperCase(),
                     style: TextStyle(
-                      color: titleColor.withOpacity(0.4),
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
+                      color: titleColor.withOpacity(0.5),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -512,74 +596,122 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildMembersView(Color accent, Color titleColor) {
+  Widget _buildMembersView(Color accent, Color titleColor, bool isAdmin) {
     if (_isLoading)
       return Center(child: CircularProgressIndicator(color: accent));
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: _members.length,
-      itemBuilder: (context, index) {
-        final member = _members[index];
-        final isMemberAdmin = member.role.toLowerCase() == 'admin';
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: titleColor.withOpacity(0.05),
-                child: Text(
-                  member.name[0],
-                  style: TextStyle(color: accent, fontWeight: FontWeight.bold),
+              Text(
+                'Members (${_members.length})',
+                style: TextStyle(
+                  color: titleColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      member.name,
-                      style: TextStyle(
-                        color: titleColor,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      member.msisdn,
-                      style: TextStyle(
-                        color: titleColor.withOpacity(0.4),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isMemberAdmin)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'ADMIN',
-                    style: TextStyle(
-                      color: accent,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              if (isAdmin)
+                IconButton(
+                  onPressed: () async {
+                    await context.push(
+                      '/groups/invite',
+                      extra: widget.group.id,
+                    );
+                    _loadData();
+                  },
+                  icon: Icon(Icons.person_add_alt_1, color: accent),
+                  tooltip: 'Invite Member',
                 ),
             ],
           ),
-        );
-      },
+        ),
+        Expanded(
+          child: _members.isEmpty
+              ? Container(
+                  alignment: Alignment.topCenter,
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Text(
+                    'No members yet',
+                    style: TextStyle(color: titleColor.withOpacity(0.4)),
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: _members.length,
+                  itemBuilder: (context, index) {
+                    final member = _members[index];
+                    final isMemberAdmin = member.role.toLowerCase() == 'admin';
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundColor: titleColor.withOpacity(0.05),
+                            child: Text(
+                              member.name.isNotEmpty ? member.name[0] : '?',
+                              style: TextStyle(
+                                color: accent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  member.name.isNotEmpty
+                                      ? member.name
+                                      : member.msisdn,
+                                  style: TextStyle(
+                                    color: titleColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  member.msisdn,
+                                  style: TextStyle(
+                                    color: titleColor.withOpacity(0.4),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (isMemberAdmin)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: accent.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'ADMIN',
+                                style: TextStyle(
+                                  color: accent,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 
@@ -711,9 +843,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       child: Row(
         children: [
           _buildNavItem(
-            Icons.home_outlined,
+            Icons.space_dashboard_outlined,
             'Home',
-            false,
+            _currentIndex == 0,
             0,
             accent,
             titleColor,
@@ -750,33 +882,35 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Widget _buildNavItem(
     IconData icon,
     String label,
-    bool isActive,
+    bool isSelected,
     int index,
     Color accent,
     Color titleColor,
   ) {
-    final isDisabled = index == 0;
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: isDisabled ? null : () => setState(() => _currentIndex = index),
+        onTap: () {
+          setState(() => _currentIndex = index);
+          if (index == 1) {
+            _fetchTransactions();
+          } else if (index == 2) {
+            _fetchMembers();
+          }
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: isDisabled
-                  ? titleColor.withOpacity(0.1)
-                  : (isActive ? accent : titleColor.withOpacity(0.24)),
+              color: isSelected ? accent : titleColor.withOpacity(0.24),
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isDisabled
-                    ? titleColor.withOpacity(0.1)
-                    : (isActive ? accent : titleColor.withOpacity(0.24)),
+                color: isSelected ? accent : titleColor.withOpacity(0.24),
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
               ),
