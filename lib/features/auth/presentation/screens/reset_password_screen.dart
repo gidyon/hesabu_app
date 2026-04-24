@@ -62,6 +62,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final themeController = InheritedThemeController.of(context);
     final accent = themeController.accentColor.primary;
     final isDark = themeController.isDark;
+    final titleColor = theme.textTheme.bodyLarge?.color ?? Colors.white;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -226,12 +227,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     Container(
                       constraints: const BoxConstraints(minHeight: 56),
                       decoration: BoxDecoration(
-                        color: isDark ? const Color(0xFF1c271f) : Colors.white,
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.black.withOpacity(0.03),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isDark
-                              ? const Color(0xFF3b5443)
-                              : AppColors.slate200,
+                          color: titleColor.withOpacity(0.1),
                         ),
                       ),
                       child: Row(
@@ -261,9 +262,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               decoration: InputDecoration(
                                 hintText: 'Enter your email or phone',
                                 hintStyle: TextStyle(
-                                  color: isDark
-                                      ? const Color(0xFF9db9a6)
-                                      : AppColors.slate400,
+                                  color: titleColor.withOpacity(0.3),
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: const EdgeInsets.only(

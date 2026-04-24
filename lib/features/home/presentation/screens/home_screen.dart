@@ -421,7 +421,6 @@ class _HomeScreenState extends State<HomeScreen>
         decoration: BoxDecoration(
           color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: accent.withOpacity(0.25)),
         ),
         child: Column(
           children: [

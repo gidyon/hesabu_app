@@ -149,7 +149,6 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
       decoration: BoxDecoration(
         color: isDark ? Colors.white.withOpacity(0.05) : AppColors.slate100,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: titleColor.withOpacity(0.05)),
       ),
       child: TextField(
         decoration: InputDecoration(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
+import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:hesabu_app/core/widgets/auth_icon.dart';
@@ -89,8 +91,14 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeController = InheritedThemeController.of(context);
+    final accent = themeController.accentColor.primary;
+    final isDark = themeController.isDark;
+    final titleColor = theme.textTheme.bodyLarge?.color ?? Colors.white;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Subtle background glow
@@ -101,11 +109,11 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: accent.withOpacity(0.1),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: accent.withOpacity(0.1),
                     blurRadius: 100,
                     spreadRadius: 20,
                   ),
@@ -126,24 +134,24 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                     children: [
                       TextButton.icon(
                         onPressed: () => context.pop(),
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.chevron_left,
-                          color: AppColors.primary,
+                          color: accent,
                           size: 28,
                         ),
-                        label: const Text(
+                        label: Text(
                           'Back',
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: accent,
                             fontSize: 18,
                           ),
                         ),
                         style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       ),
-                      const Text(
+                      Text(
                         'Reset Password',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: titleColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -157,10 +165,10 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                   const Center(child: AuthIcon()),
                   const SizedBox(height: 24),
 
-                  const Text(
+                  Text(
                     'Verify Reset Code',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: titleColor,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.5,
@@ -180,8 +188,8 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                         ),
                         TextSpan(
                           text: widget.msisdn,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: titleColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -205,31 +213,33 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                           textAlign: TextAlign.center,
                           keyboardType: TextInputType.number,
                           maxLength: 1,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: titleColor,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                           decoration: InputDecoration(
                             counterText: "",
                             filled: true,
-                            fillColor: Colors.white.withOpacity(0.05),
+                            fillColor: isDark
+                                ? Colors.white.withOpacity(0.05)
+                                : Colors.black.withOpacity(0.03),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.white.withOpacity(0.1),
+                                color: titleColor.withOpacity(0.1),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: Colors.white.withOpacity(0.1),
+                                color: titleColor.withOpacity(0.1),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.primary,
+                              borderSide: BorderSide(
+                                color: accent,
                               ),
                             ),
                           ),
@@ -254,11 +264,17 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                       _buildTimerBox(
                         _minutes.toString().padLeft(2, '0'),
                         'MINUTES',
+                        accent,
+                        isDark,
+                        titleColor,
                       ),
                       const SizedBox(width: 16),
                       _buildTimerBox(
                         _start.toString().padLeft(2, '0'),
                         'SECONDS',
+                        accent,
+                        isDark,
+                        titleColor,
                       ),
                     ],
                   ),
@@ -276,7 +292,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                             TextSpan(
                               text: "Resend Code",
                               style: TextStyle(
-                                color: AppColors.primary.withOpacity(0.5),
+                                color: accent.withOpacity(0.5),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -295,12 +311,12 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                     child: ElevatedButton(
                       onPressed: _onVerify,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.backgroundDark,
+                        backgroundColor: accent,
+                        foregroundColor: isDark ? Colors.black : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        shadowColor: AppColors.primary.withOpacity(0.2),
+                        shadowColor: accent.withOpacity(0.2),
                         elevation: 10,
                       ),
                       child: const Text(
@@ -327,7 +343,7 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                             TextSpan(
                               text: 'Back to Login',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: accent,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -354,20 +370,20 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
     );
   }
 
-  Widget _buildTimerBox(String value, String label) {
+  Widget _buildTimerBox(String value, String label, Color accent, bool isDark, Color titleColor) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
+            color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.1)),
+            border: Border.all(color: titleColor.withOpacity(0.1)),
           ),
           child: Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: titleColor,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),

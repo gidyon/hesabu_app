@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
@@ -85,72 +87,79 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => Dialog(
-            backgroundColor: const Color(0xFF1c271f),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.2),
-                      shape: BoxShape.circle,
+          builder: (context) {
+            final theme = Theme.of(context);
+            final themeController = InheritedThemeController.of(context);
+            final accent = themeController.accentColor.primary;
+            final isDark = themeController.isDark;
+            final titleColor = theme.textTheme.bodyLarge?.color ?? Colors.white;
+
+            return Dialog(
+              backgroundColor: isDark ? const Color(0xFF1c271f) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: accent.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.check_circle, color: accent, size: 32),
                     ),
-                    child: const Icon(
-                      Icons.check_circle,
-                      color: AppColors.primary,
-                      size: 32,
+                    const SizedBox(height: 16),
+                    Text(
+                      'Password Updated!',
+                      style: TextStyle(
+                        color: titleColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Password Updated!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Your password has been reset successfully. You can now log in with your new credentials.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.slate400),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Your password has been reset successfully. You can now log in with your new credentials.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.slate400),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () => context.go('/login'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.backgroundDark,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () => context.go('/login'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accent,
+                          foregroundColor: isDark ? Colors.black : Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Back to Login',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      child: const Text(
-                        'Back to Login',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(response.errorMessage ?? 'Failed to reset password. Please try again.'),
+            content: Text(
+              response.errorMessage ??
+                  'Failed to reset password. Please try again.',
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -168,8 +177,14 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeController = InheritedThemeController.of(context);
+    final accent = themeController.accentColor.primary;
+    final isDark = themeController.isDark;
+    final titleColor = theme.textTheme.bodyLarge?.color ?? Colors.white;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -182,24 +197,26 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: isDark
+                          ? Colors.white.withOpacity(0.1)
+                          : Colors.black.withOpacity(0.05),
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back_ios_new,
                         size: 20,
-                        color: Colors.white,
+                        color: titleColor,
                       ),
                       onPressed: () => context.pop(),
                     ),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Reset Password',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: titleColor,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -219,10 +236,10 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     const Center(child: AuthIcon()),
                     const SizedBox(height: 24),
 
-                    const Text(
+                    Text(
                       'Set your new password',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: titleColor,
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
                         letterSpacing: -0.5,
@@ -255,11 +272,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     Container(
                       height: 56,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.black.withOpacity(0.03),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                        ),
+                        border: Border.all(color: titleColor.withOpacity(0.1)),
                       ),
                       child: Row(
                         children: [
@@ -267,12 +284,14 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                             child: TextField(
                               controller: _newPasswordController,
                               obscureText: !_isNewPasswordVisible,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: const InputDecoration(
+                              style: TextStyle(color: titleColor),
+                              decoration: InputDecoration(
                                 hintText: '••••••••',
-                                hintStyle: TextStyle(color: Colors.white30),
+                                hintStyle: TextStyle(
+                                  color: titleColor.withOpacity(0.3),
+                                ),
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
+                                contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
                               ),
@@ -283,7 +302,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               _isNewPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color: Colors.white30,
+                              color: titleColor.withOpacity(0.3),
                             ),
                             onPressed: () {
                               setState(() {
@@ -325,8 +344,8 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                                 _strengthLevel >= 3
                                     ? 'Strong'
                                     : (_strengthLevel >= 2 ? 'Medium' : 'Weak'),
-                                style: const TextStyle(
-                                  color: AppColors.primary,
+                                style: TextStyle(
+                                  color: accent,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -344,8 +363,8 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: index < _strengthLevel
-                                        ? AppColors.primary
-                                        : Colors.white.withOpacity(0.1),
+                                        ? accent
+                                        : titleColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),
@@ -358,16 +377,22 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                           _buildRequirementItem(
                             'At least 8 characters',
                             _hasMinLength,
+                            accent,
+                            titleColor,
                           ),
                           const SizedBox(height: 8),
                           _buildRequirementItem(
                             'At least one number',
                             _hasNumber,
+                            accent,
+                            titleColor,
                           ),
                           const SizedBox(height: 8),
                           _buildRequirementItem(
                             'At least one special character',
                             _hasSpecialChar,
+                            accent,
+                            titleColor,
                           ),
                         ],
                       ),
@@ -390,11 +415,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     Container(
                       height: 56,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.black.withOpacity(0.03),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                        ),
+                        border: Border.all(color: titleColor.withOpacity(0.1)),
                       ),
                       child: Row(
                         children: [
@@ -402,12 +427,14 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                             child: TextField(
                               controller: _confirmPasswordController,
                               obscureText: !_isConfirmPasswordVisible,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: const InputDecoration(
+                              style: TextStyle(color: titleColor),
+                              decoration: InputDecoration(
                                 hintText: '••••••••',
-                                hintStyle: TextStyle(color: Colors.white30),
+                                hintStyle: TextStyle(
+                                  color: titleColor.withOpacity(0.3),
+                                ),
                                 border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(
+                                contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
                               ),
@@ -418,7 +445,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                               _isConfirmPasswordVisible
                                   ? Icons.visibility
                                   : Icons.visibility_off,
-                              color: Colors.white30,
+                              color: titleColor.withOpacity(0.3),
                             ),
                             onPressed: () {
                               setState(() {
@@ -448,12 +475,12 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                           ? _onSubmit
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.backgroundDark,
+                        backgroundColor: accent,
+                        foregroundColor: isDark ? Colors.black : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        shadowColor: AppColors.primary.withOpacity(0.2),
+                        shadowColor: accent.withOpacity(0.2),
                         elevation: 10,
                       ),
                       child: _isLoading
@@ -501,7 +528,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                             TextSpan(
                               text: 'Back to Login',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: accent,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -519,12 +546,17 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
     );
   }
 
-  Widget _buildRequirementItem(String text, bool isMet) {
+  Widget _buildRequirementItem(
+    String text,
+    bool isMet,
+    Color accent,
+    Color titleColor,
+  ) {
     return Row(
       children: [
         Icon(
           Icons.check_circle,
-          color: isMet ? AppColors.primary : Colors.white30,
+          color: isMet ? accent : titleColor.withOpacity(0.3),
           size: 18,
         ),
         const SizedBox(width: 8),
