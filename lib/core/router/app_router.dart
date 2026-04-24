@@ -65,11 +65,20 @@ class AppRouter {
       ),
       GoRoute(
         path: '/verify-reset-code',
-        builder: (context, state) => const VerifyResetCodeScreen(),
+        builder: (context, state) {
+          final msisdn = state.extra as String? ?? '';
+          return VerifyResetCodeScreen(msisdn: msisdn);
+        },
       ),
       GoRoute(
         path: '/create-password',
-        builder: (context, state) => const CreateNewPasswordScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CreateNewPasswordScreen(
+            msisdn: extra['msisdn'] as String? ?? '',
+            otp: extra['otp'] as String? ?? '',
+          );
+        },
       ),
 
       // ── Main App Shell ───────────────────────────────────────

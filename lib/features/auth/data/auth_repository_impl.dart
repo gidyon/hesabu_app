@@ -11,10 +11,28 @@ class AuthRepositoryImpl implements AuthRepository {
     required this.localDataSource,
   });
 
+  String _formatMsisdn(String input) {
+    String formatted = input.trim().replaceAll(' ', '');
+    // Check if it's purely digits (or starts with +)
+    if (RegExp(r'^\+?[0-9]+$').hasMatch(formatted)) {
+      if (formatted.startsWith('0')) {
+        return '254${formatted.substring(1)}';
+      }
+      if (formatted.startsWith('+254')) {
+        return formatted.substring(1);
+      }
+    }
+    return formatted;
+  }
+
   @override
   Future<bool> login(String email, String password) async {
     try {
-      final response = await remoteDataSource.login(email, password);
+      final formattedIdentifier = _formatMsisdn(email);
+      final response = await remoteDataSource.login(
+        formattedIdentifier,
+        password,
+      );
       if (response.status == 'success' || response.accessToken.isNotEmpty) {
         await localDataSource.saveToken(response.accessToken);
         await localDataSource.saveUser(response.user.toJson());
@@ -34,7 +52,9 @@ class AuthRepositoryImpl implements AuthRepository {
     String password,
   ) async {
     try {
-      List<String> names = fullName.split(' ');
+      final formattedPhone = _formatMsisdn(phone);
+      final trimmedFullName = fullName.trim();
+      List<String> names = trimmedFullName.split(RegExp(r'\s+'));
       String firstName = names.isNotEmpty ? names.first : 'User';
       String otherNames = names.length > 1
           ? names.sublist(1).join(' ')
@@ -43,7 +63,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await remoteDataSource.register(
         firstName,
         otherNames,
-        phone,
+        formattedPhone,
         password,
       );
 
@@ -53,23 +73,31 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  // Mocks for endpoints not in postman collection
   @override
-  Future<bool> sendResetCode(String email) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return true;
+  Future<bool> sendResetCode(String msisdn) async {
+    final formattedMsisdn = _formatMsisdn(msisdn);
+    return await remoteDataSource.sendResetCode(formattedMsisdn);
   }
 
   @override
-  Future<bool> verifyResetCode(String email, String code) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return code == '1234';
+  Future<bool> verifyResetCode(String msisdn, String code) async {
+    // Just a local verification or placeholder if needed.
+    // The actual API reset checks both OTP and new password together.
+    return code.length >= 4;
   }
 
   @override
-  Future<bool> resetPassword(String email, String newPassword) async {
-    await Future.delayed(const Duration(seconds: 1));
-    return true;
+  Future<bool> resetPassword(
+    String msisdn,
+    String otp,
+    String newPassword,
+  ) async {
+    final formattedMsisdn = _formatMsisdn(msisdn);
+    return await remoteDataSource.resetPassword(
+      formattedMsisdn,
+      otp,
+      newPassword,
+    );
   }
 
   @override

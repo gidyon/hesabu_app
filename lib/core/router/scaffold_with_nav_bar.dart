@@ -84,7 +84,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
             Icon(
               icon,
               color: color,
-              size: 24, // Slightly smaller for more compact feel if needed, but keeping UX clear
+              size:
+                  24, // Slightly smaller for more compact feel if needed, but keeping UX clear
             ),
             const SizedBox(height: 4),
             Text(

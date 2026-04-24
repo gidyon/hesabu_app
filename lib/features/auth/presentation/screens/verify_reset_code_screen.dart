@@ -3,12 +3,12 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:hesabu_app/core/widgets/app_logo.dart';
 
 import 'dart:async';
 
 class VerifyResetCodeScreen extends StatefulWidget {
-  const VerifyResetCodeScreen({super.key});
+  final String msisdn;
+  const VerifyResetCodeScreen({super.key, required this.msisdn});
 
   @override
   State<VerifyResetCodeScreen> createState() => _VerifyResetCodeScreenState();
@@ -67,11 +67,14 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
     String code = _otpControllers.map((e) => e.text).join();
     if (code.length == 6) {
       bool verified = await context.read<AuthRepository>().verifyResetCode(
-        "test@example.com",
+        widget.msisdn,
         code,
       );
       if (verified && mounted) {
-        context.push('/create-password');
+        context.push(
+          '/create-password',
+          extra: {'msisdn': widget.msisdn, 'otp': code},
+        );
       }
     }
   }
@@ -143,9 +146,6 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
 
                   const SizedBox(height: 40),
 
-                  // Branding
-                  const Center(child: AppLogo(size: 80)),
-                  const SizedBox(height: 32),
                   const Text(
                     'Verify Reset Code',
                     style: TextStyle(
@@ -157,24 +157,24 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                   ),
                   const SizedBox(height: 12),
                   RichText(
-                    text: const TextSpan(
-                      style: TextStyle(
+                    text: TextSpan(
+                      style: const TextStyle(
                         color: AppColors.slate400,
                         fontSize: 16,
                         height: 1.5,
                       ),
                       children: [
-                        TextSpan(
+                        const TextSpan(
                           text: "We've sent a 6-digit verification code to ",
                         ),
                         TextSpan(
-                          text: "johndoe@email.com",
-                          style: TextStyle(
+                          text: widget.msisdn,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        TextSpan(text: ". Please enter it below."),
+                        const TextSpan(text: ". Please enter it below."),
                       ],
                     ),
                   ),
@@ -297,6 +297,30 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Back to login
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => context.go('/login'),
+                      child: RichText(
+                        text: TextSpan(
+                          style: const TextStyle(color: AppColors.slate400),
+                          children: [
+                            const TextSpan(text: 'Remember your password? '),
+                            TextSpan(
+                              text: 'Back to Login',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

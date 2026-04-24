@@ -5,7 +5,6 @@ import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:hesabu_app/core/widgets/app_logo.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -46,15 +45,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
     try {
       final success = await context.read<AuthRepository>().register(
-        _fullNameController.text,
-        _emailController.text,
-        _phoneController.text,
+        _fullNameController.text.trim(),
+        _emailController.text.trim(),
+        _phoneController.text.trim(),
         _passwordController.text,
       );
       if (success && mounted) {
         // Automatically login after successful registration
         await context.read<AuthRepository>().login(
-          _emailController.text,
+          _phoneController.text.trim(),
           _passwordController.text,
         );
         if (mounted) {
@@ -170,9 +169,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 48),
 
-                    // Branding
-                    const Center(child: AppLogo(size: 80)),
-                    const SizedBox(height: 32),
                     Text(
                       'Create Account',
                       textAlign: TextAlign.center,

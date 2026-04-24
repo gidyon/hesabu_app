@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hesabu_app/core/widgets/app_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -109,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
 
     setState(() => _isLoading = true);
     try {
-      final loginEmail = email ?? _emailController.text;
+      final loginEmail = email ?? _emailController.text.trim();
       final loginPassword = password ?? _passwordController.text;
 
       final success = await context.read<AuthRepository>().login(
@@ -119,14 +118,8 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
 
       if (success && mounted) {
         // Save successfully used credentials for future biometric login
-        await _secureStorage.write(
-          key: 'bio_email',
-          value: loginEmail,
-        );
-        await _secureStorage.write(
-          key: 'bio_password',
-          value: loginPassword,
-        );
+        await _secureStorage.write(key: 'bio_email', value: loginEmail);
+        await _secureStorage.write(key: 'bio_password', value: loginPassword);
 
         context.go('/home'); // Navigate to home
       }
@@ -221,9 +214,6 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
 
                     const SizedBox(height: 48),
 
-                    // Branding
-                    const Center(child: AppLogo(size: 80)),
-                    const SizedBox(height: 24),
                     Text(
                       'Welcome Back',
                       textAlign: TextAlign.center,

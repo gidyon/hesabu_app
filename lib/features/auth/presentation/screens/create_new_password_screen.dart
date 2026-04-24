@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hesabu_app/core/widgets/app_logo.dart';
-
+import 'package:provider/provider.dart';
+import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 
 class CreateNewPasswordScreen extends StatefulWidget {
-  const CreateNewPasswordScreen({super.key});
+  final String msisdn;
+  final String otp;
+  const CreateNewPasswordScreen({
+    super.key,
+    required this.msisdn,
+    required this.otp,
+  });
 
   @override
   State<CreateNewPasswordScreen> createState() =>
@@ -54,71 +60,102 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
     });
   }
 
-  void _onSubmit() {
-    // Show success modal then navigate to login
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: const Color(0xFF1c271f),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_circle,
-                  color: AppColors.primary,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Password Updated!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Your password has been reset successfully. You can now log in with your new credentials.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.slate400),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () => context.go('/login'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: AppColors.backgroundDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+  bool _isLoading = false;
+
+  void _onSubmit() async {
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final success = await context.read<AuthRepository>().resetPassword(
+        widget.msisdn,
+        widget.otp,
+        _newPasswordController.text,
+      );
+
+      if (success && mounted) {
+        // Show success modal then navigate to login
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Dialog(
+            backgroundColor: const Color(0xFF1c271f),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: AppColors.primary,
+                      size: 32,
                     ),
                   ),
-                  child: const Text(
-                    'Back to Login',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Password Updated!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Your password has been reset successfully. You can now log in with your new credentials.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.slate400),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => context.go('/login'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.backgroundDark,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Back to Login',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -171,9 +208,6 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Branding
-                    const Center(child: AppLogo(size: 80)),
-                    const SizedBox(height: 32),
                     const Text(
                       'Set your new password',
                       style: TextStyle(
@@ -399,7 +433,9 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: _strengthLevel >= 3 ? _onSubmit : null,
+                      onPressed: (_strengthLevel >= 3 && !_isLoading)
+                          ? _onSubmit
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: AppColors.backgroundDark,
@@ -409,26 +445,59 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         shadowColor: AppColors.primary.withOpacity(0.2),
                         elevation: 10,
                       ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Reset Password',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.backgroundDark,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Reset Password',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(Icons.lock_reset),
+                              ],
                             ),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(Icons.lock_reset),
-                        ],
-                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   const Text(
                     'Step 3 of 3',
                     style: TextStyle(color: Colors.white30, fontSize: 12),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Back to login
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => context.go('/login'),
+                      child: RichText(
+                        text: TextSpan(
+                          style: const TextStyle(color: AppColors.slate400),
+                          children: [
+                            const TextSpan(text: 'Remember your password? '),
+                            TextSpan(
+                              text: 'Back to Login',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
