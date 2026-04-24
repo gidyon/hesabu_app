@@ -9,6 +9,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hesabu_app/core/widgets/auth_icon.dart';
+import 'package:hesabu_app/core/security/security_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
   final _passwordController = TextEditingController(text: '');
   bool _isLoading = false;
   bool _isPasswordVisible = false;
-  bool _bioEnabled = false;
+  bool _showLoginForm = false;
   final LocalAuthentication auth = LocalAuthentication();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
@@ -31,7 +32,16 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkBioSettings();
+    
+    // Check biometrics after first frame to determine default view
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final securityController = context.read<SecurityController>();
+      if (mounted) {
+        setState(() {
+          _showLoginForm = !securityController.biometricEnabled;
+        });
+      }
+    });
   }
 
   @override
@@ -44,20 +54,12 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkBioSettings();
-    }
-  }
-
-  Future<void> _checkBioSettings() async {
-    final enabled = await _secureStorage.read(key: 'bio_enabled');
-    if (mounted) {
-      setState(() => _bioEnabled = enabled == 'true');
-    }
+    // No longer need to manually check bio settings as Provider handles it
   }
 
   Future<void> _handleBiometricLogin() async {
-    if (!_bioEnabled) return;
+    final securityController = context.read<SecurityController>();
+    if (!securityController.biometricEnabled) return;
 
     try {
       final bool canAuthenticateWithBiometrics = await auth.canCheckBiometrics;
@@ -248,359 +250,225 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                     ),
 
                     const SizedBox(height: 40),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(minHeight: 56),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(0xFF1c271f)
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isDark
-                                  ? const Color(0xFF3b5443)
-                                  : AppColors.slate200,
-                            ),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    Consumer<SecurityController>(
+                      builder: (context, security, _) {
+                        if (security.biometricEnabled && !_showLoginForm) {
+                          // Biometric View
+                          return Column(
                             children: [
-                              const Padding(
-                                padding: EdgeInsets.only(left: 16, top: 16),
-                                child: Icon(
-                                  Icons.mail_outline,
-                                  color: AppColors.slate400,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _emailController,
-                                  style: TextStyle(
-                                    color: theme.textTheme.bodyLarge?.color,
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Email or phone is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Email or Phone Number',
-                                    labelStyle: const TextStyle(
-                                      color: AppColors.slate400,
-                                      fontSize: 14,
+                              Center(
+                                child: GestureDetector(
+                                  onTap: _handleBiometricLogin,
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: accent.withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: accent.withOpacity(0.2),
+                                        width: 2,
+                                      ),
                                     ),
-                                    floatingLabelStyle: TextStyle(
-                                      color: accent,
-                                      fontSize: 12,
-                                    ),
-                                    hintText: 'Enter email or phone',
-                                    hintStyle: TextStyle(
-                                      color: isDark
-                                          ? const Color(
-                                              0xFF9db9a6,
-                                            ).withOpacity(0.5)
-                                          : AppColors.slate400.withOpacity(0.5),
-                                    ),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.only(
-                                      top: 8,
-                                      bottom: 8,
-                                    ),
-                                    errorStyle: const TextStyle(
-                                      fontSize: 12,
-                                      height: 1,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(minHeight: 56),
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(0xFF1c271f)
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isDark
-                                  ? const Color(0xFF3b5443)
-                                  : AppColors.slate200,
-                            ),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.only(left: 16, top: 16),
-                                child: Icon(
-                                  Icons.lock_outline,
-                                  color: AppColors.slate400,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _passwordController,
-                                  obscureText: !_isPasswordVisible,
-                                  style: TextStyle(
-                                    color: theme.textTheme.bodyLarge?.color,
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Password is required';
-                                    }
-                                    if (value.length < 4) {
-                                      return 'Password too short';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                    labelText: 'Password',
-                                    labelStyle: const TextStyle(
-                                      color: AppColors.slate400,
-                                      fontSize: 14,
-                                    ),
-                                    floatingLabelStyle: TextStyle(
-                                      color: accent,
-                                      fontSize: 12,
-                                    ),
-                                    hintText: 'Enter your password',
-                                    hintStyle: TextStyle(
-                                      color: isDark
-                                          ? const Color(
-                                              0xFF9db9a6,
-                                            ).withOpacity(0.5)
-                                          : AppColors.slate400.withOpacity(0.5),
-                                    ),
-                                    border: InputBorder.none,
-                                    contentPadding: const EdgeInsets.only(
-                                      top: 8,
-                                      bottom: 8,
-                                    ),
-                                    errorStyle: const TextStyle(
-                                      fontSize: 12,
-                                      height: 1,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: IconButton(
-                                  icon: Icon(
-                                    _isPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: AppColors.slate400,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () => context.push('/reset-password'),
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                color: accent,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accent,
-                          foregroundColor: isDark
-                              ? AppColors.backgroundDark
-                              : Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.login),
-                                ],
-                              ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Social Login Divider
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            color: isDark
-                                ? const Color(0xFF3b5443)
-                                : AppColors.slate200,
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'OR CONTINUE WITH',
-                            style: TextStyle(
-                              color: AppColors.slate400,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            color: isDark
-                                ? const Color(0xFF3b5443)
-                                : AppColors.slate200,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Social Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: _bioEnabled
-                                  ? Colors.transparent
-                                  : Colors.grey.withOpacity(0.1),
-                              border: Border.all(
-                                color: isDark
-                                    ? const Color(0xFF3b5443)
-                                    : AppColors.slate200,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: InkWell(
-                              onTap: _bioEnabled ? _handleBiometricLogin : null,
-                              borderRadius: BorderRadius.circular(12),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
+                                    child: Icon(
                                       Icons.fingerprint,
-                                      size: 24,
-                                      color: _bioEnabled
-                                          ? accent
-                                          : AppColors.slate400,
+                                      size: 50,
+                                      color: accent,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Biometric',
-                                      style: TextStyle(
-                                        color: _bioEnabled
-                                            ? theme.textTheme.bodyLarge?.color
-                                            : AppColors.slate400,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Container(
-                            height: 48,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: isDark
-                                    ? const Color(0xFF3b5443)
-                                    : AppColors.slate200,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: InkWell(
-                              onTap: () {},
-                              borderRadius: BorderRadius.circular(12),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.apple,
-                                      size: 24,
-                                      color: theme.textTheme.bodyLarge?.color,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Apple ID',
-                                      style: TextStyle(
-                                        color: theme.textTheme.bodyLarge?.color,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Tap to Login with Biometrics',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: AppColors.slate500,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
+                              const SizedBox(height: 48),
+                              TextButton(
+                                onPressed: () => setState(() => _showLoginForm = true),
+                                child: Text(
+                                  'Use Password Instead',
+                                  style: TextStyle(
+                                    color: accent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        // Login Form View
+                        return Column(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  constraints: const BoxConstraints(minHeight: 56),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF1c271f) : Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 16, top: 16),
+                                        child: Icon(Icons.mail_outline, color: AppColors.slate400),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: TextFormField(
+                                          controller: _emailController,
+                                          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) return 'Email or phone is required';
+                                            return null;
+                                          },
+                                          decoration: InputDecoration(
+                                            labelText: 'Email or Phone Number',
+                                            labelStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
+                                            floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
+                                            hintText: 'Enter email or phone',
+                                            hintStyle: TextStyle(
+                                              color: isDark ? const Color(0xFF9db9a6).withOpacity(0.5) : AppColors.slate400.withOpacity(0.5),
+                                            ),
+                                            border: InputBorder.none,
+                                            contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
+                                            errorStyle: const TextStyle(fontSize: 12, height: 1),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      ],
+                            const SizedBox(height: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  constraints: const BoxConstraints(minHeight: 56),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF1c271f) : Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(left: 16, top: 16),
+                                        child: Icon(Icons.lock_outline, color: AppColors.slate400),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: TextFormField(
+                                          controller: _passwordController,
+                                          obscureText: !_isPasswordVisible,
+                                          style: TextStyle(color: theme.textTheme.bodyLarge?.color),
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) return 'Password is required';
+                                            if (value.length < 4) return 'Password too short';
+                                            return null;
+                                          },
+                                          decoration: InputDecoration(
+                                            labelText: 'Password',
+                                            labelStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
+                                            floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
+                                            hintText: 'Enter your password',
+                                            hintStyle: TextStyle(
+                                              color: isDark ? const Color(0xFF9db9a6).withOpacity(0.5) : AppColors.slate400.withOpacity(0.5),
+                                            ),
+                                            border: InputBorder.none,
+                                            contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
+                                            errorStyle: const TextStyle(fontSize: 12, height: 1),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: IconButton(
+                                          icon: Icon(
+                                            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                            color: AppColors.slate400,
+                                          ),
+                                          onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () => context.push('/reset-password'),
+                                    child: Text(
+                                      'Forgot Password?',
+                                      style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              height: 48,
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: accent,
+                                  foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 0,
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      )
+                                    : const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                          SizedBox(width: 8),
+                                          Icon(Icons.login),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                            if (security.biometricEnabled) ...[
+                              const SizedBox(height: 24),
+                              TextButton.icon(
+                                onPressed: () => setState(() => _showLoginForm = false),
+                                icon: Icon(Icons.fingerprint, color: accent),
+                                label: Text(
+                                  'Use Biometric Login',
+                                  style: TextStyle(color: accent, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 40),
 
                     // Footer
                     Center(

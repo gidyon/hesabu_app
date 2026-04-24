@@ -4,8 +4,9 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:hesabu_app/core/security/security_controller.dart';
+import 'package:provider/provider.dart';
 
 class SettingsSecurityScreen extends StatefulWidget {
   const SettingsSecurityScreen({super.key});
@@ -15,104 +16,48 @@ class SettingsSecurityScreen extends StatefulWidget {
 }
 
 class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
-  bool _biometricEnabled = false;
-  final _secureStorage = const FlutterSecureStorage();
   final _auth = LocalAuthentication();
 
   @override
   void initState() {
     super.initState();
-    _checkBiometricStatus();
-  }
-
-  Future<void> _checkBiometricStatus() async {
-    final enabled = await _secureStorage.read(key: 'bio_enabled');
-    if (mounted) {
-      setState(() => _biometricEnabled = enabled == 'true');
-    }
   }
 
   Future<void> _toggleBiometrics(bool value) async {
+    final security = context.read<SecurityController>();
     if (value) {
-      // Prompt for password to enable
-      final password = await _showPasswordPrompt();
-      if (password != null && password.isNotEmpty) {
-        // Verify password against stored password
-        final storedPassword = await _secureStorage.read(key: 'bio_password');
+      // Authenticate with biometrics to confirm the user can use it
+      try {
+        final didAuth = await _auth.authenticate(
+          localizedReason: 'Confirm identity to enable biometric login',
+          biometricOnly: true,
+        );
 
-        if (storedPassword != password) {
+        if (didAuth) {
+          await security.setBiometricEnabled(true);
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Incorrect password. Setup failed.'),
-                backgroundColor: Theme.of(context).colorScheme.error,
+              const SnackBar(
+                content: Text('Biometric login enabled successfully!'),
+                backgroundColor: Color(0xFF2ecc71),
               ),
             );
           }
-          return;
         }
-
-        // Authenticate with biometrics first to ensure it works
-        try {
-          final didAuth = await _auth.authenticate(
-            localizedReason: 'Confirm identity to enable biometric login',
-          );
-
-          if (didAuth) {
-            await _secureStorage.write(key: 'bio_enabled', value: 'true');
-            setState(() => _biometricEnabled = true);
-
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Biometric login enabled successfully!'),
-                  backgroundColor: Color(0xFF2ecc71),
-                ),
-              );
-            }
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            print(e.toString());
-          }
-          if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Security error: $e')));
-          }
+      } catch (e) {
+        if (kDebugMode) {
+          print(e.toString());
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Security error: $e')));
         }
       }
     } else {
-      await _secureStorage.delete(key: 'bio_enabled');
-      await _secureStorage.delete(key: 'bio_password');
-      await _secureStorage.delete(key: 'bio_email');
-      setState(() => _biometricEnabled = false);
+      await security.setBiometricEnabled(false);
     }
-  }
-
-  Future<String?> _showPasswordPrompt() async {
-    String? password;
-    return showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Password'),
-        content: TextField(
-          obscureText: true,
-          decoration: const InputDecoration(hintText: 'Enter your password'),
-          onChanged: (v) => password = v,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, password),
-            child: const Text('Enable'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -233,16 +178,20 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                     cardBorder,
                     child: Column(
                       children: [
-                        _switchTile(
-                          context,
-                          icon: Icons.fingerprint,
-                          iconColor: accent,
-                          title: 'Biometric Login',
-                          subtitle: 'Use Face ID or Fingerprint',
-                          value: _biometricEnabled,
-                          onChanged: _toggleBiometrics,
-                          accent: accent,
-                          showDivider: false,
+                        Consumer<SecurityController>(
+                          builder: (context, security, _) {
+                            return _switchTile(
+                              context,
+                              icon: Icons.fingerprint,
+                              iconColor: accent,
+                              title: 'Biometric Login',
+                              subtitle: 'Use Face ID or Fingerprint',
+                              value: security.biometricEnabled,
+                              onChanged: _toggleBiometrics,
+                              accent: accent,
+                              showDivider: false,
+                            );
+                          },
                         ),
                       ],
                     ),

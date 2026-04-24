@@ -14,7 +14,10 @@ class AuthLocalDataSource {
   AuthLocalDataSource({required this.sharedPreferences});
 
   Future<void> saveToken(String token) async {
-    await sharedPreferences.setInt(_lastLoginKey, DateTime.now().millisecondsSinceEpoch);
+    await sharedPreferences.setInt(
+      _lastLoginKey,
+      DateTime.now().millisecondsSinceEpoch,
+    );
     await secureStorage.write(key: _tokenKey, value: token);
   }
 
@@ -53,18 +56,16 @@ class AuthLocalDataSource {
   bool isTokenValid() {
     final lastLogin = sharedPreferences.getInt(_lastLoginKey);
     if (lastLogin == null) return false;
-    
+
     final lastLoginDate = DateTime.fromMillisecondsSinceEpoch(lastLogin);
     final now = DateTime.now();
     final difference = now.difference(lastLoginDate).inMinutes;
-    
+
     return difference < 30;
   }
 
   Future<void> logout() async {
     await secureStorage.delete(key: _tokenKey);
-    await secureStorage.delete(key: 'bio_enabled');
-    // Note: we keep bio_email and bio_password for the biometric fallback
     await sharedPreferences.remove(_lastLoginKey);
     await sharedPreferences.remove(_userKey);
   }

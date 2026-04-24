@@ -124,11 +124,15 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                       ),
                                       image: _profile!.avatarUrl.startsWith('/')
                                           ? DecorationImage(
-                                              image: FileImage(File(_profile!.avatarUrl)),
+                                              image: FileImage(
+                                                File(_profile!.avatarUrl),
+                                              ),
                                               fit: BoxFit.cover,
                                             )
                                           : DecorationImage(
-                                              image: NetworkImage(_profile!.avatarUrl),
+                                              image: NetworkImage(
+                                                _profile!.avatarUrl,
+                                              ),
                                               fit: BoxFit.cover,
                                             ),
                                       boxShadow: [
@@ -236,7 +240,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                       iconColor: accent,
                                       title: 'Update Profile',
                                       onTap: () async {
-                                        final result = await context.push('/settings/profile');
+                                        final result = await context.push(
+                                          '/settings/profile',
+                                        );
                                         if (result == true) _loadProfile();
                                       },
                                       showDivider: true,
@@ -249,14 +255,6 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                       onTap: () =>
                                           context.push('/settings/security'),
                                       showDivider: true,
-                                    ),
-
-                                    // Dark Theme inline toggle
-                                    _buildThemeToggleItem(
-                                      context,
-                                      controller,
-                                      isDark,
-                                      accent,
                                     ),
                                   ],
                                 ),
@@ -321,7 +319,8 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                               // Logout
                               InkWell(
                                 onTap: () async {
-                                  final authRepo = context.read<AuthRepository>();
+                                  final authRepo = context
+                                      .read<AuthRepository>();
                                   await authRepo.logout();
                                   if (mounted) context.go('/login');
                                 },
@@ -359,7 +358,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                               Center(
                                 child: Column(
                                   children: [
-                                    Text(
+                                    const Text(
                                       'Hesabu Online v1.0.44',
                                       style: TextStyle(
                                         color: AppColors.slate500,
@@ -386,61 +385,6 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                       ],
                     ),
                   ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildThemeToggleItem(
-    BuildContext context,
-    dynamic controller,
-    bool isDark,
-    Color accent,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.purple.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              isDark ? Icons.dark_mode : Icons.light_mode,
-              color: Colors.purpleAccent,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isDark ? 'Dark Theme' : 'Light Theme',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                ),
-                Text(
-                  isDark ? 'Currently active' : 'Currently active',
-                  style: const TextStyle(
-                    color: AppColors.slate500,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: isDark,
-            onChanged: (_) => controller.toggleTheme(),
-            activeColor: accent,
           ),
         ],
       ),

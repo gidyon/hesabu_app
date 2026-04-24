@@ -16,6 +16,7 @@ import 'package:hesabu_app/features/groups/data/groups_repository_impl.dart';
 import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:hesabu_app/features/settings/data/settings_repository_impl.dart';
+import 'package:hesabu_app/core/security/security_controller.dart';
 
 late ThemeController _themeController;
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -96,6 +97,7 @@ class _MyAppState extends State<MyApp> {
         Provider<AuthRepository>.value(value: widget.authRepository),
         Provider<GroupsRepository>.value(value: widget.groupsRepository),
         Provider<SettingsRepository>.value(value: widget.settingsRepository),
+        ChangeNotifierProvider(create: (_) => SecurityController()),
       ],
       child: InheritedThemeController(
         notifier: _themeController,

@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:hesabu_app/core/security/security_controller.dart';
 import 'package:hesabu_app/main.dart'; // Import for routeObserver
 
 class HomeScreen extends StatefulWidget {
@@ -142,9 +143,15 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              context.push('/settings/security');
+            onPressed: () async {
+              final security = context.read<SecurityController>();
+              await security.setBiometricEnabled(true);
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Biometric login enabled!')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: accent,
