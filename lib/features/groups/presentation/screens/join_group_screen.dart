@@ -58,20 +58,21 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
   void _joinGroup() async {
     setState(() => _isLoading = true);
-    final success = await context.read<GroupsRepository>().joinGroup(
+    final response = await context.read<GroupsRepository>().joinGroup(
       _codeController.text.trim(),
     );
     if (mounted) {
       setState(() => _isLoading = false);
-      if (success) {
+      if (!response.hasError && response.data == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Successfully joined the group!')),
         );
         context.pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to join group. Please check the ID.'),
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Failed to join group. Please check the ID.'),
+            backgroundColor: Colors.redAccent,
           ),
         );
       }

@@ -74,13 +74,13 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final success = await context.read<AuthRepository>().resetPassword(
+      final response = await context.read<AuthRepository>().resetPassword(
         widget.msisdn,
         widget.otp,
         _newPasswordController.text,
       );
 
-      if (success && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         // Show success modal then navigate to login
         showDialog(
           context: context,
@@ -145,6 +145,13 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                 ],
               ),
             ),
+          ),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Failed to reset password. Please try again.'),
+            backgroundColor: Colors.redAccent,
           ),
         );
       }

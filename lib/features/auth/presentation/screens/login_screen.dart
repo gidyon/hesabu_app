@@ -112,26 +112,33 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
       final loginEmail = email ?? _emailController.text.trim();
       final loginPassword = password ?? _passwordController.text;
 
-      final success = await context.read<AuthRepository>().login(
+      final response = await context.read<AuthRepository>().login(
         loginEmail,
         loginPassword,
       );
 
-      if (success && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         // Save successfully used credentials for future biometric login
         await _secureStorage.write(key: 'bio_email', value: loginEmail);
         await _secureStorage.write(key: 'bio_password', value: loginPassword);
 
         context.go('/home'); // Navigate to home
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Login failed. Please check your credentials.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        String message = e.toString().contains('ApiException')
-            ? e.toString().split(':').last.trim()
-            : 'Login failed. Please check your credentials.';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An unexpected error occurred. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

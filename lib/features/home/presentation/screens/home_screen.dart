@@ -164,14 +164,14 @@ class _HomeScreenState extends State<HomeScreen>
     final groupsRepository = context.read<GroupsRepository>();
     final settingsRepository = context.read<SettingsRepository>();
 
-    final groups = await groupsRepository.getActiveGroups();
-    final total = await groupsRepository.getTotalSavings();
+    final groupsResponse = await groupsRepository.getActiveGroups();
+    final totalResponse = await groupsRepository.getTotalSavings();
     final profile = await settingsRepository.getUserProfile();
 
     if (mounted) {
       setState(() {
-        _groups = groups;
-        _totalSavings = total;
+        _groups = groupsResponse.data ?? [];
+        _totalSavings = totalResponse.data ?? 0.0;
         _profile = profile;
         _isLoading = false;
       });

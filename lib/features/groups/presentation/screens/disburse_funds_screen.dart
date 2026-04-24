@@ -41,7 +41,7 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
     if (widget.group == null) return;
 
     setState(() => _isLoading = true);
-    final success = await context.read<GroupsRepository>().withdraw(
+    final response = await context.read<GroupsRepository>().withdraw(
       widget.group!.id,
       amount,
       dest,
@@ -49,11 +49,14 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
-      if (success) {
+      if (!response.hasError && response.data == true) {
         _showSuccessSheet(amount);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Disbursement failed. Please try again.')),
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Disbursement failed. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }

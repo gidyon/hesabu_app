@@ -45,13 +45,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      final success = await context.read<AuthRepository>().register(
+      final response = await context.read<AuthRepository>().register(
         _fullNameController.text.trim(),
         _emailController.text.trim(),
         _phoneController.text.trim(),
         _passwordController.text,
       );
-      if (success && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         // Automatically login after successful registration
         await context.read<AuthRepository>().login(
           _phoneController.text.trim(),
@@ -60,15 +60,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           context.go('/groups');
         }
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Registration failed. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
-        String message = e.toString().contains('ApiException')
-            ? e.toString().split(':').last.trim()
-            : 'Registration failed. Please try again.';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An unexpected error occurred. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

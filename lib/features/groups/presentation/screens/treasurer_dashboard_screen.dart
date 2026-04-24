@@ -29,14 +29,14 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
 
   Future<void> _loadData() async {
     final groupsRepository = context.read<GroupsRepository>();
-    final transactions = await groupsRepository.getRecentTransactions(
+    final transactionsResponse = await groupsRepository.getRecentTransactions(
       '1',
     ); // Mock ID
-    final balance = await groupsRepository.getGroupBalance('1');
+    final balanceResponse = await groupsRepository.getGroupBalance('1');
     if (mounted) {
       setState(() {
-        _transactions = transactions;
-        _balance = balance;
+        _transactions = transactionsResponse.data ?? [];
+        _balance = balanceResponse.data ?? 0.0;
         _isLoading = false;
       });
     }

@@ -28,12 +28,20 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
 
   Future<void> _loadData() async {
     final groupsRepository = context.read<GroupsRepository>();
-    final groups = await groupsRepository.getActiveGroups();
+    final response = await groupsRepository.getActiveGroups();
     if (mounted) {
       setState(() {
-        _groups = groups;
+        _groups = response.data ?? [];
         _isLoading = false;
       });
+      if (response.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Failed to load groups.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
     }
   }
 

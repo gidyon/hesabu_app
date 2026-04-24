@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/api/api_response.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
@@ -27,10 +28,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Future<void> _fetchTransactions() async {
     final repo = context.read<GroupsRepository>();
     try {
-      final txs = await repo.getRecentTransactions(widget.group.id);
-      if (mounted) {
+      final response = await repo.getRecentTransactions(widget.group.id);
+      if (mounted && !response.hasError) {
         setState(() {
-          _transactions = txs;
+          _transactions = response.data!;
           _totalInflow = _transactions
               .where((t) => t.type == 'Inflow')
               .fold(0.0, (sum, item) => sum + item.amount);
@@ -47,10 +48,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   Future<void> _fetchMembers() async {
     final repo = context.read<GroupsRepository>();
     try {
-      final members = await repo.getMembers(widget.group.id);
-      if (mounted) {
+      final response = await repo.getMembers(widget.group.id);
+      if (mounted && !response.hasError) {
         setState(() {
-          _members = members;
+          _members = response.data!;
         });
       }
     } catch (e) {
@@ -73,33 +74,51 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         repo.getGroupBalance(widget.group.id),
       ]);
 
+      final txResponse = results[0] as ApiResponse<List<Transaction>>;
+      final memberResponse = results[1] as ApiResponse<List<Member>>;
+      final balanceResponse = results[2] as ApiResponse<double>;
+
       if (mounted) {
         setState(() {
-          _transactions = results[0] as List<Transaction>;
-          _members = results[1] as List<Member>;
-          _balance = results[2] as double;
+          if (!txResponse.hasError) {
+            _transactions = txResponse.data!;
+            _totalInflow = _transactions
+                .where((t) => t.type == 'Inflow')
+                .fold(0.0, (sum, item) => sum + item.amount);
+            _totalOutflow = _transactions
+                .where((t) => t.type == 'Outflow')
+                .fold(0.0, (sum, item) => sum + item.amount);
+          }
 
-          _totalInflow = _transactions
-              .where((t) => t.type == 'Inflow')
-              .fold(0.0, (sum, item) => sum + item.amount);
-          _totalOutflow = _transactions
-              .where((t) => t.type == 'Outflow')
-              .fold(0.0, (sum, item) => sum + item.amount);
+          if (!memberResponse.hasError) {
+            _members = memberResponse.data!;
+          }
+
+          if (!balanceResponse.hasError) {
+            _balance = balanceResponse.data!;
+          }
 
           _isLoading = false;
         });
+
+        if (txResponse.hasError ||
+            memberResponse.hasError ||
+            balanceResponse.hasError) {
+          final error =
+              txResponse.errorMessage ??
+              memberResponse.errorMessage ??
+              balanceResponse.errorMessage;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error ?? 'Error loading some data'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to load group details: ${e.toString().replaceAll('ApiException: ', '')}',
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
       }
     }
   }
@@ -177,7 +196,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ],
           ),
           if (_currentIndex == 0)
-            _buildFixedInsights(currencyFormat, accent, cardColor, titleColor),
+            _buildFixedInsights(currencyFormat, accent, cardColor, titleColor, backgroundColor),
         ],
       ),
     );
@@ -272,7 +291,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 child: Text(
                   'See All',
                   style: TextStyle(
-                    color: const Color(0xFF00E676),
+                    color: accent,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -321,8 +340,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E3B29), Color(0xFF132A1C)],
+        gradient: LinearGradient(
+          colors: [accent, accent.withOpacity(0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -335,7 +354,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Text(
             'TOTAL GROUP BALANCE',
             style: TextStyle(
-              color: const Color(0xFF00E676).withOpacity(0.8),
+              color: Colors.white.withOpacity(0.8),
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
@@ -363,12 +382,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              Icon(Icons.trending_up, color: const Color(0xFF00E676), size: 14),
+              const Icon(Icons.trending_up, color: Colors.white, size: 14),
               const SizedBox(width: 6),
               Text(
                 '+4.2% from last month',
                 style: TextStyle(
-                  color: const Color(0xFF00E676).withOpacity(0.9),
+                  color: Colors.white.withOpacity(0.9),
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -385,6 +404,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     Color accent,
     Color cardColor,
     Color titleColor,
+    Color backgroundColor,
   ) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Positioned(
@@ -397,7 +417,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             child: _buildInsightCard(
               'TOTAL INFLOW',
               fmt.format(_totalInflow),
-              const Color(0xFF00E676),
+              accent,
+              cardColor,
+              backgroundColor,
             ),
           ),
           const SizedBox(width: 16),
@@ -405,7 +427,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             child: _buildInsightCard(
               'TOTAL OUTFLOW',
               fmt.format(_totalOutflow),
-              Colors.white,
+              titleColor,
+              cardColor,
+              backgroundColor,
             ),
           ),
         ],
@@ -413,11 +437,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildInsightCard(String label, String amount, Color amountColor) {
+  Widget _buildInsightCard(String label, String amount, Color amountColor, Color cardColor, Color backgroundColor) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E2B22), // Dark greenish card
+        color: Color.alphaBlend(cardColor, backgroundColor),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
@@ -448,7 +472,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   }
 
   Widget _buildMainActionButton(bool isAdmin, Color accent, Color titleColor) {
-    final btnColor = const Color(0xFF00E676);
+    final btnColor = accent;
     return Container(
       width: double.infinity,
       height: 56,
@@ -520,7 +544,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       itemBuilder: (context, index) {
         final tx = _transactions[index];
         final isInflow = tx.type == 'Inflow';
-        final amountColor = isInflow ? const Color(0xFF00E676) : titleColor;
+        final amountColor = isInflow ? accent : titleColor;
         return Padding(
           padding: const EdgeInsets.only(bottom: 24),
           child: Row(
@@ -529,7 +553,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: (isInflow ? const Color(0xFF00E676) : Colors.red)
+                  color: (isInflow ? accent : Colors.red)
                       .withOpacity(0.08),
                   shape: BoxShape.circle,
                 ),
@@ -537,7 +561,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   isInflow
                       ? Icons.arrow_downward_rounded
                       : Icons.arrow_upward_rounded,
-                  color: isInflow ? const Color(0xFF00E676) : Colors.red,
+                  color: isInflow ? accent : Colors.red,
                   size: 22,
                 ),
               ),

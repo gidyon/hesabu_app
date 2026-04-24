@@ -1,3 +1,5 @@
+import 'package:hesabu_app/core/api/api_response.dart';
+
 class Group {
   final String id;
   final String name;
@@ -67,15 +69,15 @@ class Transaction {
 }
 
 abstract class GroupsRepository {
-  Future<List<Group>> getActiveGroups();
-  Future<double> getTotalSavings();
-  Future<List<Transaction>> getRecentTransactions(String groupId);
-  Future<double> getGroupBalance(String groupId);
-  Future<bool> joinGroup(String groupId);
-  Future<bool> createGroup(Map<String, dynamic> groupData);
-  Future<bool> editGroup(String groupId, Map<String, dynamic> groupData);
-  Future<bool> inviteMember(String groupId, String msisdn);
-  Future<List<Member>> getMembers(String groupId);
-  Future<bool> deposit(String groupId, double amount, String method);
-  Future<bool> withdraw(String groupId, double amount, String destination);
+  Future<ApiResponse<List<Group>>> getActiveGroups();
+  Future<ApiResponse<double>> getTotalSavings();
+  Future<ApiResponse<List<Transaction>>> getRecentTransactions(String groupId);
+  Future<ApiResponse<double>> getGroupBalance(String groupId);
+  Future<ApiResponse<bool>> joinGroup(String groupId);
+  Future<ApiResponse<bool>> createGroup(Map<String, dynamic> groupData);
+  Future<ApiResponse<bool>> editGroup(String groupId, Map<String, dynamic> groupData);
+  Future<ApiResponse<bool>> inviteMember(String groupId, String msisdn);
+  Future<ApiResponse<List<Member>>> getMembers(String groupId);
+  Future<ApiResponse<bool>> deposit(String groupId, double amount, String method);
+  Future<ApiResponse<bool>> withdraw(String groupId, double amount, String destination);
 }

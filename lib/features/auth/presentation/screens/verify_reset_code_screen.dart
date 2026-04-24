@@ -67,14 +67,21 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
   void _onVerify() async {
     String code = _otpControllers.map((e) => e.text).join();
     if (code.length == 6) {
-      bool verified = await context.read<AuthRepository>().verifyResetCode(
+      final response = await context.read<AuthRepository>().verifyResetCode(
         widget.msisdn,
         code,
       );
-      if (verified && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         context.push(
           '/create-password',
           extra: {'msisdn': widget.msisdn, 'otp': code},
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Verification failed.'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }

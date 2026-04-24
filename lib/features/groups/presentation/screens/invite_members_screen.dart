@@ -28,12 +28,12 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final success = await context.read<GroupsRepository>().inviteMember(
+      final response = await context.read<GroupsRepository>().inviteMember(
         widget.groupId,
         _inviteController.text,
       );
 
-      if (success && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Invitation sent successfully!'),
@@ -41,12 +41,19 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
           ),
         );
         context.pop();
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Failed. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('ApiException: ', '')),
+          const SnackBar(
+            content: Text('An unexpected error occurred. Please try again.'),
             backgroundColor: Colors.redAccent,
           ),
         );

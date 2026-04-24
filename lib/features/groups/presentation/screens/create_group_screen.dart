@@ -64,7 +64,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       final user = await context.read<AuthRepository>().getUser();
       final msisdn = user?['msisdn']?.toString() ?? '';
 
-      final success = isEditMode
+      final response = isEditMode
           ? await context.read<GroupsRepository>().editGroup(widget.group!.id, {
               "name": _nameController.text,
               "location": _locationController.text.isNotEmpty
@@ -83,7 +83,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
               "configs": _descriptionController.text,
             });
 
-      if (success && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -95,12 +95,19 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           ),
         );
         context.pop(true);
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Failed. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('ApiException: ', '')),
+          const SnackBar(
+            content: Text('An unexpected error occurred. Please try again.'),
             backgroundColor: Colors.redAccent,
           ),
         );

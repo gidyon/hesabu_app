@@ -27,10 +27,10 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final groups = await context.read<GroupsRepository>().getActiveGroups();
+      final response = await context.read<GroupsRepository>().getActiveGroups();
       if (mounted) {
         setState(() {
-          _groups = groups
+          _groups = (response.data ?? [])
               .map(
                 (g) => {
                   'id': g.id,
@@ -42,6 +42,14 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
               .toList();
           _isLoadingGroups = false;
         });
+        if (response.hasError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response.errorMessage ?? 'Failed to load groups.'),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
       }
     });
   }
@@ -86,7 +94,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
 
     setState(() => _isLoading = true);
     final groupId = _groups[_selectedGroupIndex]['id'] as String;
-    final success = await context.read<GroupsRepository>().deposit(
+    final response = await context.read<GroupsRepository>().deposit(
       groupId,
       amount,
       _selectedMethod,
@@ -94,11 +102,14 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
-      if (success) {
+      if (!response.hasError && response.data == true) {
         _showSuccessSheet(amount);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Deposit failed. Please try again.')),
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Deposit failed. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }

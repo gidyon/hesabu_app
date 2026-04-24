@@ -1,3 +1,5 @@
+import 'package:hesabu_app/core/api/api_response.dart';
+import 'package:hesabu_app/core/network/api_exception.dart';
 import 'package:hesabu_app/core/network/auth_local_data_source.dart';
 import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
@@ -25,20 +27,18 @@ class GroupsRepositoryImpl implements GroupsRepository {
   }
 
   @override
-  Future<List<Group>> getActiveGroups() async {
+  Future<ApiResponse<List<Group>>> getActiveGroups() async {
     try {
       final response = await remoteDataSource.getMyGroups();
-      return response.groups.map((model) {
+      final groups = response.groups.map((model) {
         return Group(
           id: model.groupId.toString(),
           name: model.name,
-          membersCount:
-              'Members', // Endpoint doesn't return count directly here
-          frequency:
-              'Monthly', // Default/placeholder as it's not in the response
-          imageUrl: '', // Default empty image
+          membersCount: 'Members',
+          frequency: 'Monthly',
+          imageUrl: '',
           balance: model.availableBalance,
-          goal: 0.0, // Not in API response
+          goal: 0.0,
           progressPercentage: 0.0,
           status: model.status,
           role: model.role,
@@ -47,48 +47,47 @@ class GroupsRepositoryImpl implements GroupsRepository {
           description: model.configs,
         );
       }).toList();
+      return ApiResponse.success(groups);
     } catch (e) {
-      // In case of error, return empty list or throw
-      // For now, logging and returning empty list to avoid crashes
-      return [];
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<double> getTotalSavings() async {
+  Future<ApiResponse<double>> getTotalSavings() async {
     try {
-      final groups = await getActiveGroups();
+      final response = await getActiveGroups();
+      if (response.hasError) return ApiResponse.error(response.errorMessage!);
       double total = 0;
-      for (var group in groups) {
+      for (var group in response.data!) {
         total += group.balance;
       }
-      return total;
+      return ApiResponse.success(total);
     } catch (e) {
-      return 0.0;
+      return ApiResponse.error(e.toString());
     }
   }
 
   @override
-  Future<double> getGroupBalance(String groupId) async {
+  Future<ApiResponse<double>> getGroupBalance(String groupId) async {
     try {
       final statements = await remoteDataSource.getGroupStatements(groupId);
-      // The statement response contains bal_after for latest transaction or simply calculate from statements
       if (statements.statements.isNotEmpty) {
-        return statements.statements.first.balAfter; // Assuming sorted desc
+        return ApiResponse.success(statements.statements.first.balAfter);
       }
-      return 0.0;
+      return ApiResponse.success(0.0);
     } catch (e) {
-      return 0.0;
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<List<Transaction>> getRecentTransactions(String groupId) async {
+  Future<ApiResponse<List<Transaction>>> getRecentTransactions(String groupId) async {
     try {
       final statementsResponse = await remoteDataSource.getGroupStatements(
         groupId,
       );
-      return statementsResponse.statements.map((model) {
+      final txs = statementsResponse.statements.map((model) {
         return Transaction(
           id: model.transactionId,
           title: '${model.operation} - ${model.memberName}',
@@ -97,47 +96,63 @@ class GroupsRepositoryImpl implements GroupsRepository {
               ? 'Inflow'
               : 'Outflow',
           amount: model.amount,
-          method: 'Wallet', // Default
+          method: 'Wallet',
         );
       }).toList();
+      return ApiResponse.success(txs);
     } catch (e) {
-      return [];
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<bool> joinGroup(String groupId) async {
+  Future<ApiResponse<bool>> joinGroup(String groupId) async {
     try {
       final user = await localDataSource.getUser();
       final msisdn = user?['msisdn']?.toString() ?? '';
       if (msisdn.isEmpty) throw Exception('No logged in user');
-      return await remoteDataSource.joinGroup(groupId, msisdn);
+      final success = await remoteDataSource.joinGroup(groupId, msisdn);
+      return ApiResponse.success(success);
     } catch (e) {
-      return false;
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<bool> createGroup(Map<String, dynamic> groupData) async {
-    await remoteDataSource.createGroup(groupData);
-    return true;
+  Future<ApiResponse<bool>> createGroup(Map<String, dynamic> groupData) async {
+    try {
+      await remoteDataSource.createGroup(groupData);
+      return ApiResponse.success(true);
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
   }
 
   @override
-  Future<bool> editGroup(String groupId, Map<String, dynamic> groupData) async {
-    return await remoteDataSource.editGroup(groupId, groupData);
+  Future<ApiResponse<bool>> editGroup(String groupId, Map<String, dynamic> groupData) async {
+    try {
+      final success = await remoteDataSource.editGroup(groupId, groupData);
+      return ApiResponse.success(success);
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
   }
 
   @override
-  Future<bool> inviteMember(String groupId, String msisdn) async {
-    return await remoteDataSource.inviteMember(groupId, _formatMsisdn(msisdn));
+  Future<ApiResponse<bool>> inviteMember(String groupId, String msisdn) async {
+    try {
+      final success = await remoteDataSource.inviteMember(groupId, _formatMsisdn(msisdn));
+      return ApiResponse.success(success);
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
   }
 
   @override
-  Future<List<Member>> getMembers(String groupId) async {
+  Future<ApiResponse<List<Member>>> getMembers(String groupId) async {
     try {
       final response = await remoteDataSource.getGroupMembers(groupId);
-      return response.members.map((model) {
+      final members = response.members.map((model) {
         return Member(
           id: model.memberId.toString(),
           name: '${model.firstName} ${model.otherNames}',
@@ -147,54 +162,55 @@ class GroupsRepositoryImpl implements GroupsRepository {
           dateJoined: model.dateJoined,
         );
       }).toList();
+      return ApiResponse.success(members);
     } catch (e) {
-      return [];
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<bool> deposit(String groupId, double amount, String method) async {
+  Future<ApiResponse<bool>> deposit(String groupId, double amount, String method) async {
     try {
       final user = await localDataSource.getUser();
       final msisdn = user?['msisdn']?.toString() ?? '';
       if (msisdn.isEmpty) throw Exception('No logged in user');
 
-      // Usually, group account is found from active groups
-      final groups = await getActiveGroups();
-      final group = groups.firstWhere(
+      final groupsResponse = await getActiveGroups();
+      if (groupsResponse.hasError) return ApiResponse.error(groupsResponse.errorMessage!);
+      
+      final group = groupsResponse.data!.firstWhere(
         (g) => g.id == groupId,
         orElse: () => throw Exception('Group not found'),
       );
 
-      // Typically the paying method might decide what paying_msisdn is. We just default to the user's msisdn
       await remoteDataSource.deposit(
         groupId,
         amount,
         msisdn,
-        group
-            .name, // Using name as dummy for main account if not exposed, but usually it's accountNo
+        group.name,
         msisdn,
       );
-      return true;
+      return ApiResponse.success(true);
     } catch (e) {
-      return false;
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<bool> withdraw(
+  Future<ApiResponse<bool>> withdraw(
     String groupId,
     double amount,
     String destination,
   ) async {
     try {
-      return await remoteDataSource.withdraw(
+      final success = await remoteDataSource.withdraw(
         groupId,
         amount,
         _formatMsisdn(destination),
       );
+      return ApiResponse.success(success);
     } catch (e) {
-      return false;
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 }

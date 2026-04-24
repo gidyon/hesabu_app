@@ -1,3 +1,5 @@
+import 'package:hesabu_app/core/api/api_response.dart';
+import 'package:hesabu_app/core/network/api_exception.dart';
 import 'package:hesabu_app/core/network/auth_local_data_source.dart';
 import 'package:hesabu_app/features/auth/data/auth_remote_data_source.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
@@ -26,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> login(String email, String password) async {
+  Future<ApiResponse<bool>> login(String email, String password) async {
     try {
       final formattedIdentifier = _formatMsisdn(email);
       final response = await remoteDataSource.login(
@@ -36,16 +38,16 @@ class AuthRepositoryImpl implements AuthRepository {
       if (response.status == 'success' || response.accessToken.isNotEmpty) {
         await localDataSource.saveToken(response.accessToken);
         await localDataSource.saveUser(response.user.toJson());
-        return true;
+        return ApiResponse.success(true);
       }
-      return false;
+      return ApiResponse.error('Login failed');
     } catch (e) {
-      rethrow;
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<bool> register(
+  Future<ApiResponse<bool>> register(
     String fullName,
     String email,
     String phone,
@@ -56,9 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final trimmedFullName = fullName.trim();
       List<String> names = trimmedFullName.split(RegExp(r'\s+'));
       String firstName = names.isNotEmpty ? names.first : 'User';
-      String otherNames = names.length > 1
-          ? names.sublist(1).join(' ')
-          : 'Name';
+      String otherNames = names.length > 1 ? names.sublist(1).join(' ') : 'Name';
 
       await remoteDataSource.register(
         firstName,
@@ -66,38 +66,49 @@ class AuthRepositoryImpl implements AuthRepository {
         formattedPhone,
         password,
       );
-
-      return true; // if no error was thrown, consider it success
+      return ApiResponse.success(true);
     } catch (e) {
-      rethrow;
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
 
   @override
-  Future<bool> sendResetCode(String msisdn) async {
-    final formattedMsisdn = _formatMsisdn(msisdn);
-    return await remoteDataSource.sendResetCode(formattedMsisdn);
+  Future<ApiResponse<bool>> sendResetCode(String msisdn) async {
+    try {
+      final formattedMsisdn = _formatMsisdn(msisdn);
+      final success = await remoteDataSource.sendResetCode(formattedMsisdn);
+      return ApiResponse.success(success);
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
   }
 
   @override
-  Future<bool> verifyResetCode(String msisdn, String code) async {
-    // Just a local verification or placeholder if needed.
-    // The actual API reset checks both OTP and new password together.
-    return code.length >= 4;
+  Future<ApiResponse<bool>> verifyResetCode(String msisdn, String code) async {
+    try {
+      return ApiResponse.success(true); // Assuming local verification or just proceeding
+    } catch (e) {
+      return ApiResponse.error(e.toString());
+    }
   }
 
   @override
-  Future<bool> resetPassword(
+  Future<ApiResponse<bool>> resetPassword(
     String msisdn,
     String otp,
     String newPassword,
   ) async {
-    final formattedMsisdn = _formatMsisdn(msisdn);
-    return await remoteDataSource.resetPassword(
-      formattedMsisdn,
-      otp,
-      newPassword,
-    );
+    try {
+      final formattedMsisdn = _formatMsisdn(msisdn);
+      final success = await remoteDataSource.resetPassword(
+        formattedMsisdn,
+        otp,
+        newPassword,
+      );
+      return ApiResponse.success(success);
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
   }
 
   @override

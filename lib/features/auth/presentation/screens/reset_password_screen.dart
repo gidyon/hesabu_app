@@ -37,12 +37,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      final success = await context.read<AuthRepository>().sendResetCode(
+      final response = await context.read<AuthRepository>().sendResetCode(
         _emailController.text.trim(),
       );
-      if (success && mounted) {
+      if (!response.hasError && response.data == true && mounted) {
         // Pass the email to the verify screen via extra
         context.push('/verify-reset-code', extra: _emailController.text.trim());
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response.errorMessage ?? 'Failed to send reset code. Please try again.'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
