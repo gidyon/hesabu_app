@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:hesabu_app/features/auth/domain/auth_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -43,7 +44,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     final controller = InheritedThemeController.of(context);
     final isDark = controller.isDark;
     final accent = controller.accentColor.primary;
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
     final cardBorder = isDark
         ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
@@ -52,6 +53,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
           // Top Nav Bar
           Positioned(
             top: 0,

@@ -39,13 +39,13 @@ extension AppAccentColorX on AppAccentColor {
   Color get darkBackground {
     switch (this) {
       case AppAccentColor.emerald:
-        return const Color(0xFF102216);
+        return const Color(0xFF365C44); // Substantially lighter
       case AppAccentColor.brownish:
-        return const Color(0xFF1e1208);
+        return const Color(0xFF5C3C28); // Substantially lighter
       case AppAccentColor.orangish:
-        return const Color(0xFF1e1508);
+        return const Color(0xFF5C4728); // Substantially lighter
       case AppAccentColor.reddish:
-        return const Color(0xFF1e0808);
+        return const Color(0xFF5C2828); // Substantially lighter
     }
   }
 

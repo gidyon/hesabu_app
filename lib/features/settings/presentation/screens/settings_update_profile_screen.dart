@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +118,7 @@ class _SettingsUpdateProfileScreenState
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
     final cardBorder = isDark
         ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
@@ -126,6 +127,7 @@ class _SettingsUpdateProfileScreenState
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
           Positioned(
             top: 0,
             left: 0,

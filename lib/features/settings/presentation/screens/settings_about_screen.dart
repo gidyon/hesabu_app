@@ -3,6 +3,7 @@ import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/theme_controller.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 
 class SettingsAboutScreen extends StatelessWidget {
   const SettingsAboutScreen({super.key});
@@ -11,7 +12,7 @@ class SettingsAboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
     final cardBorder = isDark
         ? Colors.white.withValues(alpha: 0.1)
         : AppColors.slate200;
@@ -20,6 +21,7 @@ class SettingsAboutScreen extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
+          const Positioned.fill(child: AppBackgroundBlobs()),
           Positioned(
             top: 0,
             left: 0,
