@@ -158,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             height: 40,
                             decoration: BoxDecoration(
                               color: isDark
-                                  ? Colors.white.withValues(alpha: 0.05)
+                                  ? Theme.of(context).cardColor
                                   : Colors.black.withValues(alpha: 0.05),
                               shape: BoxShape.circle,
                             ),
@@ -196,10 +196,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Join Hesabu and take control of your group savings and finances.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.slate400, fontSize: 14),
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
+                        fontSize: 14,
+                      ),
                     ),
 
                     const SizedBox(height: 16),
@@ -334,7 +337,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: () => context.go('/login'),
                         child: RichText(
                           text: TextSpan(
-                            style: const TextStyle(color: AppColors.slate400),
+                            style: TextStyle(
+                              color: AppColors.secondaryText(context),
+                            ),
                             children: [
                               const TextSpan(text: 'Already have an account? '),
                               TextSpan(
@@ -372,8 +377,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     VoidCallback? onToggleVisibility,
     String? Function(String?)? validator,
   }) {
-    final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
+    final fieldIconColor = isDark
+        ? Colors.white.withValues(alpha: 0.62)
+        : AppColors.slate400;
+    final fieldHintColor = isDark
+        ? Colors.white.withValues(alpha: 0.58)
+        : AppColors.slate400.withValues(alpha: 0.7);
+    final fieldLabelColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate400;
+
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
@@ -388,7 +402,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 16, top: 16),
-            child: Icon(icon, color: AppColors.slate400),
+            child: Icon(icon, color: fieldIconColor),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -402,17 +416,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               decoration: InputDecoration(
                 labelText: labelText,
-                labelStyle: const TextStyle(
-                  color: AppColors.slate400,
-                  fontSize: 14,
+                labelStyle: TextStyle(color: fieldLabelColor, fontSize: 14),
+                floatingLabelStyle: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
                 ),
-                floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
                 hintText: hintText,
-                hintStyle: TextStyle(
-                  color: InheritedThemeController.of(context).isDark
-                      ? const Color(0xFF9db9a6).withValues(alpha: 0.5)
-                      : AppColors.slate400.withValues(alpha: 0.5),
-                ),
+                hintStyle: TextStyle(color: fieldHintColor),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.only(top: 8, bottom: 8),
                 errorStyle: const TextStyle(fontSize: 12, height: 1),
@@ -425,7 +436,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: IconButton(
                 icon: Icon(
                   isVisible ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.slate400,
+                  color: fieldIconColor,
                 ),
                 onPressed: onToggleVisibility,
               ),

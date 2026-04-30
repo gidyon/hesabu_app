@@ -16,6 +16,12 @@ class SettingsAboutScreen extends StatelessWidget {
     final cardBorder = isDark
         ? Theme.of(context).dividerColor
         : AppColors.slate200;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final tertiaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.58)
+        : AppColors.slate500;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -122,7 +128,7 @@ class SettingsAboutScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Version 1.0.44',
+                          'Version 1.0.0+1',
                           style: TextStyle(
                             color: accent,
                             fontSize: 13,
@@ -130,13 +136,13 @@ class SettingsAboutScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'A digital platform designed to help groups efficiently manage '
                           'contributions, track member participation, and facilitate secure '
                           'financial transactions.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.slate500,
+                            color: secondaryTextColor,
                             fontSize: 13,
                             height: 1.5,
                           ),
@@ -277,13 +283,13 @@ class SettingsAboutScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        const Text(
+                        Text(
                           'To provide a secure, transparent, and scalable digital financial '
                           'management platform that empowers groups to manage contributions '
                           'and payments efficiently while strengthening trust and accountability '
                           'among members.',
                           style: TextStyle(
-                            color: AppColors.slate500,
+                            color: secondaryTextColor,
                             fontSize: 13,
                             height: 1.6,
                           ),
@@ -298,18 +304,18 @@ class SettingsAboutScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          'Hesabu Online v1.0.44',
+                          'Hesabu Online v1.0.0+1',
                           style: TextStyle(
-                            color: AppColors.slate500,
+                            color: secondaryTextColor,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
+                        Text(
                           '© 2024 Hesabu Online. All rights reserved.',
                           style: TextStyle(
-                            color: AppColors.slate500,
+                            color: tertiaryTextColor,
                             fontSize: 11,
                           ),
                         ),
@@ -404,6 +410,11 @@ class SettingsAboutScreen extends StatelessWidget {
     String title,
     String subtitle,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -441,8 +452,8 @@ class SettingsAboutScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: AppColors.slate500,
+                  style: TextStyle(
+                    color: secondaryTextColor,
                     fontSize: 12,
                     height: 1.4,
                   ),

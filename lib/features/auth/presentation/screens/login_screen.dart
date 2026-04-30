@@ -161,6 +161,15 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     final isDark = themeController.isDark;
     final fieldColor = isDark ? theme.cardColor : Colors.white;
     final fieldBorderColor = isDark ? theme.dividerColor : AppColors.slate200;
+    final fieldIconColor = isDark
+        ? Colors.white.withValues(alpha: 0.62)
+        : AppColors.slate400;
+    final fieldHintColor = isDark
+        ? Colors.white.withValues(alpha: 0.58)
+        : AppColors.slate400.withValues(alpha: 0.7);
+    final fieldLabelColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate400;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -246,10 +255,13 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Securely access your group savings and financial management tools.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.slate400, fontSize: 14),
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
+                        fontSize: 14,
+                      ),
                     ),
 
                     const SizedBox(height: 40),
@@ -282,11 +294,11 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text(
+                              Text(
                                 'Tap above to use Biometrics',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppColors.slate500,
+                                  color: AppColors.secondaryText(context),
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -326,14 +338,14 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(
+                                      Padding(
+                                        padding: const EdgeInsets.only(
                                           left: 16,
                                           top: 16,
                                         ),
                                         child: Icon(
                                           Icons.mail_outline,
-                                          color: AppColors.slate400,
+                                          color: fieldIconColor,
                                         ),
                                       ),
                                       const SizedBox(width: 12),
@@ -355,22 +367,18 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Email or Phone Number',
-                                            labelStyle: const TextStyle(
-                                              color: AppColors.slate400,
+                                            labelStyle: TextStyle(
+                                              color: fieldLabelColor,
                                               fontSize: 14,
                                             ),
                                             floatingLabelStyle: TextStyle(
                                               color: accent,
                                               fontSize: 12,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                             hintText: 'Enter email or phone',
                                             hintStyle: TextStyle(
-                                              color: isDark
-                                                  ? const Color(
-                                                      0xFF9db9a6,
-                                                    ).withValues(alpha: 0.5)
-                                                  : AppColors.slate400
-                                                        .withValues(alpha: 0.5),
+                                              color: fieldHintColor,
                                             ),
                                             border: InputBorder.none,
                                             contentPadding:
@@ -408,14 +416,14 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Padding(
-                                        padding: EdgeInsets.only(
+                                      Padding(
+                                        padding: const EdgeInsets.only(
                                           left: 16,
                                           top: 16,
                                         ),
                                         child: Icon(
                                           Icons.lock_outline,
-                                          color: AppColors.slate400,
+                                          color: fieldIconColor,
                                         ),
                                       ),
                                       const SizedBox(width: 12),
@@ -441,22 +449,18 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                           },
                                           decoration: InputDecoration(
                                             labelText: 'Password',
-                                            labelStyle: const TextStyle(
-                                              color: AppColors.slate400,
+                                            labelStyle: TextStyle(
+                                              color: fieldLabelColor,
                                               fontSize: 14,
                                             ),
                                             floatingLabelStyle: TextStyle(
                                               color: accent,
                                               fontSize: 12,
+                                              fontWeight: FontWeight.w600,
                                             ),
                                             hintText: 'Enter your password',
                                             hintStyle: TextStyle(
-                                              color: isDark
-                                                  ? const Color(
-                                                      0xFF9db9a6,
-                                                    ).withValues(alpha: 0.5)
-                                                  : AppColors.slate400
-                                                        .withValues(alpha: 0.5),
+                                              color: fieldHintColor,
                                             ),
                                             border: InputBorder.none,
                                             contentPadding:
@@ -478,7 +482,7 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                             _isPasswordVisible
                                                 ? Icons.visibility
                                                 : Icons.visibility_off,
-                                            color: AppColors.slate400,
+                                            color: fieldIconColor,
                                           ),
                                           onPressed: () => setState(
                                             () => _isPasswordVisible =
@@ -574,7 +578,9 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                         onTap: () => context.push('/register'),
                         child: RichText(
                           text: TextSpan(
-                            style: const TextStyle(color: AppColors.slate400),
+                            style: TextStyle(
+                              color: AppColors.secondaryText(context),
+                            ),
                             children: [
                               const TextSpan(text: 'New to Hesabu? '),
                               TextSpan(

@@ -496,9 +496,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           Text(
             label,
             style: TextStyle(
-              color: isDark
-                  ? Colors.white.withValues(alpha: 0.5)
-                  : AppColors.slate500,
+              color: AppColors.secondaryText(context),
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -662,7 +660,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       Text(
                         '${tx.type} • ${tx.date}',
                         style: TextStyle(
-                          color: titleColor.withValues(alpha: 0.5),
+                          color: AppColors.secondaryText(context),
                           fontSize: 12,
                         ),
                       ),
@@ -684,7 +682,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     Text(
                       tx.method.toUpperCase(),
                       style: TextStyle(
-                        color: titleColor.withValues(alpha: 0.5),
+                        color: AppColors.secondaryText(context),
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                       ),
@@ -1011,14 +1009,14 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         title: Text(title, style: TextStyle(color: titleColor)),
         content: Text(
           message,
-          style: TextStyle(color: titleColor.withValues(alpha: 0.7)),
+          style: TextStyle(color: AppColors.secondaryText(context)),
         ),
         actions: [
           TextButton(
             onPressed: () => context.pop(),
             child: Text(
               'Cancel',
-              style: TextStyle(color: titleColor.withValues(alpha: 0.5)),
+              style: TextStyle(color: AppColors.secondaryText(context)),
             ),
           ),
           TextButton(

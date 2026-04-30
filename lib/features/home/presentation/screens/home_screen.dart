@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen>
   List<Group> _groups = [];
   double _totalSavings = 0.0;
   bool _isLoading = true;
-  bool _isBalanceVisible = true;
+  bool _isBalanceVisible = false;
   UserProfile? _profile;
 
   @override

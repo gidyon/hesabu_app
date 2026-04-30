@@ -134,6 +134,10 @@ class ActivityScreen extends StatelessWidget {
     Color accent,
     bool isDark,
   ) {
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -177,10 +181,7 @@ class ActivityScreen extends StatelessWidget {
                 ),
                 Text(
                   'Receive group activity alerts',
-                  style: TextStyle(
-                    color: titleColor.withValues(alpha: 0.5),
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: secondaryTextColor, fontSize: 12),
                 ),
               ],
             ),
@@ -192,12 +193,16 @@ class ActivityScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(String title, Color titleColor) {
+    final secondaryTextColor = titleColor == Colors.white
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, left: 4),
       child: Text(
         title,
         style: TextStyle(
-          color: titleColor.withValues(alpha: 0.5),
+          color: secondaryTextColor,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1,

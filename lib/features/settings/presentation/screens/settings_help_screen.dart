@@ -16,6 +16,9 @@ class SettingsHelpScreen extends StatelessWidget {
     final cardBorder = isDark
         ? Theme.of(context).dividerColor
         : AppColors.slate200;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -104,11 +107,11 @@ class SettingsHelpScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Our support team is available\nMon – Sat, 8am – 6pm EAT',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.slate500,
+                            color: secondaryTextColor,
                             fontSize: 13,
                           ),
                         ),
@@ -204,6 +207,14 @@ class SettingsHelpScreen extends StatelessWidget {
     String sub, {
     required bool showDivider,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final chevronColor = isDark
+        ? Colors.white.withValues(alpha: 0.54)
+        : AppColors.slate400;
+
     return InkWell(
       onTap: () {},
       child: Container(
@@ -245,15 +256,12 @@ class SettingsHelpScreen extends StatelessWidget {
                   ),
                   Text(
                     sub,
-                    style: const TextStyle(
-                      color: AppColors.slate500,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: secondaryTextColor, fontSize: 12),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.slate400),
+            Icon(Icons.chevron_right, color: chevronColor),
           ],
         ),
       ),
@@ -313,6 +321,14 @@ class _FaqTileState extends State<_FaqTile> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final answerColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final collapsedIconColor = isDark
+        ? Colors.white.withValues(alpha: 0.54)
+        : AppColors.slate400;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -346,7 +362,7 @@ class _FaqTileState extends State<_FaqTile> {
                   ),
                   Icon(
                     _open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: _open ? widget.accent : AppColors.slate400,
+                    color: _open ? widget.accent : collapsedIconColor,
                   ),
                 ],
               ),
@@ -354,8 +370,8 @@ class _FaqTileState extends State<_FaqTile> {
                 const SizedBox(height: 10),
                 Text(
                   widget.answer,
-                  style: const TextStyle(
-                    color: AppColors.slate500,
+                  style: TextStyle(
+                    color: answerColor,
                     fontSize: 13,
                     height: 1.5,
                   ),

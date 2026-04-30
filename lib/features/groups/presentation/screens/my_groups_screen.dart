@@ -355,11 +355,11 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'You are not a member of any group yet. Start your financial journey by joining one or creating your own.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.slate400,
+              color: AppColors.secondaryText(context),
               fontSize: 16,
               height: 1.5,
             ),

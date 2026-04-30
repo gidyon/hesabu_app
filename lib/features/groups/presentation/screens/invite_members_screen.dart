@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 import 'package:provider/provider.dart';
@@ -75,8 +76,13 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
         : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final inputColor = isDark
-        ? Colors.white.withValues(alpha: 0.05)
+        ? Theme.of(context).cardColor
         : Colors.black.withValues(alpha: 0.03);
+    final inputBorderColor = isDark
+        ? Theme.of(context).dividerColor
+        : titleColor.withValues(alpha: 0.05);
+    final secondaryTextColor = AppColors.secondaryText(context);
+    final tertiaryTextColor = AppColors.tertiaryText(context);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -108,19 +114,18 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
             const SizedBox(height: 12),
             Text(
               'Add members to your group by entering their phone number or email address.',
-              style: TextStyle(
-                color: titleColor.withValues(alpha: 0.7),
-                fontSize: 15,
-              ),
+              style: TextStyle(color: secondaryTextColor, fontSize: 15),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            _buildLabel('Phone Number or Email', titleColor),
+            _buildLabel('Phone Number or Email', secondaryTextColor),
             _buildInputField(
               controller: _inviteController,
               hintText: 'e.g. +254 700 000 000',
               inputColor: inputColor,
               titleColor: titleColor,
+              borderColor: inputBorderColor,
+              hintColor: tertiaryTextColor,
             ),
             const SizedBox(height: 12),
             Container(
@@ -201,19 +206,21 @@ class _InviteMembersScreenState extends State<InviteMembersScreen> {
     required String hintText,
     required Color inputColor,
     required Color titleColor,
+    required Color borderColor,
+    required Color hintColor,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: inputColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: titleColor.withValues(alpha: 0.05)),
+        border: Border.all(color: borderColor),
       ),
       child: TextFormField(
         controller: controller,
         style: TextStyle(color: titleColor),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(color: titleColor.withValues(alpha: 0.2)),
+          hintStyle: TextStyle(color: hintColor),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(18),
         ),

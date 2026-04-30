@@ -122,8 +122,10 @@ class SettingsAppearanceScreen extends StatelessWidget {
                                   isDark
                                       ? 'Tap to switch to Light'
                                       : 'Tap to switch to Dark',
-                                  style: const TextStyle(
-                                    color: AppColors.slate500,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.68)
+                                        : AppColors.slate500,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -350,7 +352,9 @@ class SettingsAppearanceScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.slate400.withValues(alpha: 0.4),
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white.withValues(alpha: 0.54)
+                              : AppColors.slate400.withValues(alpha: 0.4),
                         ),
                       ),
                     ),

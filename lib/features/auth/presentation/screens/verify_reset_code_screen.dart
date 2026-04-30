@@ -170,8 +170,8 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                   const SizedBox(height: 12),
                   RichText(
                     text: TextSpan(
-                      style: const TextStyle(
-                        color: AppColors.slate400,
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
                         fontSize: 16,
                         height: 1.5,
                       ),
@@ -215,18 +215,22 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                             counterText: "",
                             filled: true,
                             fillColor: isDark
-                                ? Colors.white.withValues(alpha: 0.05)
+                                ? Theme.of(context).cardColor
                                 : Colors.black.withValues(alpha: 0.03),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: titleColor.withValues(alpha: 0.1),
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : titleColor.withValues(alpha: 0.1),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide(
-                                color: titleColor.withValues(alpha: 0.1),
+                                color: isDark
+                                    ? Theme.of(context).dividerColor
+                                    : titleColor.withValues(alpha: 0.1),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
@@ -277,7 +281,9 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                       onPressed: null, // Disabled state as per design
                       child: RichText(
                         text: TextSpan(
-                          style: const TextStyle(color: AppColors.slate400),
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
+                          ),
                           children: [
                             const TextSpan(text: "Didn't receive the code? "),
                             TextSpan(
@@ -328,7 +334,9 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
                       onTap: () => context.go('/login'),
                       child: RichText(
                         text: TextSpan(
-                          style: const TextStyle(color: AppColors.slate400),
+                          style: TextStyle(
+                            color: AppColors.secondaryText(context),
+                          ),
                           children: [
                             const TextSpan(text: 'Remember your password? '),
                             TextSpan(
@@ -346,10 +354,10 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
 
                   const SizedBox(height: 24),
 
-                  const Center(
+                  Center(
                     child: Text(
                       'Need help? Contact Hesabu Support',
-                      style: TextStyle(color: AppColors.slate400),
+                      style: TextStyle(color: AppColors.secondaryText(context)),
                     ),
                   ),
                 ],
@@ -374,10 +382,14 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
+                ? Theme.of(context).cardColor
                 : Colors.black.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: titleColor.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: isDark
+                  ? Theme.of(context).dividerColor
+                  : titleColor.withValues(alpha: 0.1),
+            ),
           ),
           child: Text(
             value,
@@ -391,8 +403,8 @@ class _VerifyResetCodeScreenState extends State<VerifyResetCodeScreen> {
         const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.slate400,
+          style: TextStyle(
+            color: AppColors.secondaryText(context),
             fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,

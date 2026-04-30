@@ -250,13 +250,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         ),
         decoration: InputDecoration(
           labelText: labelText,
-          labelStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
+          labelStyle: TextStyle(
+            color: AppColors.secondaryText(context),
+            fontSize: 14,
+          ),
           floatingLabelStyle: TextStyle(color: accent, fontSize: 12),
           hintText: hintText,
           hintStyle: TextStyle(
-            color: isDark
-                ? const Color(0xFF9db9a6).withValues(alpha: 0.5)
-                : AppColors.slate400.withValues(alpha: 0.5),
+            color: AppColors.tertiaryText(context),
             fontSize: 14,
           ),
           border: InputBorder.none,

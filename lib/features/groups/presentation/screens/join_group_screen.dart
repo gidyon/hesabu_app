@@ -107,10 +107,12 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
+    final secondaryTextColor = AppColors.secondaryText(context);
+    final tertiaryTextColor = AppColors.tertiaryText(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -218,11 +220,11 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Enter the Group ID or Account Number\nshared by your group administrator.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: AppColors.slate500,
+                            color: secondaryTextColor,
                             fontSize: 13,
                             height: 1.5,
                           ),
@@ -270,9 +272,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                               ).textTheme.bodyLarge?.color,
                             ),
                             textCapitalization: TextCapitalization.characters,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: 'e.g. HSB-2024-001',
-                              hintStyle: TextStyle(color: AppColors.slate400),
+                              hintStyle: TextStyle(color: tertiaryTextColor),
                               border: InputBorder.none,
                             ),
                             onChanged: (_) => setState(() {}),
@@ -280,9 +282,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                         ),
                         if (_codeController.text.isNotEmpty)
                           IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.clear,
-                              color: AppColors.slate400,
+                              color: AppColors.mutedIcon(context),
                               size: 18,
                             ),
                             onPressed: () =>
@@ -446,8 +448,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                     ),
                     Text(
                       'Admin: ${group.adminName}',
-                      style: const TextStyle(
-                        color: AppColors.slate500,
+                      style: TextStyle(
+                        color: AppColors.secondaryText(context),
                         fontSize: 12,
                       ),
                     ),
@@ -503,7 +505,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
       const SizedBox(height: 2),
       Text(
         label,
-        style: const TextStyle(color: AppColors.slate500, fontSize: 11),
+        style: TextStyle(color: AppColors.secondaryText(context), fontSize: 11),
       ),
     ],
   );
@@ -586,8 +588,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                       ),
                       Text(
                         s.$3,
-                        style: const TextStyle(
-                          color: AppColors.slate500,
+                        style: TextStyle(
+                          color: AppColors.secondaryText(context),
                           fontSize: 12,
                         ),
                       ),
@@ -607,8 +609,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
     padding: const EdgeInsets.only(left: 4, bottom: 8),
     child: Text(
       t,
-      style: const TextStyle(
-        color: AppColors.slate500,
+      style: TextStyle(
+        color: AppColors.secondaryText(context),
         fontSize: 12,
         fontWeight: FontWeight.bold,
         letterSpacing: 1,

@@ -153,8 +153,8 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
               Text(
                 'KSh ${amount.toStringAsFixed(2)} has been deposited\nto ${group['name']}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.slate500,
+                style: TextStyle(
+                  color: AppColors.secondaryText(context),
                   fontSize: 14,
                   height: 1.5,
                 ),
@@ -192,10 +192,12 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
+    final mutedIconColor = AppColors.mutedIcon(context);
+    final secondaryTextColor = AppColors.secondaryText(context);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -316,16 +318,13 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                                   width: 42,
                                   height: 42,
                                   decoration: BoxDecoration(
-                                    color:
-                                        (selected ? accent : AppColors.slate400)
-                                            .withValues(alpha: 0.15),
+                                    color: (selected ? accent : mutedIconColor)
+                                        .withValues(alpha: 0.15),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
                                     Icons.group,
-                                    color: selected
-                                        ? accent
-                                        : AppColors.slate400,
+                                    color: selected ? accent : mutedIconColor,
                                     size: 22,
                                   ),
                                 ),
@@ -347,8 +346,8 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                                       ),
                                       Text(
                                         '${g['account']} • ${g['balance']}',
-                                        style: const TextStyle(
-                                          color: AppColors.slate500,
+                                        style: TextStyle(
+                                          color: secondaryTextColor,
                                           fontSize: 11,
                                         ),
                                       ),
@@ -370,8 +369,9 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: AppColors.slate400
-                                                  .withValues(alpha: 0.4),
+                                              color: AppColors.mutedIcon(
+                                                context,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -429,14 +429,14 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                                 context,
                               ).textTheme.bodyLarge?.color,
                             ),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: '0.00',
                               hintStyle: TextStyle(
-                                color: AppColors.slate400,
+                                color: AppColors.tertiaryText(context),
                                 fontSize: 22,
                               ),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
                             ),
@@ -523,16 +523,14 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                               children: [
                                 Icon(
                                   m['icon'] as IconData,
-                                  color: selected ? color : AppColors.slate400,
+                                  color: selected ? color : mutedIconColor,
                                   size: 24,
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
                                   m['label'] as String,
                                   style: TextStyle(
-                                    color: selected
-                                        ? color
-                                        : AppColors.slate400,
+                                    color: selected ? color : mutedIconColor,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -561,11 +559,13 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
                       style: TextStyle(
                         color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'e.g. February contribution',
-                        hintStyle: TextStyle(color: AppColors.slate400),
+                        hintStyle: TextStyle(
+                          color: AppColors.tertiaryText(context),
+                        ),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16),
+                        contentPadding: const EdgeInsets.all(16),
                       ),
                     ),
                   ),
@@ -669,7 +669,7 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
     children: [
       Text(
         label,
-        style: const TextStyle(color: AppColors.slate500, fontSize: 13),
+        style: TextStyle(color: AppColors.secondaryText(context), fontSize: 13),
       ),
       Text(
         value,
@@ -686,8 +686,8 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
     padding: const EdgeInsets.only(left: 4, bottom: 10),
     child: Text(
       t,
-      style: const TextStyle(
-        color: AppColors.slate500,
+      style: TextStyle(
+        color: AppColors.secondaryText(context),
         fontSize: 12,
         fontWeight: FontWeight.bold,
         letterSpacing: 1,

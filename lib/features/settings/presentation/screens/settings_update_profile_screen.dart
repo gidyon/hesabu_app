@@ -345,7 +345,7 @@ class _SettingsUpdateProfileScreenState
     child: Text(
       text,
       style: TextStyle(
-        color: isDark ? AppColors.slate400 : AppColors.slate500,
+        color: isDark ? AppColors.secondaryText(context) : AppColors.slate500,
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
@@ -372,7 +372,7 @@ class _SettingsUpdateProfileScreenState
       child: Row(
         children: [
           const SizedBox(width: 16),
-          Icon(icon, color: AppColors.slate400),
+          Icon(icon, color: AppColors.mutedIcon(context)),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -382,11 +382,11 @@ class _SettingsUpdateProfileScreenState
               style: TextStyle(
                 color: enabled
                     ? Theme.of(context).textTheme.bodyLarge?.color
-                    : AppColors.slate400,
+                    : AppColors.tertiaryText(context),
               ),
               decoration: InputDecoration(
                 hintText: hint,
-                hintStyle: const TextStyle(color: AppColors.slate400),
+                hintStyle: TextStyle(color: AppColors.tertiaryText(context)),
                 border: InputBorder.none,
               ),
             ),

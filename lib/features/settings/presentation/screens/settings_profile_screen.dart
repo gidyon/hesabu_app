@@ -48,6 +48,12 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     final cardBorder = isDark
         ? Theme.of(context).dividerColor
         : AppColors.slate200;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final tertiaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.56)
+        : AppColors.slate500.withValues(alpha: 0.7);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -364,10 +370,10 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                               Center(
                                 child: Column(
                                   children: [
-                                    const Text(
-                                      'Hesabu Online v1.0.44',
+                                    Text(
+                                      'Hesabu Online v1.0.0+1',
                                       style: TextStyle(
-                                        color: AppColors.slate500,
+                                        color: secondaryTextColor,
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -376,9 +382,7 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                                     Text(
                                       'Made with precision for financial growth',
                                       style: TextStyle(
-                                        color: AppColors.slate500.withValues(
-                                          alpha: 0.7,
-                                        ),
+                                        color: tertiaryTextColor,
                                         fontSize: 10,
                                       ),
                                     ),
@@ -426,6 +430,14 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     required VoidCallback onTap,
     required bool showDivider,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final chevronColor = isDark
+        ? Colors.white.withValues(alpha: 0.54)
+        : AppColors.slate400;
+
     return InkWell(
       onTap: onTap,
       borderRadius: showDivider ? null : BorderRadius.circular(16),
@@ -469,15 +481,12 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
                   if (subtitle != null)
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                        color: AppColors.slate500,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: secondaryTextColor, fontSize: 12),
                     ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.slate400),
+            Icon(Icons.chevron_right, color: chevronColor),
           ],
         ),
       ),

@@ -69,6 +69,9 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
     final cardBorder = isDark
         ? Theme.of(context).dividerColor
         : AppColors.slate200;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -145,10 +148,10 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  const Center(
+                  Center(
                     child: Text(
                       'Your account is protected',
-                      style: TextStyle(color: AppColors.slate500, fontSize: 13),
+                      style: TextStyle(color: secondaryTextColor, fontSize: 13),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -279,6 +282,14 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
     required VoidCallback onTap,
     required bool showDivider,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final chevronColor = isDark
+        ? Colors.white.withValues(alpha: 0.54)
+        : AppColors.slate400;
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -321,15 +332,12 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                   if (subtitle != null)
                     Text(
                       subtitle,
-                      style: const TextStyle(
-                        color: AppColors.slate500,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: secondaryTextColor, fontSize: 12),
                     ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.slate400),
+            Icon(Icons.chevron_right, color: chevronColor),
           ],
         ),
       ),
@@ -347,6 +355,11 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
     required Color accent,
     required bool showDivider,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: showDivider
@@ -384,10 +397,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: AppColors.slate500,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: secondaryTextColor, fontSize: 12),
                 ),
               ],
             ),
@@ -405,6 +415,14 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
     required bool isCurrent,
     required Color accent,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final inactiveIconColor = isDark
+        ? Colors.white.withValues(alpha: 0.58)
+        : AppColors.slate400;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -420,14 +438,14 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: (isCurrent ? accent : AppColors.slate400).withValues(
+              color: (isCurrent ? accent : inactiveIconColor).withValues(
                 alpha: 0.15,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               Icons.smartphone,
-              color: isCurrent ? accent : AppColors.slate400,
+              color: isCurrent ? accent : inactiveIconColor,
             ),
           ),
           const SizedBox(width: 16),
@@ -444,10 +462,7 @@ class _SettingsSecurityScreenState extends State<SettingsSecurityScreen> {
                 ),
                 Text(
                   time,
-                  style: const TextStyle(
-                    color: AppColors.slate500,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: secondaryTextColor, fontSize: 12),
                 ),
               ],
             ),
