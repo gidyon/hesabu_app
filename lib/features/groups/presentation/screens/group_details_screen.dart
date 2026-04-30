@@ -331,11 +331,10 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     bool isDark,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 8),
           Text(
             'Group Statements',
             style: TextStyle(
@@ -344,7 +343,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
           _buildTransactionsList(fmt, accent, titleColor, isDark),
           const SizedBox(height: 40),
         ],
@@ -595,6 +594,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
 
     return ListView.builder(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: _transactions.length,
       itemBuilder: (context, index) {
@@ -708,11 +708,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     if (_isLoading) {
       return Center(child: CircularProgressIndicator(color: accent));
     }
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
-          child: Row(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -737,9 +738,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                 ),
             ],
           ),
-        ),
-        Expanded(
-          child: _members.isEmpty
+          const SizedBox(height: 12),
+          _members.isEmpty
               ? Container(
                   alignment: Alignment.topCenter,
                   padding: const EdgeInsets.only(top: 40),
@@ -749,7 +749,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: _members.length,
                   itemBuilder: (context, index) {
                     final member = _members[index];
@@ -849,8 +851,9 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     );
                   },
                 ),
-        ),
-      ],
+          const SizedBox(height: 40),
+        ],
+      ),
     );
   }
 
