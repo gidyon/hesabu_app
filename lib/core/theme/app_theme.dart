@@ -9,20 +9,33 @@ class AppTheme {
     final primary = accent.primary;
     final isDark = brightness == Brightness.dark;
     final bgColor = isDark ? accent.darkBackground : AppColors.backgroundLight;
+    final surfaceColor = isDark
+        ? Color.alphaBlend(Colors.black.withValues(alpha: 0.24), bgColor)
+        : AppColors.surfaceLight;
+    final surfaceVariantColor = isDark
+        ? Color.alphaBlend(Colors.black.withValues(alpha: 0.16), bgColor)
+        : AppColors.slate100;
+    final borderColor = isDark
+        ? Colors.white.withValues(alpha: 0.18)
+        : AppColors.slate200;
     final textColor = isDark ? AppColors.textDark : AppColors.textLight;
 
     final colorScheme = isDark
         ? ColorScheme.dark(
             primary: primary,
             secondary: primary,
-            surface: bgColor,
+            surface: surfaceColor,
+            surfaceContainerHighest: surfaceVariantColor,
+            outline: borderColor,
             onPrimary: isDark ? AppColors.textLight : Colors.white,
             onSurface: textColor,
           )
         : ColorScheme.light(
             primary: primary,
             secondary: primary,
-            surface: bgColor,
+            surface: surfaceColor,
+            surfaceContainerHighest: surfaceVariantColor,
+            outline: borderColor,
             onPrimary: AppColors.textLight,
             onSurface: textColor,
           );
@@ -31,6 +44,8 @@ class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       scaffoldBackgroundColor: bgColor,
+      cardColor: surfaceColor,
+      dividerColor: borderColor,
       primaryColor: primary,
       colorScheme: colorScheme,
       visualDensity: VisualDensity.compact,

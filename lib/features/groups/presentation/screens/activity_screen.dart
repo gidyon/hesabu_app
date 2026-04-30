@@ -14,9 +14,7 @@ class ActivityScreen extends StatelessWidget {
     final accent = themeController.accentColor.primary;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final titleColor = isDark ? Colors.white : AppColors.textLight;
-    final cardColor = isDark
-        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
-        : Colors.white;
+    final cardColor = isDark ? Theme.of(context).cardColor : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -142,7 +140,7 @@ class ActivityScreen extends StatelessWidget {
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
         border: isDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            ? Border.all(color: titleColor.withValues(alpha: 0.16))
             : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
         boxShadow: isDark
             ? null
@@ -220,7 +218,7 @@ class ActivityScreen extends StatelessWidget {
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
         border: isDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            ? Border.all(color: titleColor.withValues(alpha: 0.16))
             : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
         boxShadow: isDark
             ? null
@@ -360,7 +358,7 @@ class ActivityScreen extends StatelessWidget {
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
         border: isDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            ? Border.all(color: titleColor.withValues(alpha: 0.16))
             : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
         boxShadow: isDark
             ? null

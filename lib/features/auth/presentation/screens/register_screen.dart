@@ -373,17 +373,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String? Function(String?)? validator,
   }) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
+    final isDark = InheritedThemeController.of(context).isDark;
     return Container(
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
-        color: InheritedThemeController.of(context).isDark
-            ? const Color(0xFF1c271f)
-            : Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: InheritedThemeController.of(context).isDark
-              ? const Color(0xFF3b5443)
-              : AppColors.slate200,
+          color: isDark ? Theme.of(context).dividerColor : AppColors.slate200,
         ),
       ),
       child: Row(

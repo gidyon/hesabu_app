@@ -4,6 +4,7 @@ import 'package:hesabu_app/core/network/auth_local_data_source.dart';
 import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 import 'package:hesabu_app/core/utils/phone_utils.dart';
+import 'package:intl/intl.dart';
 
 class GroupsRepositoryImpl implements GroupsRepository {
   final GroupsRemoteDataSource remoteDataSource;
@@ -81,7 +82,7 @@ class GroupsRepositoryImpl implements GroupsRepository {
         return Transaction(
           id: model.transactionId,
           title: '${model.operation} - ${model.memberName}',
-          date: model.dateCreated,
+          date: _formatUtcDateForLocalDisplay(model.dateCreated),
           type: model.operation.toLowerCase() == 'deposit'
               ? 'Inflow'
               : 'Outflow',
@@ -95,18 +96,40 @@ class GroupsRepositoryImpl implements GroupsRepository {
     }
   }
 
+  String _formatUtcDateForLocalDisplay(String rawDate) {
+    final trimmedDate = rawDate.trim();
+    if (trimmedDate.isEmpty) {
+      return rawDate;
+    }
+
+    try {
+      final hasTimeZone = RegExp(
+        r'(Z|[+-]\d{2}:?\d{2})$',
+        caseSensitive: false,
+      ).hasMatch(trimmedDate);
+      final parseableDate = hasTimeZone ? trimmedDate : '${trimmedDate}Z';
+      final localDate = DateTime.parse(parseableDate).toLocal();
+
+      return DateFormat('MMM d, yyyy, h:mm a').format(localDate);
+    } on FormatException {
+      return rawDate;
+    }
+  }
+
   @override
   Future<ApiResponse<GroupPreview>> previewGroup(String groupId) async {
     try {
       final model = await remoteDataSource.previewGroup(groupId);
-      return ApiResponse.success(GroupPreview(
-        id: model.id,
-        name: model.name,
-        balance: model.balance,
-        membersCount: model.membersCount,
-        adminName: model.adminName,
-        description: model.description,
-      ));
+      return ApiResponse.success(
+        GroupPreview(
+          id: model.id,
+          name: model.name,
+          balance: model.balance,
+          membersCount: model.membersCount,
+          adminName: model.adminName,
+          description: model.description,
+        ),
+      );
     } catch (e) {
       return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
@@ -124,7 +147,6 @@ class GroupsRepositoryImpl implements GroupsRepository {
       return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }
   }
-
 
   @override
   Future<ApiResponse<bool>> createGroup(Map<String, dynamic> groupData) async {

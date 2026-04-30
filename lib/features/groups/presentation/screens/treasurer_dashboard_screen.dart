@@ -52,7 +52,7 @@ class _TreasurerDashboardScreenState extends State<TreasurerDashboardScreen> {
         : Colors.white;
     final titleColor = isDark ? Colors.white : Colors.black87;
     final cardColor = isDark
-        ? Colors.white.withValues(alpha: 0.05)
+        ? Theme.of(context).cardColor
         : Colors.black.withValues(alpha: 0.02);
 
     final currencyFormat = NumberFormat.currency(

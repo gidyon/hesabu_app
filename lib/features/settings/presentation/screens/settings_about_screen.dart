@@ -12,9 +12,9 @@ class SettingsAboutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
 
     return Scaffold(
@@ -147,7 +147,7 @@ class SettingsAboutScreen extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  _sectionLabel('CORE PURPOSE'),
+                  _sectionLabel(context, 'CORE PURPOSE'),
                   _featureCard(
                     context,
                     cardBg,
@@ -163,7 +163,7 @@ class SettingsAboutScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  _sectionLabel('GROUP MANAGEMENT'),
+                  _sectionLabel(context, 'GROUP MANAGEMENT'),
                   _card(
                     context,
                     cardBg,
@@ -196,7 +196,7 @@ class SettingsAboutScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  _sectionLabel('PAYMENTS & REPORTING'),
+                  _sectionLabel(context, 'PAYMENTS & REPORTING'),
                   _card(
                     context,
                     cardBg,
@@ -229,7 +229,7 @@ class SettingsAboutScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  _sectionLabel('TARGET USERS'),
+                  _sectionLabel(context, 'TARGET USERS'),
                   _featureCard(
                     context,
                     cardBg,
@@ -325,18 +325,25 @@ class SettingsAboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionLabel(String t) => Padding(
-    padding: const EdgeInsets.only(left: 4, bottom: 8),
-    child: Text(
-      t,
-      style: const TextStyle(
-        color: AppColors.slate500,
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1,
+  Widget _sectionLabel(BuildContext context, String t) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark
+        ? Colors.white.withValues(alpha: 0.62)
+        : AppColors.slate500;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        t,
+        style: TextStyle(
+          color: labelColor,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _featureCard(
     BuildContext context,

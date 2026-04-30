@@ -233,10 +233,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1c271f) : Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
+          color: isDark ? Theme.of(context).dividerColor : AppColors.slate200,
         ),
       ),
       child: TextFormField(
@@ -277,10 +277,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1c271f) : Colors.white,
+        color: isDark ? Theme.of(context).cardColor : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? const Color(0xFF3b5443) : AppColors.slate200,
+          color: isDark ? Theme.of(context).dividerColor : AppColors.slate200,
         ),
       ),
       child: Column(
@@ -300,7 +300,9 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
               value: _frequency,
               isExpanded: true,
               isDense: true,
-              dropdownColor: isDark ? const Color(0xFF1c271f) : Colors.white,
+              dropdownColor: isDark
+                  ? Theme.of(context).cardColor
+                  : Colors.white,
               style: TextStyle(
                 color: Theme.of(context).textTheme.bodyLarge?.color,
                 fontSize: 14,

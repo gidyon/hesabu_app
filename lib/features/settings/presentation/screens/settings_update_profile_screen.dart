@@ -118,9 +118,9 @@ class _SettingsUpdateProfileScreenState
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
 
     return Scaffold(

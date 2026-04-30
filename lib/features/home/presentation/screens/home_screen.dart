@@ -432,10 +432,10 @@ class _HomeScreenState extends State<HomeScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white,
+          color: isDark ? Theme.of(context).cardColor : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: isDark
-              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              ? Border.all(color: Theme.of(context).dividerColor)
               : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
           boxShadow: isDark
               ? null
@@ -528,7 +528,16 @@ class _HomeScreenState extends State<HomeScreen>
     Color accent,
     bool isDark,
   ) {
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final labelTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.58)
+        : AppColors.slate500;
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.64)
+        : AppColors.slate400;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),
@@ -538,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen>
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
           border: isDark
-              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              ? Border.all(color: Theme.of(context).dividerColor)
               : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
           boxShadow: isDark
               ? null
@@ -587,15 +596,15 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       Text(
                         '${group.membersCount} Members • ${group.frequency}',
-                        style: const TextStyle(
-                          color: AppColors.slate500,
+                        style: TextStyle(
+                          color: secondaryTextColor,
                           fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.more_horiz, color: AppColors.slate400),
+                Icon(Icons.more_horiz, color: iconColor),
               ],
             ),
             const SizedBox(height: 16),
@@ -606,10 +615,10 @@ class _HomeScreenState extends State<HomeScreen>
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'GROUP BALANCE',
                       style: TextStyle(
-                        color: AppColors.slate500,
+                        color: labelTextColor,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,

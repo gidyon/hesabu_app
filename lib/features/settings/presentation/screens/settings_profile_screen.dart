@@ -44,9 +44,9 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
     final controller = InheritedThemeController.of(context);
     final isDark = controller.isDark;
     final accent = controller.accentColor.primary;
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
 
     return Scaffold(
@@ -398,12 +398,17 @@ class _SettingsProfileScreenState extends State<SettingsProfileScreen> {
   }
 
   Widget _sectionHeader(String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark
+        ? Colors.white.withValues(alpha: 0.62)
+        : AppColors.slate500;
+
     return Padding(
       padding: const EdgeInsets.only(left: 8, bottom: 8),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
-          color: AppColors.slate500,
+        style: TextStyle(
+          color: labelColor,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1,

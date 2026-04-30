@@ -151,22 +151,23 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.05)
-            : AppColors.slate100,
+        color: isDark ? Theme.of(context).cardColor : AppColors.slate100,
         borderRadius: BorderRadius.circular(16),
+        border: isDark
+            ? Border.all(color: Theme.of(context).dividerColor)
+            : null,
       ),
       child: TextField(
         decoration: InputDecoration(
           hintText: 'Search groups...',
           hintStyle: TextStyle(
-            color: titleColor.withValues(alpha: 0.4),
+            color: titleColor.withValues(alpha: isDark ? 0.58 : 0.4),
             fontSize: 14,
           ),
           border: InputBorder.none,
           icon: Icon(
             Icons.search,
-            color: titleColor.withValues(alpha: 0.4),
+            color: titleColor.withValues(alpha: isDark ? 0.58 : 0.4),
             size: 20,
           ),
         ),
@@ -181,7 +182,16 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
     Color accent,
     bool isDark,
   ) {
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final secondaryTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.68)
+        : AppColors.slate500;
+    final labelTextColor = isDark
+        ? Colors.white.withValues(alpha: 0.58)
+        : AppColors.slate500;
+    final iconColor = isDark
+        ? Colors.white.withValues(alpha: 0.64)
+        : AppColors.slate400;
 
     return GestureDetector(
       onTap: () => context.push('/groups/details', extra: group),
@@ -191,7 +201,7 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
           color: cardBg,
           borderRadius: BorderRadius.circular(16),
           border: isDark
-              ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+              ? Border.all(color: Theme.of(context).dividerColor)
               : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
           boxShadow: isDark
               ? null
@@ -240,15 +250,15 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                       ),
                       Text(
                         '${group.membersCount} • ${group.frequency}',
-                        style: const TextStyle(
-                          color: AppColors.slate500,
+                        style: TextStyle(
+                          color: secondaryTextColor,
                           fontSize: 12,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.more_horiz, color: AppColors.slate400),
+                Icon(Icons.more_horiz, color: iconColor),
               ],
             ),
             const SizedBox(height: 16),
@@ -259,10 +269,10 @@ class _MyGroupsScreenState extends State<MyGroupsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'GROUP BALANCE',
                       style: TextStyle(
-                        color: AppColors.slate500,
+                        color: labelTextColor,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,

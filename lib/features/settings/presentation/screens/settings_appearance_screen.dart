@@ -13,9 +13,9 @@ class SettingsAppearanceScreen extends StatelessWidget {
     final controller = InheritedThemeController.of(context);
     final isDark = controller.isDark;
     final accent = controller.accentColor;
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
 
     return Scaffold(
@@ -80,7 +80,7 @@ class SettingsAppearanceScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Section: Theme Mode ────────────────
-                  _sectionHeader('THEME MODE'),
+                  _sectionHeader(context, 'THEME MODE'),
                   Container(
                     decoration: BoxDecoration(
                       color: cardBg,
@@ -143,7 +143,7 @@ class SettingsAppearanceScreen extends StatelessWidget {
                   const SizedBox(height: 28),
 
                   // ── Section: Accent Color ────────────────
-                  _sectionHeader('ACCENT COLOR'),
+                  _sectionHeader(context, 'ACCENT COLOR'),
                   Container(
                     decoration: BoxDecoration(
                       color: cardBg,
@@ -168,7 +168,7 @@ class SettingsAppearanceScreen extends StatelessWidget {
                   const SizedBox(height: 28),
 
                   // ── Preview card ────────────────
-                  _sectionHeader('PREVIEW'),
+                  _sectionHeader(context, 'PREVIEW'),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -255,13 +255,18 @@ class SettingsAppearanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionHeader(String title) {
+  Widget _sectionHeader(BuildContext context, String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark
+        ? Colors.white.withValues(alpha: 0.62)
+        : AppColors.slate500;
+
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          color: AppColors.slate500,
+        style: TextStyle(
+          color: labelColor,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1,

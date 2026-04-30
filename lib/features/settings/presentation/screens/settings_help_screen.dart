@@ -12,9 +12,9 @@ class SettingsHelpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = InheritedThemeController.of(context).accentColor.primary;
     final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor) : Colors.white;
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
     final cardBorder = isDark
-        ? Colors.white.withValues(alpha: 0.1)
+        ? Theme.of(context).dividerColor
         : AppColors.slate200;
 
     return Scaffold(
@@ -118,7 +118,7 @@ class SettingsHelpScreen extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  _sectionLabel('CONTACT US'),
+                  _sectionLabel(context, 'CONTACT US'),
                   Container(
                     decoration: BoxDecoration(
                       color: cardBg,
@@ -157,7 +157,7 @@ class SettingsHelpScreen extends StatelessWidget {
 
                   const SizedBox(height: 28),
 
-                  _sectionLabel('FREQUENTLY ASKED QUESTIONS'),
+                  _sectionLabel(context, 'FREQUENTLY ASKED QUESTIONS'),
                   ..._faqs.map(
                     (faq) => _FaqTile(
                       question: faq['q']!,
@@ -176,18 +176,25 @@ class SettingsHelpScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionLabel(String t) => Padding(
-    padding: const EdgeInsets.only(left: 4, bottom: 8),
-    child: Text(
-      t,
-      style: const TextStyle(
-        color: AppColors.slate500,
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1,
+  Widget _sectionLabel(BuildContext context, String t) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final labelColor = isDark
+        ? Colors.white.withValues(alpha: 0.62)
+        : AppColors.slate500;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        t,
+        style: TextStyle(
+          color: labelColor,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1,
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _contactTile(
     BuildContext context,

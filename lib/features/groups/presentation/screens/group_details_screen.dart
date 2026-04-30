@@ -138,9 +138,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     final accent = themeController.accentColor.primary;
     final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
     final titleColor = isDark ? Colors.white : AppColors.textLight;
-    final cardColor = isDark
-        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
-        : Colors.white;
+    final cardColor = isDark ? Theme.of(context).cardColor : Colors.white;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -156,6 +154,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   layoutBuilder:
                       (Widget? currentChild, List<Widget> previousChildren) {
                         return Stack(
+                          fit: StackFit.expand,
                           alignment: Alignment.topCenter,
                           children: <Widget>[
                             ...previousChildren,
@@ -262,7 +261,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     } else if (_currentIndex == 2) {
       return _buildMembersView(accent, titleColor, isAdmin, isDark);
     } else if (_currentIndex == 3) {
-      return _buildSettingsView(titleColor, isDark);
+      return _buildSettingsView(accent, titleColor, isDark);
     }
     return const SizedBox.shrink();
   }
@@ -332,11 +331,11 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     bool isDark,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           Text(
             'Group Statements',
             style: TextStyle(
@@ -370,7 +369,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,7 +479,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             : cardColor,
         borderRadius: BorderRadius.circular(16),
         border: isDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+            ? Border.all(color: Theme.of(context).dividerColor)
             : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
         boxShadow: isDark
             ? null
@@ -602,9 +601,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
         final tx = _transactions[index];
         final isInflow = tx.type == 'Inflow';
         final amountColor = isInflow ? accent : titleColor;
-        final cardBg = isDark
-            ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
-            : Colors.white;
+        final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: Container(
@@ -613,7 +610,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
               color: cardBg,
               borderRadius: BorderRadius.circular(16),
               border: isDark
-                  ? Border.all(color: Colors.white.withValues(alpha: 0.05))
+                  ? Border.all(color: Theme.of(context).dividerColor)
                   : Border.all(
                       color: AppColors.slate200.withValues(alpha: 0.5),
                     ),
@@ -714,7 +711,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -752,13 +749,13 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   itemCount: _members.length,
                   itemBuilder: (context, index) {
                     final member = _members[index];
                     final isMemberAdmin = member.role.toLowerCase() == 'admin';
                     final cardBg = isDark
-                        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).scaffoldBackgroundColor)
+                        ? Theme.of(context).cardColor
                         : Colors.white;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -769,7 +766,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                           borderRadius: BorderRadius.circular(16),
                           border: isDark
                               ? Border.all(
-                                  color: Colors.white.withValues(alpha: 0.05),
+                                  color: Theme.of(context).dividerColor,
                                 )
                               : Border.all(
                                   color: AppColors.slate200.withValues(
@@ -857,51 +854,93 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildSettingsView(Color titleColor, bool isDark) {
+  Widget _buildSettingsView(Color accent, Color titleColor, bool isDark) {
+    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
+    final borderColor = isDark
+        ? Theme.of(context).dividerColor
+        : AppColors.slate200.withValues(alpha: 0.7);
+    final dividerColor = isDark
+        ? titleColor.withValues(alpha: 0.1)
+        : AppColors.slate200;
+
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       children: [
-        _buildSettingsItem(
-          Icons.edit_outlined,
-          'Edit Group Profile',
-          titleColor: titleColor,
-          onTap: () => context.push('/groups/create', extra: widget.group),
-        ),
-        _buildSettingsItem(
-          Icons.group_add_outlined,
-          'Invite Members',
-          titleColor: titleColor,
-          onTap: () => context.push('/groups/invite', extra: widget.group.id),
-        ),
-        _buildSettingsItem(
-          Icons.security_outlined,
-          'Permissions',
-          titleColor: titleColor,
-        ),
-        _buildSettingsItem(
-          Icons.notifications_outlined,
-          'Notification Settings',
-          titleColor: titleColor,
-        ),
-        Divider(color: titleColor.withValues(alpha: 0.1), height: 40),
-        _buildSettingsItem(
-          Icons.logout,
-          'Exit Group',
-          color: Colors.orange,
-          titleColor: titleColor,
-          onTap: () => _showConfirmationDialog(
-            'Exit Group',
-            'Are you sure you want to exit this group?',
+        Container(
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+            children: [
+              _buildSettingsItem(
+                Icons.edit_outlined,
+                'Edit Group Profile',
+                titleColor: titleColor,
+                accent: accent,
+                onTap: () =>
+                    context.push('/groups/create', extra: widget.group),
+              ),
+              Divider(color: dividerColor, height: 1),
+              _buildSettingsItem(
+                Icons.group_add_outlined,
+                'Invite Members',
+                titleColor: titleColor,
+                accent: accent,
+                onTap: () =>
+                    context.push('/groups/invite', extra: widget.group.id),
+              ),
+              Divider(color: dividerColor, height: 1),
+              _buildSettingsItem(
+                Icons.security_outlined,
+                'Permissions',
+                titleColor: titleColor,
+                accent: accent,
+              ),
+              Divider(color: dividerColor, height: 1),
+              _buildSettingsItem(
+                Icons.notifications_outlined,
+                'Notification Settings',
+                titleColor: titleColor,
+                accent: accent,
+              ),
+            ],
           ),
         ),
-        _buildSettingsItem(
-          Icons.delete_outline,
-          'Delete Group',
-          color: Colors.red,
-          titleColor: titleColor,
-          onTap: () => _showConfirmationDialog(
-            'Delete Group',
-            'This action is permanent. All group data will be lost. Continue?',
+        const SizedBox(height: 18),
+        Container(
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
+          ),
+          child: Column(
+            children: [
+              _buildSettingsItem(
+                Icons.logout,
+                'Exit Group',
+                color: Colors.orange,
+                titleColor: titleColor,
+                accent: accent,
+                onTap: () => _showConfirmationDialog(
+                  'Exit Group',
+                  'Are you sure you want to exit this group?',
+                ),
+              ),
+              Divider(color: dividerColor, height: 1),
+              _buildSettingsItem(
+                Icons.delete_outline,
+                'Delete Group',
+                color: Colors.red,
+                titleColor: titleColor,
+                accent: accent,
+                onTap: () => _showConfirmationDialog(
+                  'Delete Group',
+                  'This action is permanent. All group data will be lost. Continue?',
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -912,28 +951,43 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     IconData icon,
     String title, {
     required Color titleColor,
+    required Color accent,
     Color color = Colors.white,
     VoidCallback? onTap,
   }) {
-    final effectiveColor = color == Colors.white ? titleColor : color;
+    final isDefaultColor = color == Colors.white;
+    final effectiveColor = isDefaultColor ? titleColor : color;
+    final iconColor = isDefaultColor
+        ? accent.withValues(alpha: 0.95)
+        : color.withValues(alpha: 0.95);
+    final textColor = isDefaultColor
+        ? titleColor.withValues(alpha: 0.9)
+        : color.withValues(alpha: 0.95);
+
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      minLeadingWidth: 28,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
       onTap: onTap,
-      leading: Icon(
-        icon,
-        color: effectiveColor.withValues(alpha: 0.6),
-        size: 22,
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: iconColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: iconColor, size: 22),
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: effectiveColor.withValues(alpha: 0.8),
+          color: textColor,
           fontSize: 15,
+          fontWeight: FontWeight.w600,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: titleColor.withValues(alpha: 0.1),
+        color: effectiveColor.withValues(alpha: 0.45),
       ),
     );
   }

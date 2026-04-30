@@ -159,6 +159,8 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
     final themeController = InheritedThemeController.of(context);
     final accent = themeController.accentColor.primary;
     final isDark = themeController.isDark;
+    final fieldColor = isDark ? theme.cardColor : Colors.white;
+    final fieldBorderColor = isDark ? theme.dividerColor : AppColors.slate200;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -316,15 +318,9 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                     minHeight: 56,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: isDark
-                                        ? const Color(0xFF1c271f)
-                                        : Colors.white,
+                                    color: fieldColor,
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? const Color(0xFF3b5443)
-                                          : AppColors.slate200,
-                                    ),
+                                    border: Border.all(color: fieldBorderColor),
                                   ),
                                   child: Row(
                                     crossAxisAlignment:
@@ -404,15 +400,9 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                                     minHeight: 56,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: isDark
-                                        ? const Color(0xFF1c271f)
-                                        : Colors.white,
+                                    color: fieldColor,
                                     borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? const Color(0xFF3b5443)
-                                          : AppColors.slate200,
-                                    ),
+                                    border: Border.all(color: fieldBorderColor),
                                   ),
                                   child: Row(
                                     crossAxisAlignment:
