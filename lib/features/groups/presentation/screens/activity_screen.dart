@@ -1,425 +1,207 @@
 import 'package:flutter/material.dart';
 import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
-import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
-import 'package:hesabu_app/core/theme/theme_controller.dart';
+import 'package:hesabu_app/features/activity/application/activity_provider.dart';
+import 'package:hesabu_app/features/activity/domain/account_activity.dart';
+import 'package:hesabu_app/features/groups/presentation/widgets/financial_components.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class ActivityScreen extends StatelessWidget {
   const ActivityScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final themeController = InheritedThemeController.of(context);
-    final isDark = themeController.isDark;
-    final accent = themeController.accentColor.primary;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final titleColor = isDark ? Colors.white : AppColors.textLight;
-    final cardColor = isDark ? Theme.of(context).cardColor : Colors.white;
-
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: AppBackgroundBlobs()),
-          // Top Nav Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 10,
-                bottom: 12,
-                left: 16,
-                right: 16,
-              ),
-              color: backgroundColor.withValues(alpha: 0.9),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(width: 40), // Placeholder to center title
-                  Text(
-                    'Activity',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: titleColor,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {}, // Mark all read logic
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      child: Text(
-                        'Read all',
-                        style: TextStyle(
-                          color: accent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Content
-          Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 60,
-            ),
-            child: ListView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                _buildPushToggle(cardColor, titleColor, accent, isDark),
-                const SizedBox(height: 24),
-                _buildSectionHeader('TODAY', titleColor),
-                _buildMemberJoinRequest(cardColor, titleColor, accent, isDark),
-                const SizedBox(height: 16),
-                _buildActivityCard(
-                  icon: Icons.account_balance_wallet,
-                  iconColor: accent,
-                  title: 'Contribution received',
-                  subtitle: 'Sarah Kamau sent KES 5,000 to \'Emergency Fund\'',
-                  time: '45m ago',
-                  cardColor: cardColor,
-                  titleColor: titleColor,
-                  accent: accent,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 24),
-                _buildSectionHeader('YESTERDAY', titleColor),
-                _buildActivityCard(
-                  icon: Icons.payments_outlined,
-                  iconColor: Colors.amber,
-                  title: 'Payment disbursed',
-                  subtitle:
-                      'KES 20,000 has been sent to David Maina for monthly rotation.',
-                  time: '1d ago',
-                  cardColor: cardColor,
-                  titleColor: titleColor,
-                  accent: accent,
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 16),
-                _buildActivityCard(
-                  icon: Icons.info_outline,
-                  iconColor: Colors.blue,
-                  title: 'Monthly statement ready',
-                  subtitle:
-                      'Your June summary for \'Education Fund\' is now available for review.',
-                  time: '1d ago',
-                  cardColor: cardColor,
-                  titleColor: titleColor,
-                  accent: accent,
-                  isDark: isDark,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPushToggle(
-    Color cardColor,
-    Color titleColor,
-    Color accent,
-    bool isDark,
-  ) {
-    final secondaryTextColor = isDark
-        ? Colors.white.withValues(alpha: 0.68)
-        : AppColors.slate500;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? Border.all(color: titleColor.withValues(alpha: 0.16))
-            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.notifications_active, color: accent, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
+    return Consumer<ActivityProvider>(
+      builder: (context, activityProvider, _) {
+        final events = activityProvider.events;
+        return Scaffold(
+          appBar: AppBar(
+            title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Push Notifications',
-                  style: TextStyle(
-                    color: titleColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const Text(
+                  'Activity',
+                  style: TextStyle(fontWeight: FontWeight.w800),
                 ),
                 Text(
-                  'Receive group activity alerts',
-                  style: TextStyle(color: secondaryTextColor, fontSize: 12),
+                  activityProvider.unreadCount == 0
+                      ? 'All account events are read'
+                      : '${activityProvider.unreadCount} unread account event${activityProvider.unreadCount == 1 ? '' : 's'}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.secondaryText(context),
+                  ),
                 ),
               ],
             ),
+            actions: [
+              if (activityProvider.unreadCount > 0)
+                TextButton(
+                  onPressed: activityProvider.markAllRead,
+                  child: const Text('Mark all read'),
+                ),
+              const SizedBox(width: 8),
+            ],
           ),
-          Switch(value: true, onChanged: (v) {}, activeColor: accent),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, Color titleColor) {
-    final secondaryTextColor = titleColor == Colors.white
-        ? Colors.white.withValues(alpha: 0.68)
-        : AppColors.slate500;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, left: 4),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: secondaryTextColor,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMemberJoinRequest(
-    Color cardColor,
-    Color titleColor,
-    Color accent,
-    bool isDark,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? Border.all(color: titleColor.withValues(alpha: 0.16))
-            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const CircleAvatar(
-                radius: 24,
-                backgroundImage: NetworkImage(
-                  'https://i.pravatar.cc/150?u=john',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          body: events.isEmpty
+              ? const FinancialEmptyState(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'No account activity',
+                  message:
+                      'Deposits, disbursements and statement downloads will appear here.',
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+                  itemCount: events.length,
+                  separatorBuilder: (_, index) {
+                    final currentDay = _dayKey(events[index].occurredAt);
+                    final nextDay = _dayKey(events[index + 1].occurredAt);
+                    return SizedBox(height: currentDay == nextDay ? 8 : 18);
+                  },
+                  itemBuilder: (context, index) {
+                    final event = events[index];
+                    final showHeader =
+                        index == 0 ||
+                        _dayKey(events[index - 1].occurredAt) !=
+                            _dayKey(event.occurredAt);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'New member join request',
-                          style: TextStyle(
-                            color: titleColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '2m ago',
-                          style: TextStyle(
-                            color: titleColor.withValues(alpha: 0.4),
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: titleColor.withValues(alpha: 0.7),
-                          fontSize: 13,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: 'John Doe ',
-                            style: TextStyle(
-                              color: titleColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const TextSpan(text: 'wants to join '),
-                          TextSpan(
-                            text: '\'Chama Bora\'',
-                            style: TextStyle(
-                              color: titleColor,
-                              fontStyle: FontStyle.italic,
+                        if (showHeader) ...[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+                            child: Text(
+                              _dayLabel(event.occurredAt).toUpperCase(),
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(
+                                    color: AppColors.secondaryText(context),
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.7,
+                                  ),
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ],
+                        _ActivityLedgerRow(
+                          event: event,
+                          onTap: () => activityProvider.markRead(event.id),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accent,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Accept',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: titleColor.withValues(alpha: 0.1),
-                    foregroundColor: titleColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Decline',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildActivityCard({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required String time,
-    required Color cardColor,
-    required Color titleColor,
-    required Color accent,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? Border.all(color: titleColor.withValues(alpha: 0.16))
-            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
+  static String _dayKey(DateTime value) =>
+      DateFormat('yyyy-MM-dd').format(value.toLocal());
+
+  static String _dayLabel(DateTime value) {
+    final local = value.toLocal();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(local.year, local.month, local.day);
+    if (day == today) return 'Today';
+    if (day == today.subtract(const Duration(days: 1))) return 'Yesterday';
+    return DateFormat('EEE, d MMM yyyy').format(local);
+  }
+}
+
+class _ActivityLedgerRow extends StatelessWidget {
+  const _ActivityLedgerRow({required this.event, required this.onTap});
+
+  final AccountActivity event;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final visual = _visualFor(context, event.type);
+    final theme = Theme.of(context);
+
+    return FinancialSurface(
+      onTap: onTap,
+      emphasized: !event.isRead,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
+              color: visual.color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: iconColor, size: 24),
+            child: Icon(visual.icon, color: visual.color, size: 18),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: titleColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        event.title,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: event.isRead
+                              ? FontWeight.w600
+                              : FontWeight.w800,
+                        ),
                       ),
                     ),
                     Text(
-                      time,
-                      style: TextStyle(
-                        color: titleColor.withValues(alpha: 0.4),
-                        fontSize: 10,
+                      DateFormat('h:mm a').format(event.occurredAt.toLocal()),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: AppColors.tertiaryText(context),
                       ),
                     ),
+                    if (!event.isRead) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: titleColor.withValues(alpha: 0.6),
-                    fontSize: 13,
-                    height: 1.4,
+                  event.description,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.secondaryText(context),
+                    height: 1.35,
                   ),
                 ),
+                if (event.amount != null ||
+                    event.groupName != null ||
+                    event.reference != null) ...[
+                  const SizedBox(height: 7),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 4,
+                    children: [
+                      if (event.amount != null)
+                        _detail(
+                          context,
+                          NumberFormat.currency(
+                            symbol: 'KSh ',
+                            decimalDigits: 2,
+                          ).format(event.amount),
+                        ),
+                      if (event.groupName != null)
+                        _detail(context, event.groupName!),
+                      if (event.reference != null)
+                        _detail(context, 'Ref ${event.reference}'),
+                      _detail(context, _statusLabel(event.status)),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -427,4 +209,63 @@ class ActivityScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _detail(BuildContext context, String value) => Text(
+    value,
+    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: AppColors.tertiaryText(context),
+      fontWeight: FontWeight.w600,
+    ),
+  );
+
+  static String _statusLabel(AccountActivityStatus status) => switch (status) {
+    AccountActivityStatus.info => 'Info',
+    AccountActivityStatus.pending => 'Pending',
+    AccountActivityStatus.completed => 'Completed',
+    AccountActivityStatus.failed => 'Failed',
+  };
+
+  static _ActivityVisual _visualFor(
+    BuildContext context,
+    AccountActivityType type,
+  ) => switch (type) {
+    AccountActivityType.deposit => const _ActivityVisual(
+      Icons.south_west_rounded,
+      Color(0xFF159455),
+    ),
+    AccountActivityType.withdrawal => _ActivityVisual(
+      Icons.north_east_rounded,
+      Theme.of(context).colorScheme.error,
+    ),
+    AccountActivityType.statementRequested ||
+    AccountActivityType.statementDownloaded => const _ActivityVisual(
+      Icons.description_outlined,
+      Color(0xFF3B82F6),
+    ),
+    AccountActivityType.groupCreated ||
+    AccountActivityType.groupUpdated ||
+    AccountActivityType.groupJoined => _ActivityVisual(
+      Icons.groups_2_outlined,
+      Theme.of(context).colorScheme.primary,
+    ),
+    AccountActivityType.memberInvited => const _ActivityVisual(
+      Icons.person_add_alt_1_outlined,
+      Color(0xFF8B5CF6),
+    ),
+    AccountActivityType.welcome => _ActivityVisual(
+      Icons.shield_outlined,
+      Theme.of(context).colorScheme.primary,
+    ),
+    AccountActivityType.notification => const _ActivityVisual(
+      Icons.notifications_none_rounded,
+      Color(0xFFF59E0B),
+    ),
+  };
+}
+
+class _ActivityVisual {
+  const _ActivityVisual(this.icon, this.color);
+
+  final IconData icon;
+  final Color color;
 }

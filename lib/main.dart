@@ -17,6 +17,7 @@ import 'package:hesabu_app/features/groups/data/groups_remote_data_source.dart';
 import 'package:hesabu_app/features/settings/domain/settings_repository.dart';
 import 'package:hesabu_app/features/settings/data/settings_repository_impl.dart';
 import 'package:hesabu_app/core/security/security_controller.dart';
+import 'package:hesabu_app/features/activity/application/activity_provider.dart';
 
 late ThemeController _themeController;
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -59,6 +60,7 @@ void main() async {
       settingsRepository: SettingsRepositoryImpl(
         localDataSource: authLocalDataSource,
       ),
+      activityProvider: ActivityProvider(prefs),
     ),
   );
 }
@@ -67,6 +69,7 @@ class MyApp extends StatefulWidget {
   final AuthRepository authRepository;
   final GroupsRepository groupsRepository;
   final SettingsRepository settingsRepository;
+  final ActivityProvider activityProvider;
   final String initialLocation;
 
   const MyApp({
@@ -74,6 +77,7 @@ class MyApp extends StatefulWidget {
     required this.authRepository,
     required this.groupsRepository,
     required this.settingsRepository,
+    required this.activityProvider,
     required this.initialLocation,
   });
 
@@ -97,6 +101,9 @@ class _MyAppState extends State<MyApp> {
         Provider<AuthRepository>.value(value: widget.authRepository),
         Provider<GroupsRepository>.value(value: widget.groupsRepository),
         Provider<SettingsRepository>.value(value: widget.settingsRepository),
+        ChangeNotifierProvider<ActivityProvider>.value(
+          value: widget.activityProvider,
+        ),
         ChangeNotifierProvider(create: (_) => SecurityController()),
       ],
       child: InheritedThemeController(
