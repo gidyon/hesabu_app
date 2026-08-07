@@ -25,7 +25,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
           msisdn: model.msisdn ?? '',
           membershipType: 'Standard Member',
           activeGroupName: 'My Groups',
-          avatarUrl: model.avatarUrl ??
+          avatarUrl:
+              model.avatarUrl ??
               'https://ui-avatars.com/api/?name=${Uri.encodeComponent(name)}&background=random',
         );
       }

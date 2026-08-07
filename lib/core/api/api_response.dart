@@ -3,23 +3,13 @@ class ApiResponse<T> {
   final String? errorMessage;
   final bool hasError;
 
-  ApiResponse({
-    this.data,
-    this.errorMessage,
-    this.hasError = false,
-  });
+  ApiResponse({this.data, this.errorMessage, this.hasError = false});
 
   factory ApiResponse.success(T data) {
-    return ApiResponse(
-      data: data,
-      hasError: false,
-    );
+    return ApiResponse(data: data, hasError: false);
   }
 
   factory ApiResponse.error(String message) {
-    return ApiResponse(
-      errorMessage: message,
-      hasError: true,
-    );
+    return ApiResponse(errorMessage: message, hasError: true);
   }
 }

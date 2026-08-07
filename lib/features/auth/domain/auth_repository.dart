@@ -10,7 +10,11 @@ abstract class AuthRepository {
   );
   Future<ApiResponse<bool>> sendResetCode(String msisdn);
   Future<ApiResponse<bool>> verifyResetCode(String msisdn, String code);
-  Future<ApiResponse<bool>> resetPassword(String msisdn, String otp, String newPassword);
+  Future<ApiResponse<bool>> resetPassword(
+    String msisdn,
+    String otp,
+    String newPassword,
+  );
   Future<Map<String, dynamic>?> getUser();
   Future<void> setOnboarded();
   bool hasSeenOnboarding();

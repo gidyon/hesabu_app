@@ -58,7 +58,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final trimmedFullName = fullName.trim();
       List<String> names = trimmedFullName.split(RegExp(r'\s+'));
       String firstName = names.isNotEmpty ? names.first : 'User';
-      String otherNames = names.length > 1 ? names.sublist(1).join(' ') : 'Name';
+      String otherNames = names.length > 1
+          ? names.sublist(1).join(' ')
+          : 'Name';
 
       await remoteDataSource.register(
         firstName,
@@ -86,7 +88,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<ApiResponse<bool>> verifyResetCode(String msisdn, String code) async {
     try {
-      return ApiResponse.success(true); // Assuming local verification or just proceeding
+      return ApiResponse.success(
+        true,
+      ); // Assuming local verification or just proceeding
     } catch (e) {
       return ApiResponse.error(e.toString());
     }
