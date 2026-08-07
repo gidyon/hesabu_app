@@ -2,6 +2,25 @@
 
 A new Flutter project.
 
+## API configuration
+
+The API currently defaults to the staging endpoint. Override it at build time
+when required:
+
+```sh
+flutter run --dart-define=API_BASE_URL=https://app.hesabuonline.com
+```
+
+For temporary native-device testing against a host with an invalid certificate:
+
+```sh
+flutter run --dart-define=ALLOW_INSECURE_TLS=true
+```
+
+The TLS bypass is disabled by default, restricted to the configured API host
+and port, and unsupported on web. Never publish a production build with it
+enabled; replace the server certificate instead.
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
