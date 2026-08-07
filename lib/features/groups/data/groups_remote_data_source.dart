@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:hesabu_app/core/network/api_client.dart';
 import 'package:hesabu_app/core/network/api_exception.dart';
 import 'package:hesabu_app/features/groups/data/models/group_models.dart';
+import 'package:hesabu_app/features/groups/data/models/withdrawal_tariff_models.dart';
 
 class GroupsRemoteDataSource {
   final ApiClient apiClient;
@@ -17,7 +18,12 @@ class GroupsRemoteDataSource {
         final data = e.response?.data;
         String message = 'Failed to fetch groups';
         if (data is Map) {
-          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+          message =
+              data['message'] ??
+              data['errorMessage'] ??
+              data['error'] ??
+              e.response?.statusMessage ??
+              message;
         } else {
           message = e.response?.statusMessage ?? message;
         }
@@ -42,7 +48,12 @@ class GroupsRemoteDataSource {
         final data = e.response?.data;
         String message = 'Failed to fetch statements';
         if (data is Map) {
-          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+          message =
+              data['message'] ??
+              data['errorMessage'] ??
+              data['error'] ??
+              e.response?.statusMessage ??
+              message;
         } else {
           message = e.response?.statusMessage ?? message;
         }
@@ -67,7 +78,12 @@ class GroupsRemoteDataSource {
         final data = e.response?.data;
         String message = 'Failed to fetch members';
         if (data is Map) {
-          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+          message =
+              data['message'] ??
+              data['errorMessage'] ??
+              data['error'] ??
+              e.response?.statusMessage ??
+              message;
         } else {
           message = e.response?.statusMessage ?? message;
         }
@@ -92,7 +108,12 @@ class GroupsRemoteDataSource {
         final data = e.response?.data;
         String message = 'Failed to join group';
         if (data is Map) {
-          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+          message =
+              data['message'] ??
+              data['errorMessage'] ??
+              data['error'] ??
+              e.response?.statusMessage ??
+              message;
         } else {
           message = e.response?.statusMessage ?? message;
         }
@@ -129,10 +150,7 @@ class GroupsRemoteDataSource {
     }
   }
 
-  Future<bool> editGroup(
-    String groupId,
-    Map<String, dynamic> groupData,
-  ) async {
+  Future<bool> editGroup(String groupId, Map<String, dynamic> groupData) async {
     try {
       final response = await apiClient.dio.post(
         '/groups/edit/$groupId',
@@ -237,10 +255,7 @@ class GroupsRemoteDataSource {
         data['BILLER_NUMBER'] = billerNumber;
       }
 
-      final response = await apiClient.dio.post(
-        '/groups/withdraw',
-        data: data,
-      );
+      final response = await apiClient.dio.post('/groups/withdraw', data: data);
       return response.statusCode == 200 || response.statusCode == 201;
     } on DioException catch (e) {
       if (e.response != null) {
@@ -256,6 +271,28 @@ class GroupsRemoteDataSource {
       throw NetworkException();
     }
   }
+
+  Future<double> getWithdrawalFee({required double amount}) async {
+    try {
+      final response = await apiClient.dio.post('/tariffs', data: '');
+      return WithdrawalTariffsResponse.fromJson(response.data).feeFor(amount);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final data = e.response?.data;
+        final message = (data is Map && data['message'] != null)
+            ? data['message'].toString()
+            : 'Failed to fetch the current withdrawal tariff';
+        throw ApiException(
+          message: message,
+          statusCode: e.response?.statusCode,
+        );
+      }
+      throw NetworkException();
+    } on FormatException catch (e) {
+      throw ApiException(message: e.message.toString());
+    }
+  }
+
   Future<GroupPreviewModel> previewGroup(String id) async {
     try {
       final response = await apiClient.dio.get('/groups/preview/$id');
@@ -265,7 +302,12 @@ class GroupsRemoteDataSource {
         final data = e.response?.data;
         String message = 'Failed to preview group';
         if (data is Map) {
-          message = data['message'] ?? data['errorMessage'] ?? data['error'] ?? e.response?.statusMessage ?? message;
+          message =
+              data['message'] ??
+              data['errorMessage'] ??
+              data['error'] ??
+              e.response?.statusMessage ??
+              message;
         } else {
           message = e.response?.statusMessage ?? message;
         }

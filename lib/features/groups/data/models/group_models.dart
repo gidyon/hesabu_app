@@ -144,6 +144,7 @@ class CreateGroupResponse {
     );
   }
 }
+
 class GroupMembersResponse {
   final String groupId;
   final List<MemberModel> members;
@@ -221,8 +222,10 @@ class GroupPreviewModel {
       balance: (json['balance'] as num?)?.toDouble() ?? 0.0,
       membersCount: json['members_count'] as int? ?? 0,
       adminName: json['admin_name']?.toString() ?? '',
-      description: json['description']?.toString() ?? json['dexcription']?.toString() ?? '',
+      description:
+          json['description']?.toString() ??
+          json['dexcription']?.toString() ??
+          '',
     );
   }
 }
-

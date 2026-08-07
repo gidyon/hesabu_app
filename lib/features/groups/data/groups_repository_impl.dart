@@ -96,6 +96,33 @@ class GroupsRepositoryImpl implements GroupsRepository {
     }
   }
 
+  @override
+  Future<ApiResponse<List<GroupStatementEntry>>> getGroupStatements(
+    String groupId,
+  ) async {
+    try {
+      final response = await remoteDataSource.getGroupStatements(groupId);
+      return ApiResponse.success(
+        response.statements
+            .map(
+              (model) => GroupStatementEntry(
+                amount: model.amount,
+                balanceAfter: model.balAfter,
+                balanceBefore: model.balBefore,
+                dateCreated: model.dateCreated,
+                memberName: model.memberName,
+                msisdn: model.msisdn,
+                operation: model.operation,
+                transactionId: model.transactionId,
+              ),
+            )
+            .toList(growable: false),
+      );
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
+  }
+
   String _formatUtcDateForLocalDisplay(String rawDate) {
     final trimmedDate = rawDate.trim();
     if (trimmedDate.isEmpty) {
@@ -258,6 +285,16 @@ class GroupsRepositoryImpl implements GroupsRepository {
         billerNumber: billerNumber,
       );
       return ApiResponse.success(success);
+    } catch (e) {
+      return ApiResponse.error(e is ApiException ? e.message : e.toString());
+    }
+  }
+
+  @override
+  Future<ApiResponse<double>> getWithdrawalFee({required double amount}) async {
+    try {
+      final fee = await remoteDataSource.getWithdrawalFee(amount: amount);
+      return ApiResponse.success(fee);
     } catch (e) {
       return ApiResponse.error(e is ApiException ? e.message : e.toString());
     }

@@ -1,9 +1,6 @@
 class PhoneUtils {
   static String formatMsisdn(String input) {
-    String formatted = input.trim().replaceAll(' ', '');
-    if (formatted.startsWith('+')) {
-      formatted = formatted.substring(1);
-    }
+    String formatted = input.trim().replaceAll(RegExp(r'[^0-9]'), '');
     if (formatted.startsWith('07')) {
       formatted = '2547${formatted.substring(2)}';
     } else if (formatted.startsWith('01')) {

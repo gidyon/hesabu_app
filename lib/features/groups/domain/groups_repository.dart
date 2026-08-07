@@ -68,6 +68,28 @@ class Transaction {
   });
 }
 
+class GroupStatementEntry {
+  final double amount;
+  final double balanceAfter;
+  final double balanceBefore;
+  final String dateCreated;
+  final String memberName;
+  final String msisdn;
+  final String operation;
+  final String transactionId;
+
+  GroupStatementEntry({
+    required this.amount,
+    required this.balanceAfter,
+    required this.balanceBefore,
+    required this.dateCreated,
+    required this.memberName,
+    required this.msisdn,
+    required this.operation,
+    required this.transactionId,
+  });
+}
+
 class GroupPreview {
   final String id;
   final String name;
@@ -90,15 +112,25 @@ abstract class GroupsRepository {
   Future<ApiResponse<List<Group>>> getActiveGroups();
   Future<ApiResponse<double>> getTotalSavings();
   Future<ApiResponse<List<Transaction>>> getRecentTransactions(String groupId);
+  Future<ApiResponse<List<GroupStatementEntry>>> getGroupStatements(
+    String groupId,
+  );
   Future<ApiResponse<double>> getGroupBalance(String groupId);
   Future<ApiResponse<GroupPreview>> previewGroup(String groupId);
   Future<ApiResponse<bool>> joinGroup(String groupId);
   Future<ApiResponse<bool>> createGroup(Map<String, dynamic> groupData);
 
-  Future<ApiResponse<bool>> editGroup(String groupId, Map<String, dynamic> groupData);
+  Future<ApiResponse<bool>> editGroup(
+    String groupId,
+    Map<String, dynamic> groupData,
+  );
   Future<ApiResponse<bool>> inviteMember(String groupId, String msisdn);
   Future<ApiResponse<List<Member>>> getMembers(String groupId);
-  Future<ApiResponse<bool>> deposit(String groupId, double amount, String method);
+  Future<ApiResponse<bool>> deposit(
+    String groupId,
+    double amount,
+    String method,
+  );
   Future<ApiResponse<bool>> withdraw({
     required String groupId,
     required double amount,
@@ -107,4 +139,5 @@ abstract class GroupsRepository {
     String? billerType,
     String? billerNumber,
   });
+  Future<ApiResponse<double>> getWithdrawalFee({required double amount});
 }
