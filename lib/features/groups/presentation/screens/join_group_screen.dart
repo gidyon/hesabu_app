@@ -6,20 +6,30 @@ import 'package:provider/provider.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:hesabu_app/features/activity/application/activity_provider.dart';
+import 'package:hesabu_app/features/activity/domain/account_activity.dart';
 
 class JoinGroupScreen extends StatefulWidget {
-  const JoinGroupScreen({super.key});
+  const JoinGroupScreen({super.key, this.initialCode});
+
+  final String? initialCode;
 
   @override
   State<JoinGroupScreen> createState() => _JoinGroupScreenState();
 }
 
 class _JoinGroupScreenState extends State<JoinGroupScreen> {
-  final _codeController = TextEditingController();
+  late final TextEditingController _codeController;
   bool _isLoading = false;
   bool _isSearching = false;
 
   GroupPreview? _foundGroup;
+
+  @override
+  void initState() {
+    super.initState();
+    _codeController = TextEditingController(text: widget.initialCode ?? '');
+  }
 
   @override
   void dispose() {
@@ -85,6 +95,14 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
     if (mounted) {
       setState(() => _isLoading = false);
       if (!response.hasError && response.data == true) {
+        await context.read<ActivityProvider>().record(
+          type: AccountActivityType.groupJoined,
+          title: 'Group joined',
+          description: 'You joined ${_foundGroup!.name}.',
+          groupId: _foundGroup!.id,
+          groupName: _foundGroup!.name,
+        );
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Successfully joined the group!')),
         );

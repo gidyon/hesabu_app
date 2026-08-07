@@ -8,16 +8,21 @@ class AppTheme {
   static ThemeData themeFor(AppAccentColor accent, Brightness brightness) {
     final primary = accent.primary;
     final isDark = brightness == Brightness.dark;
-    final bgColor = isDark ? accent.darkBackground : AppColors.backgroundLight;
+    final bgColor = isDark
+        ? AppColors.backgroundDark
+        : AppColors.backgroundLight;
     final surfaceColor = isDark
-        ? Color.alphaBlend(Colors.black.withValues(alpha: 0.24), bgColor)
+        ? Color.alphaBlend(
+            primary.withValues(alpha: 0.035),
+            AppColors.surfaceDark,
+          )
         : AppColors.surfaceLight;
     final surfaceVariantColor = isDark
-        ? Color.alphaBlend(Colors.black.withValues(alpha: 0.16), bgColor)
+        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), surfaceColor)
         : AppColors.slate100;
     final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.18)
-        : AppColors.slate200;
+        ? Colors.white.withValues(alpha: 0.11)
+        : const Color(0xFFDCE2E8);
     final textColor = isDark ? AppColors.textDark : AppColors.textLight;
 
     final colorScheme = isDark
@@ -27,7 +32,7 @@ class AppTheme {
             surface: surfaceColor,
             surfaceContainerHighest: surfaceVariantColor,
             outline: borderColor,
-            onPrimary: isDark ? AppColors.textLight : Colors.white,
+            onPrimary: const Color(0xFF07140B),
             onSurface: textColor,
           )
         : ColorScheme.light(
@@ -36,7 +41,7 @@ class AppTheme {
             surface: surfaceColor,
             surfaceContainerHighest: surfaceVariantColor,
             outline: borderColor,
-            onPrimary: AppColors.textLight,
+            onPrimary: const Color(0xFF07140B),
             onSurface: textColor,
           );
 
@@ -109,6 +114,81 @@ class AppTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: false,
+      ),
+      cardTheme: CardThemeData(
+        color: surfaceColor,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: borderColor),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: surfaceColor,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
+        labelStyle: TextStyle(
+          color: isDark ? AppColors.slate400 : AppColors.slate500,
+        ),
+        hintStyle: TextStyle(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.38)
+              : AppColors.slate400,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: primary, width: 1.4),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.redAccent),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: const Color(0xFF07140B),
+          minimumSize: const Size(0, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: textColor,
+          minimumSize: const Size(0, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+          side: BorderSide(color: borderColor),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark
+            ? const Color(0xFF22312A)
+            : const Color(0xFF172033),
+        contentTextStyle: const TextStyle(color: Colors.white),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: bgColor,

@@ -3,8 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hesabu_app/core/router/scaffold_with_nav_bar.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/intro_screen.dart';
 import 'package:hesabu_app/features/home/presentation/screens/home_screen.dart';
-import 'package:hesabu_app/features/auth/presentation/screens/login_screen.dart'
-    hide Center;
+import 'package:hesabu_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:hesabu_app/features/auth/presentation/screens/verify_reset_code_screen.dart';
@@ -132,12 +131,15 @@ class AppRouter {
       GoRoute(
         path: '/groups/join',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const JoinGroupScreen(),
+        builder: (context, state) => JoinGroupScreen(
+          initialCode: state.uri.queryParameters['account_no'],
+        ),
       ),
       GoRoute(
         path: '/groups/deposit',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const DepositToGroupScreen(),
+        builder: (context, state) =>
+            DepositToGroupScreen(group: state.extra as Group?),
       ),
       GoRoute(
         path: '/groups/withdraw',
@@ -159,8 +161,8 @@ class AppRouter {
         path: '/groups/invite',
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) {
-          final groupId = state.extra as String;
-          return InviteMembersScreen(groupId: groupId);
+          final group = state.extra as Group;
+          return InviteMembersScreen(group: group);
         },
       ),
       GoRoute(

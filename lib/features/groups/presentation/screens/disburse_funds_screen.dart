@@ -1,160 +1,372 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/theme/theme_controller.dart';
-import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' hide Group;
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
 import 'package:hesabu_app/core/utils/phone_utils.dart';
+import 'package:hesabu_app/features/activity/application/activity_provider.dart';
+import 'package:hesabu_app/features/activity/domain/account_activity.dart';
+import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/features/groups/presentation/widgets/financial_components.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DisburseFundsScreen extends StatefulWidget {
-  final Group? group;
-
   const DisburseFundsScreen({super.key, this.group});
+
+  final Group? group;
 
   @override
   State<DisburseFundsScreen> createState() => _DisburseFundsScreenState();
 }
 
 class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
+  final _destinationController = TextEditingController();
   final _amountController = TextEditingController();
-  final _destController = TextEditingController();
-  final _billerNumberController = TextEditingController();
+  final _paybillController = TextEditingController();
+
   bool _isIndividual = true;
-  String _businessType = 'TILLNO'; // 'TILLNO' or 'PAYBILL'
-  bool _isLoading = false;
+  String _businessType = 'TILLNO';
+  bool _isSubmitting = false;
+  bool _isReviewing = false;
+  bool _isFeeLoading = false;
+  double? _withdrawalFee;
+  double? _quotedAmount;
+  String? _feeError;
+  Timer? _feeDebounce;
+  int _feeRequestId = 0;
 
   @override
   void dispose() {
+    _feeDebounce?.cancel();
+    _destinationController.dispose();
     _amountController.dispose();
-    _destController.dispose();
-    _billerNumberController.dispose();
+    _paybillController.dispose();
     super.dispose();
   }
 
-  void _disburse() async {
-    final amount = double.tryParse(_amountController.text.replaceAll(',', ''));
-    final dest = _destController.text.trim();
-    if (amount == null || amount <= 0 || dest.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid amount and destination'),
-        ),
-      );
-      return;
-    }
+  double? get _amount =>
+      double.tryParse(_amountController.text.replaceAll(',', '').trim());
 
-    if (widget.group == null) return;
+  void _setRecipientType(bool individual) {
+    if (_isIndividual == individual) return;
+    setState(() {
+      _isIndividual = individual;
+      _destinationController.clear();
+      _paybillController.clear();
+    });
+  }
 
-    // Validate phone number if individual
-    if (_isIndividual && !PhoneUtils.isValidMsisdn(dest)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid phone number (e.g. 0712...)'),
-        ),
-      );
-      return;
-    }
+  void _scheduleFeeLookup() {
+    _feeDebounce?.cancel();
+    final requestId = ++_feeRequestId;
+    final amount = _amount;
+    setState(() {
+      _withdrawalFee = null;
+      _quotedAmount = null;
+      _feeError = null;
+      _isFeeLoading = amount != null && amount > 0;
+    });
+    if (amount == null || amount <= 0) return;
 
-    // Validate Paybill number if needed
-    final billerNumber = _billerNumberController.text.trim();
-    if (!_isIndividual && _businessType == 'PAYBILL' && billerNumber.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a Paybill number')),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    final response = await context.read<GroupsRepository>().withdraw(
-      groupId: widget.group!.id,
-      amount: amount,
-      withdrawalType: _isIndividual ? 'INDIVIDUAL' : 'BUSINESS',
-      destination: dest,
-      billerType: _isIndividual ? null : _businessType,
-      billerNumber: (!_isIndividual && _businessType == 'PAYBILL')
-          ? billerNumber
-          : null,
+    _feeDebounce = Timer(
+      const Duration(milliseconds: 350),
+      () => _loadFee(requestId, amount),
     );
+  }
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      if (!response.hasError && response.data == true) {
-        _showSuccessSheet(amount);
+  Future<void> _loadFee(int requestId, double amount) async {
+    final response = await context.read<GroupsRepository>().getWithdrawalFee(
+      amount: amount,
+    );
+    if (!mounted || requestId != _feeRequestId) return;
+
+    setState(() {
+      _isFeeLoading = false;
+      if (response.hasError || response.data == null) {
+        _feeError = response.errorMessage ?? 'Current tariff is unavailable.';
       } else {
+        _withdrawalFee = response.data;
+        _quotedAmount = amount;
+      }
+    });
+  }
+
+  Future<void> _pickContact() async {
+    if (kIsWeb ||
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS)) {
+      _showMessage('Contact selection is available on Android and iOS.');
+      return;
+    }
+
+    try {
+      final permission = await FlutterContacts.permissions.request(
+        PermissionType.read,
+      );
+      final granted =
+          permission == PermissionStatus.granted ||
+          permission == PermissionStatus.limited;
+      if (!granted) {
+        if (!mounted) return;
+        final requiresSettings =
+            permission == PermissionStatus.permanentlyDenied ||
+            permission == PermissionStatus.restricted;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              response.errorMessage ?? 'Disbursement failed. Please try again.',
+              requiresSettings
+                  ? 'Enable contacts access in system settings.'
+                  : 'Contacts permission is required to choose a recipient.',
             ),
-            backgroundColor: Theme.of(context).colorScheme.error,
+            action: requiresSettings
+                ? SnackBarAction(
+                    label: 'Settings',
+                    onPressed: FlutterContacts.permissions.openSettings,
+                  )
+                : null,
           ),
         );
+        return;
       }
+
+      final contact = await FlutterContacts.native.showPicker(
+        properties: const {ContactProperty.phone},
+      );
+      if (!mounted || contact == null) return;
+      if (contact.phones.isEmpty) {
+        _showMessage('The selected contact has no phone number.');
+        return;
+      }
+
+      var selectedPhone = contact.phones.first;
+      for (final phone in contact.phones) {
+        if (phone.isPrimary == true) selectedPhone = phone;
+      }
+      _destinationController.text =
+          selectedPhone.normalizedNumber ?? selectedPhone.number;
+    } on PlatformException {
+      if (mounted) _showMessage('Unable to open contacts.', isError: true);
     }
   }
 
-  void _showSuccessSheet(double amount) {
-    final accent = InheritedThemeController.of(context).accentColor.primary;
-    showModalBottomSheet(
+  Future<void> _reviewAndDisburse() async {
+    if (_isSubmitting || _isReviewing) return;
+    final group = widget.group;
+    if (group == null) {
+      _showMessage('No source group was selected.', isError: true);
+      return;
+    }
+
+    final destination = _destinationController.text.trim();
+    final amount = _amount;
+    if (destination.isEmpty || amount == null || amount <= 0) {
+      _showMessage('Enter a valid destination and amount.');
+      return;
+    }
+    if (_isIndividual && !PhoneUtils.isValidMsisdn(destination)) {
+      _showMessage('Enter a valid Kenyan phone number, for example 0712…');
+      return;
+    }
+    if (!_isIndividual &&
+        _businessType == 'PAYBILL' &&
+        _paybillController.text.trim().isEmpty) {
+      _showMessage('Enter the Paybill business number.');
+      return;
+    }
+    if (_isFeeLoading) {
+      _showMessage('Wait while the current tariff is loaded.');
+      return;
+    }
+
+    final fee = _withdrawalFee;
+    if (fee == null || _quotedAmount != amount) {
+      _showMessage(
+        _feeError ?? 'Current tariff is unavailable. Re-enter the amount.',
+        isError: true,
+      );
+      return;
+    }
+    if (amount + fee > group.balance) {
+      _showMessage(
+        'Amount plus the ${_currency(fee)} fee exceeds the available balance.',
+        isError: true,
+      );
+      return;
+    }
+
+    setState(() => _isReviewing = true);
+    final confirmed = await showDialog<bool>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm disbursement'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _reviewRow('Source', group.name),
+            _reviewRow(
+              'Recipient',
+              _isIndividual
+                  ? destination
+                  : _businessType == 'PAYBILL'
+                  ? '${_paybillController.text.trim()} / $destination'
+                  : destination,
+            ),
+            _reviewRow('Amount', _currency(amount)),
+            _reviewRow('Fee', _currency(fee)),
+            _reviewRow('Total debit', _currency(amount + fee)),
+            const SizedBox(height: 10),
+            Text(
+              'This transfer is immediate. Confirm the destination and amount carefully.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryText(context),
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Disburse'),
+          ),
+        ],
       ),
-      builder: (_) => SafeArea(
+    );
+    if (!mounted) return;
+    setState(() => _isReviewing = false);
+    if (confirmed != true) return;
+
+    await _submit(group, destination, amount, fee);
+  }
+
+  Future<void> _submit(
+    Group group,
+    String destination,
+    double amount,
+    double fee,
+  ) async {
+    setState(() => _isSubmitting = true);
+    final response = await context.read<GroupsRepository>().withdraw(
+      groupId: group.id,
+      amount: amount,
+      withdrawalType: _isIndividual ? 'INDIVIDUAL' : 'BUSINESS',
+      destination: destination,
+      billerType: _isIndividual ? null : _businessType,
+      billerNumber: !_isIndividual && _businessType == 'PAYBILL'
+          ? _paybillController.text.trim()
+          : null,
+    );
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (response.hasError || response.data != true) {
+      _showMessage(
+        response.errorMessage ?? 'Disbursement failed. Please try again.',
+        isError: true,
+      );
+      return;
+    }
+
+    await context.read<ActivityProvider>().record(
+      type: AccountActivityType.withdrawal,
+      title: 'Funds disbursed',
+      description: '${_currency(amount)} was sent from ${group.name}.',
+      groupId: group.id,
+      groupName: group.name,
+      amount: amount,
+      metadata: {
+        'destination': destination,
+        'fee': fee.toStringAsFixed(2),
+        'recipient_type': _isIndividual ? 'individual' : _businessType,
+      },
+    );
+    if (mounted) _showSuccessSheet(amount);
+  }
+
+  String _currency(double value) =>
+      NumberFormat.currency(symbol: 'KSh ', decimalDigits: 2).format(value);
+
+  Widget _reviewRow(String label, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 88,
+          child: Text(
+            label,
+            style: TextStyle(color: AppColors.secondaryText(context)),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  void _showMessage(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Theme.of(context).colorScheme.error : null,
+      ),
+    );
+  }
+
+  void _showSuccessSheet(double amount) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (sheetContext) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_circle_rounded,
-                  color: accent,
-                  size: 32,
-                ),
+              Icon(
+                Icons.verified_rounded,
+                size: 42,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Disbursement Successful!',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
-                'KSh ${amount.toStringAsFixed(2)} has been disbursed.',
+                'Disbursement Successful!',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                '${_currency(amount)} has been sent and recorded in the group ledger.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.secondaryText(context),
-                  fontSize: 14,
-                  height: 1.5,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () {
-                    Navigator.pop(context); // close sheet
-                    context.pop(); // close screen
+                    Navigator.pop(sheetContext);
+                    context.pop(true);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Text(
-                    'Done',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+                  child: const Text('Done'),
                 ),
               ),
             ],
@@ -166,417 +378,279 @@ class _DisburseFundsScreenState extends State<DisburseFundsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = InheritedThemeController.of(context).accentColor.primary;
-    final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
-    final cardBorder = isDark
-        ? Theme.of(context).dividerColor
-        : AppColors.slate200;
-    final titleColor = isDark ? Colors.white : Colors.black87;
+    final group = widget.group;
+    final theme = Theme.of(context);
+    final fee = _withdrawalFee;
+    final amount = _amount;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(
-          'Disburse Funds',
-          style: TextStyle(
-            color: accent,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: accent),
-          onPressed: () => context.pop(),
+        title: const Text(
+          'Disburse funds',
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Source Group
-            _sectionLabel('SOURCE GROUP'),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: cardBorder),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.group?.name ?? 'Unknown Group',
-                          style: TextStyle(
-                            color: accent.withValues(alpha: 0.9),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Available: KSh ${widget.group?.balance.toStringAsFixed(2) ?? '0.00'}',
-                          style: TextStyle(
-                            color: AppColors.secondaryText(context),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: AppColors.secondaryText(context),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Withdrawal Type
-            _sectionLabel('WITHDRAWAL TYPE'),
-            Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: isDark ? Colors.black : Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _isIndividual = true),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: _isIndividual ? accent : Colors.transparent,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'INDIVIDUAL',
-                          style: TextStyle(
-                            color: _isIndividual
-                                ? Colors.white
-                                : AppColors.secondaryText(context),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _isIndividual = false),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: !_isIndividual ? accent : Colors.transparent,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'BUSINESS',
-                          style: TextStyle(
-                            color: !_isIndividual
-                                ? Colors.white
-                                : AppColors.secondaryText(context),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            if (!_isIndividual) ...[
-              _sectionLabel('BUSINESS TYPE'),
-              Container(
-                height: 44,
+      bottomNavigationBar: group == null
+          ? null
+          : SafeArea(
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                 decoration: BoxDecoration(
-                  color: cardBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cardBorder),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _businessType = 'TILLNO'),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _businessType == 'TILLNO'
-                                ? accent.withValues(alpha: 0.1)
-                                : Colors.transparent,
-                            borderRadius: const BorderRadius.horizontal(
-                              left: Radius.circular(12),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'TILL',
-                            style: TextStyle(
-                              color: _businessType == 'TILLNO'
-                                  ? accent
-                                  : AppColors.secondaryText(context),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    VerticalDivider(color: cardBorder, width: 1),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _businessType = 'PAYBILL'),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: _businessType == 'PAYBILL'
-                                ? accent.withValues(alpha: 0.1)
-                                : Colors.transparent,
-                            borderRadius: const BorderRadius.horizontal(
-                              right: Radius.circular(12),
-                            ),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            'PAYBILL',
-                            style: TextStyle(
-                              color: _businessType == 'PAYBILL'
-                                  ? accent
-                                  : AppColors.secondaryText(context),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-
-            // Destination
-            if (!_isIndividual && _businessType == 'PAYBILL') ...[
-              _sectionLabel('PAYBILL NUMBER'),
-              Container(
-                decoration: BoxDecoration(
-                  color: cardBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cardBorder),
-                ),
-                child: TextField(
-                  controller: _billerNumberController,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(color: titleColor),
-                  decoration: InputDecoration(
-                    hintText: 'Enter Paybill No (e.g. 247247)',
-                    hintStyle: TextStyle(
-                      color: AppColors.tertiaryText(context),
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
+                  color: theme.scaffoldBackgroundColor,
+                  border: Border(
+                    top: BorderSide(color: theme.colorScheme.outline),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              _sectionLabel('ACCOUNT NUMBER'),
-            ] else if (!_isIndividual && _businessType == 'TILLNO') ...[
-              _sectionLabel('TILL NUMBER'),
-            ] else ...[
-              _sectionLabel('PHONE NUMBER'),
-            ],
-
-            Container(
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: cardBorder),
-              ),
-              child: TextField(
-                controller: _destController,
-                keyboardType: _isIndividual
-                    ? TextInputType.phone
-                    : TextInputType.text,
-                style: TextStyle(color: titleColor),
-                decoration: InputDecoration(
-                  hintText: _isIndividual
-                      ? 'Phone Number'
-                      : (_businessType == 'TILLNO'
-                            ? 'Till Number'
-                            : 'Account Number'),
-                  hintStyle: TextStyle(color: AppColors.tertiaryText(context)),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  suffixIcon: _isIndividual
-                      ? Icon(
-                          Icons.contacts,
-                          color: AppColors.secondaryText(context),
+                child: FilledButton.icon(
+                  onPressed: _isSubmitting || _isReviewing
+                      ? null
+                      : _reviewAndDisburse,
+                  icon: _isSubmitting
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : null,
+                      : const Icon(Icons.verified_user_outlined),
+                  label: const Text('Confirm Disbursement'),
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Amount
-            _sectionLabel('AMOUNT (KES)'),
-            Container(
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cardBorder),
-              ),
-              child: Column(
-                children: [
-                  Row(
+      body: group == null
+          ? const FinancialEmptyState(
+              icon: Icons.warning_amber_rounded,
+              title: 'No source group selected',
+              message: 'Open a group ledger and choose Disburse Funds.',
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+              children: [
+                FinancialSurface(
+                  emphasized: true,
+                  child: Row(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Text(
-                          'KES',
-                          style: TextStyle(
-                            color: accent,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        color: theme.colorScheme.primary,
                       ),
+                      const SizedBox(width: 10),
                       Expanded(
-                        child: TextField(
-                          controller: _amountController,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: titleColor,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: '0.00',
-                            hintStyle: TextStyle(
-                              color: AppColors.tertiaryText(context),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              group.name,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 24,
+                            Text(
+                              group.accountNo.isEmpty
+                                  ? 'Group wallet'
+                                  : 'Account ${group.accountNo}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppColors.secondaryText(context),
+                              ),
                             ),
-                          ),
-                          onChanged: (_) => setState(() {}),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 48), // balance padding
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'AVAILABLE',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppColors.secondaryText(context),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            _currency(group.balance),
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
+                ),
+                const SizedBox(height: 18),
+                const FinancialSectionHeader(
+                  title: 'Recipient',
+                  subtitle: 'Choose where the group funds will be sent',
+                ),
+                const SizedBox(height: 10),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: true,
+                      icon: Icon(Icons.person_outline_rounded),
+                      label: Text('Individual'),
                     ),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? Theme.of(context).cardColor
-                          : Colors.black.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(16),
+                    ButtonSegment(
+                      value: false,
+                      icon: Icon(Icons.storefront_outlined),
+                      label: Text('Business'),
                     ),
-                    child: Text(
-                      'Fee: KES 15.00',
-                      style: TextStyle(
-                        color: titleColor.withValues(alpha: 0.8),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                  ],
+                  selected: {_isIndividual},
+                  onSelectionChanged: (selection) =>
+                      _setRecipientType(selection.single),
+                ),
+                if (!_isIndividual) ...[
+                  const SizedBox(height: 10),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(value: 'TILLNO', label: Text('Till')),
+                      ButtonSegment(value: 'PAYBILL', label: Text('Paybill')),
+                    ],
+                    selected: {_businessType},
+                    onSelectionChanged: (selection) => setState(() {
+                      _businessType = selection.single;
+                      _destinationController.clear();
+                      _paybillController.clear();
+                    }),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                if (!_isIndividual && _businessType == 'PAYBILL') ...[
+                  TextField(
+                    controller: _paybillController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Paybill number',
+                      prefixIcon: Icon(Icons.business_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                TextField(
+                  controller: _destinationController,
+                  keyboardType: _isIndividual
+                      ? TextInputType.phone
+                      : TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: _isIndividual
+                        ? 'Recipient phone number'
+                        : _businessType == 'PAYBILL'
+                        ? 'Account number'
+                        : 'Till number',
+                    prefixIcon: Icon(
+                      _isIndividual
+                          ? Icons.phone_outlined
+                          : Icons.numbers_rounded,
+                    ),
+                    suffixIcon: _isIndividual
+                        ? IconButton(
+                            tooltip: 'Choose from contacts',
+                            onPressed: _isSubmitting ? null : _pickContact,
+                            icon: const Icon(Icons.contacts_outlined),
+                          )
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const FinancialSectionHeader(
+                  title: 'Transfer amount',
+                  subtitle: 'The current tariff is loaded before confirmation',
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _amountController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  onChanged: (_) => _scheduleFeeLookup(),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Amount',
+                    prefixText: 'KSh  ',
+                    prefixIcon: Icon(Icons.payments_outlined),
+                    hintText: '0.00',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                FinancialSurface(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  child: Column(
+                    children: [
+                      _summaryRow(
+                        'Available balance',
+                        _currency(group.balance),
                       ),
+                      const SizedBox(height: 7),
+                      _summaryRow(
+                        'Transfer fee',
+                        _isFeeLoading
+                            ? 'Loading…'
+                            : fee != null
+                            ? 'Fee: KES ${fee.toStringAsFixed(2)}'
+                            : _feeError != null
+                            ? 'Unavailable'
+                            : 'Fee: —',
+                        isError: _feeError != null,
+                      ),
+                      if (amount != null && fee != null) ...[
+                        const Divider(height: 17),
+                        _summaryRow(
+                          'Total debit',
+                          '${_currency(amount + fee)} estimated',
+                          emphasized: true,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (_feeError != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    _feeError!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 40),
-
-            // Confirm Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _isLoading ? null : _disburse,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                const SizedBox(height: 16),
+                Text(
+                  'Only authorised group administrators can disburse funds. Every completed transfer is recorded in the ledger.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.secondaryText(context),
+                    height: 1.4,
                   ),
-                  elevation: 0,
                 ),
-                icon: const Icon(Icons.send, size: 18),
-                label: _isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Confirm Disbursement',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-              ),
+              ],
             ),
-            const SizedBox(height: 24),
-
-            // Footer Text
-            Center(
-              child: Text(
-                'Funds will be disbursed instantly to the\nverified recipient.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.secondaryText(context),
-                  fontSize: 13,
-                  height: 1.5,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  Widget _sectionLabel(String t) => Padding(
-    padding: const EdgeInsets.only(left: 4, bottom: 8),
-    child: Text(
-      t,
-      style: TextStyle(
-        color: AppColors.secondaryText(context),
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.5,
+  Widget _summaryRow(
+    String label,
+    String value, {
+    bool emphasized = false,
+    bool isError = false,
+  }) => Row(
+    children: [
+      Expanded(
+        child: Text(
+          label,
+          style: TextStyle(color: AppColors.secondaryText(context)),
+        ),
       ),
-    ),
+      Text(
+        value,
+        style: TextStyle(
+          color: isError ? Theme.of(context).colorScheme.error : null,
+          fontWeight: emphasized ? FontWeight.w800 : FontWeight.w600,
+        ),
+      ),
+    ],
   );
 }

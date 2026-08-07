@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
-import 'package:hesabu_app/core/theme/theme_controller.dart';
-import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
-import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
-import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/features/groups/presentation/widgets/financial_components.dart';
 import 'package:provider/provider.dart';
 
 class MyGroupsScreen extends StatefulWidget {
@@ -16,393 +13,184 @@ class MyGroupsScreen extends StatefulWidget {
 }
 
 class _MyGroupsScreenState extends State<MyGroupsScreen> {
+  final _searchController = TextEditingController();
   List<Group> _groups = [];
   bool _isLoading = true;
+  String _query = '';
+
+  List<Group> get _visibleGroups {
+    final query = _query.trim().toLowerCase();
+    if (query.isEmpty) return _groups;
+    return _groups
+        .where(
+          (group) =>
+              group.name.toLowerCase().contains(query) ||
+              group.accountNo.toLowerCase().contains(query) ||
+              group.location.toLowerCase().contains(query),
+        )
+        .toList(growable: false);
+  }
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadData();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
-    final groupsRepository = context.read<GroupsRepository>();
-    final response = await groupsRepository.getActiveGroups();
-    if (mounted) {
-      setState(() {
-        _groups = response.data ?? [];
-        _isLoading = false;
-      });
-      if (response.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.errorMessage ?? 'Failed to load groups.'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
+    if (mounted) setState(() => _isLoading = true);
+    final response = await context.read<GroupsRepository>().getActiveGroups();
+    if (!mounted) return;
+
+    setState(() {
+      _groups = response.data ?? [];
+      _isLoading = false;
+    });
+    if (response.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.errorMessage ?? 'Failed to load groups.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
     }
+  }
+
+  Future<void> _openCreateGroup() async {
+    final result = await context.push('/groups/create');
+    if (result == true) await _loadData();
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = InheritedThemeController.of(context);
-    final accent = controller.accentColor.primary;
-    final isDark = controller.isDark;
-    final titleColor = isDark ? Colors.white : Colors.black87;
-    final currencyFormat = NumberFormat.currency(
-      symbol: 'KSh ',
-      decimalDigits: 2,
-    );
+    final theme = Theme.of(context);
+    final visibleGroups = _visibleGroups;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: AppBackgroundBlobs()),
-          // Top Nav Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 10,
-                bottom: 12,
-                left: 16,
-                right: 16,
-              ),
-              color: Theme.of(
-                context,
-              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(width: 40),
-                  Text(
-                    'My Groups',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: titleColor,
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
-              ),
-            ),
-          ),
-
-          // Content
-          Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 60,
-            ),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildSearchBar(isDark, titleColor, accent),
-                ),
-                Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : _groups.isEmpty
-                      ? _buildEmptyState(context, accent, isDark)
-                      : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                          itemCount: _groups.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 16),
-                          itemBuilder: (context, index) {
-                            return _buildGroupCard(
-                              context,
-                              _groups[index],
-                              currencyFormat,
-                              accent,
-                              isDark,
-                            );
-                          },
-                        ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80),
-        child: FloatingActionButton(
-          onPressed: () async {
-            final result = await context.push('/groups/create');
-            if (result == true) _loadData();
-          },
-          backgroundColor: accent,
-          elevation: 4,
-          child: const Icon(Icons.add, color: Colors.white, size: 28),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar(bool isDark, Color titleColor, Color accent) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: isDark ? Theme.of(context).cardColor : AppColors.slate100,
-        borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? Border.all(color: Theme.of(context).dividerColor)
-            : null,
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search groups...',
-          hintStyle: TextStyle(
-            color: titleColor.withValues(alpha: isDark ? 0.58 : 0.4),
-            fontSize: 14,
-          ),
-          border: InputBorder.none,
-          icon: Icon(
-            Icons.search,
-            color: titleColor.withValues(alpha: isDark ? 0.58 : 0.4),
-            size: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGroupCard(
-    BuildContext context,
-    Group group,
-    NumberFormat fmt,
-    Color accent,
-    bool isDark,
-  ) {
-    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
-    final secondaryTextColor = isDark
-        ? Colors.white.withValues(alpha: 0.68)
-        : AppColors.slate500;
-    final labelTextColor = isDark
-        ? Colors.white.withValues(alpha: 0.58)
-        : AppColors.slate500;
-    final iconColor = isDark
-        ? Colors.white.withValues(alpha: 0.64)
-        : AppColors.slate400;
-
-    return GestureDetector(
-      onTap: () => context.push('/groups/details', extra: group),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: isDark
-              ? Border.all(color: Theme.of(context).dividerColor)
-              : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-        ),
-        child: Column(
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      group.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) =>
-                          Icon(Icons.group, color: accent),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        group.name,
-                        style: TextStyle(
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        '${group.membersCount} • ${group.frequency}',
-                        style: TextStyle(
-                          color: secondaryTextColor,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.more_horiz, color: iconColor),
-              ],
+            const Text(
+              'Group ledgers',
+              style: TextStyle(fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'GROUP BALANCE',
-                      style: TextStyle(
-                        color: labelTextColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1,
-                      ),
-                    ),
-                    Text(
-                      fmt.format(group.balance),
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    group.status,
-                    style: TextStyle(
-                      color: accent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: group.progressPercentage,
-                backgroundColor: isDark
-                    ? Colors.white.withValues(alpha: 0.1)
-                    : AppColors.slate100,
-                valueColor: AlwaysStoppedAnimation<Color>(accent),
-                minHeight: 8,
+            Text(
+              '${_groups.length} active collection account${_groups.length == 1 ? '' : 's'}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryText(context),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context, Color accent, bool isDark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.groups_outlined,
-              size: 80,
-              color: accent.withValues(alpha: 0.5),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'Oh darn! Such empty.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodyLarge?.color,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'You are not a member of any group yet. Start your financial journey by joining one or creating your own.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.secondaryText(context),
-              fontSize: 16,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 48),
-          ElevatedButton(
+        actions: [
+          IconButton(
+            tooltip: 'Join a group',
             onPressed: () => context.push('/groups/join'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: accent,
-              foregroundColor: isDark ? AppColors.backgroundDark : Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Join a Group',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            icon: const Icon(Icons.group_add_outlined),
           ),
-          const SizedBox(height: 16),
-          OutlinedButton(
-            onPressed: () async {
-              final result = await context.push('/groups/create');
-              if (result == true) _loadData();
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: accent,
-              side: BorderSide(color: accent),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text(
-              'Create New Group',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+          IconButton(
+            tooltip: 'Create a group',
+            onPressed: _openCreateGroup,
+            icon: const Icon(Icons.add_circle_outline_rounded),
           ),
+          const SizedBox(width: 6),
         ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: _loadData,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+              sliver: SliverToBoxAdapter(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _query = value),
+                  decoration: InputDecoration(
+                    hintText: 'Search by group or account number',
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    suffixIcon: _query.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'Clear search',
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _query = '');
+                            },
+                            icon: const Icon(Icons.close_rounded),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            if (_isLoading)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_groups.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: FinancialEmptyState(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'No group ledgers yet',
+                  message:
+                      'Create a collection group or join one using its account number.',
+                  action: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () => context.push('/groups/join'),
+                        child: const Text('Join'),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton(
+                        onPressed: _openCreateGroup,
+                        child: const Text('Create group'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else if (visibleGroups.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: FinancialEmptyState(
+                  icon: Icons.search_off_rounded,
+                  title: 'No matching groups',
+                  message: 'Try a different group name or account number.',
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                sliver: SliverList.separated(
+                  itemCount: visibleGroups.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 9),
+                  itemBuilder: (context, index) {
+                    final group = visibleGroups[index];
+                    return GroupLedgerCard(
+                      group: group,
+                      onOpen: () async {
+                        await context.push('/groups/details', extra: group);
+                        await _loadData();
+                      },
+                      onDeposit: () =>
+                          context.push('/groups/deposit', extra: group),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

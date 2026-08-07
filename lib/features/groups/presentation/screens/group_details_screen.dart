@@ -1,944 +1,560 @@
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/widgets/app_background_blobs.dart';
 import 'package:hesabu_app/core/api/api_response.dart';
-import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
-import 'package:hesabu_app/core/theme/theme_controller.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/features/activity/application/activity_provider.dart';
+import 'package:hesabu_app/features/activity/domain/account_activity.dart';
+import 'package:hesabu_app/features/groups/application/group_statement_csv_exporter.dart';
+import 'package:hesabu_app/features/groups/application/saved_file_opener.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/features/groups/presentation/widgets/financial_components.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
-  final Group group;
+  const GroupDetailsScreen({
+    super.key,
+    required this.group,
+    this.savedFileOpener,
+  });
 
-  const GroupDetailsScreen({super.key, required this.group});
+  final Group group;
+  final SavedFileOpener? savedFileOpener;
 
   @override
   State<GroupDetailsScreen> createState() => _GroupDetailsScreenState();
 }
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
-  int _currentIndex = 0; // Default to Home tab
+  int _currentIndex = 0;
   List<Transaction> _transactions = [];
   List<Member> _members = [];
-  double _balance = 0.0;
+  double _balance = 0;
   bool _isLoading = true;
-  double _totalInflow = 0.0;
-  double _totalOutflow = 0.0;
+  bool _isDownloadingStatement = false;
 
-  Future<void> _fetchTransactions() async {
-    final repo = context.read<GroupsRepository>();
-    try {
-      final response = await repo.getRecentTransactions(widget.group.id);
-      if (mounted && !response.hasError) {
-        setState(() {
-          _transactions = response.data!;
-          _totalInflow = _transactions
-              .where((t) => t.type == 'Inflow')
-              .fold(0.0, (sum, item) => sum + item.amount);
-          _totalOutflow = _transactions
-              .where((t) => t.type == 'Outflow')
-              .fold(0.0, (sum, item) => sum + item.amount);
-        });
-      }
-    } catch (e) {
-      // Ignore silently for background refresh
-    }
-  }
-
-  Future<void> _fetchMembers() async {
-    final repo = context.read<GroupsRepository>();
-    try {
-      final response = await repo.getMembers(widget.group.id);
-      if (mounted && !response.hasError) {
-        setState(() {
-          _members = response.data!;
-        });
-      }
-    } catch (e) {
-      // Ignore silently for background refresh
-    }
-  }
+  bool get _isAdmin => widget.group.role.toLowerCase() == 'admin';
+  double get _totalInflow => _transactions
+      .where((transaction) => transaction.type.toLowerCase() == 'inflow')
+      .fold(0, (sum, transaction) => sum + transaction.amount);
+  double get _totalOutflow => _transactions
+      .where((transaction) => transaction.type.toLowerCase() == 'outflow')
+      .fold(0, (sum, transaction) => sum + transaction.amount);
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
   }
 
   Future<void> _loadData() async {
-    final repo = context.read<GroupsRepository>();
+    if (mounted) setState(() => _isLoading = true);
+    final repository = context.read<GroupsRepository>();
+    final results = await Future.wait<Object>([
+      repository.getRecentTransactions(widget.group.id),
+      repository.getMembers(widget.group.id),
+      repository.getGroupBalance(widget.group.id),
+    ]);
+    if (!mounted) return;
+
+    final transactions = results[0] as ApiResponse<List<Transaction>>;
+    final members = results[1] as ApiResponse<List<Member>>;
+    final balance = results[2] as ApiResponse<double>;
+    setState(() {
+      if (!transactions.hasError) _transactions = transactions.data ?? [];
+      if (!members.hasError) _members = members.data ?? [];
+      if (!balance.hasError) _balance = balance.data ?? widget.group.balance;
+      _isLoading = false;
+    });
+
+    final message =
+        transactions.errorMessage ??
+        members.errorMessage ??
+        balance.errorMessage;
+    if (message != null) _showMessage(message, isError: true);
+  }
+
+  Future<void> _downloadStatement() async {
+    if (_isDownloadingStatement) return;
+    setState(() => _isDownloadingStatement = true);
+    final activityProvider = context.read<ActivityProvider>();
+    final groupsRepository = context.read<GroupsRepository>();
+
+    await activityProvider.record(
+      type: AccountActivityType.statementRequested,
+      title: 'Statement requested',
+      description: 'Preparing the ${widget.group.name} transaction ledger.',
+      status: AccountActivityStatus.pending,
+      groupId: widget.group.id,
+      groupName: widget.group.name,
+    );
+
     try {
-      final results = await Future.wait([
-        repo.getRecentTransactions(widget.group.id),
-        repo.getMembers(widget.group.id),
-        repo.getGroupBalance(widget.group.id),
-      ]);
+      final response = await groupsRepository.getGroupStatements(
+        widget.group.id,
+      );
+      if (!mounted) return;
 
-      final txResponse = results[0] as ApiResponse<List<Transaction>>;
-      final memberResponse = results[1] as ApiResponse<List<Member>>;
-      final balanceResponse = results[2] as ApiResponse<double>;
-
-      if (mounted) {
-        setState(() {
-          if (!txResponse.hasError) {
-            _transactions = txResponse.data!;
-            _totalInflow = _transactions
-                .where((t) => t.type == 'Inflow')
-                .fold(0.0, (sum, item) => sum + item.amount);
-            _totalOutflow = _transactions
-                .where((t) => t.type == 'Outflow')
-                .fold(0.0, (sum, item) => sum + item.amount);
-          }
-
-          if (!memberResponse.hasError) {
-            _members = memberResponse.data!;
-          }
-
-          if (!balanceResponse.hasError) {
-            _balance = balanceResponse.data!;
-          }
-
-          _isLoading = false;
-        });
-
-        if (txResponse.hasError ||
-            memberResponse.hasError ||
-            balanceResponse.hasError) {
-          final error =
-              txResponse.errorMessage ??
-              memberResponse.errorMessage ??
-              balanceResponse.errorMessage;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(error ?? 'Error loading some data'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-        }
+      if (response.hasError) {
+        _showMessage(
+          response.errorMessage ?? 'Unable to download the statement.',
+          isError: true,
+        );
+        return;
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
+      final entries = response.data ?? [];
+      if (entries.isEmpty) {
+        _showMessage('There are no posted transactions in this statement.');
+        return;
       }
+
+      final generatedAt = DateTime.now();
+      final bytes = GroupStatementCsvExporter.build(
+        group: widget.group,
+        entries: entries,
+        generatedAt: generatedAt,
+      );
+      final groupName = widget.group.name
+          .trim()
+          .toLowerCase()
+          .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+          .replaceAll(RegExp(r'^_+|_+$'), '');
+      final timestamp = DateFormat('yyyyMMdd_HHmmss').format(generatedAt);
+      final savedPath = await FileSaver.instance.saveAs(
+        name: '${groupName.isEmpty ? 'group' : groupName}_statement_$timestamp',
+        bytes: bytes,
+        fileExtension: 'csv',
+        mimeType: MimeType.csv,
+      );
+      if (!mounted || savedPath == null || savedPath.trim().isEmpty) return;
+
+      await activityProvider.record(
+        type: AccountActivityType.statementDownloaded,
+        title: 'Statement downloaded',
+        description:
+            '${entries.length} ledger transaction${entries.length == 1 ? '' : 's'} exported as CSV.',
+        groupId: widget.group.id,
+        groupName: widget.group.name,
+        reference: DateFormat('yyyyMMddHHmmss').format(generatedAt),
+      );
+      if (!mounted) return;
+      _showMessage(
+        'Statement saved successfully.',
+        action: kIsWeb
+            ? null
+            : SnackBarAction(
+                label: 'View',
+                onPressed: () => _openSavedStatement(savedPath),
+              ),
+      );
+    } catch (_) {
+      if (mounted) {
+        _showMessage(
+          'Unable to save the statement on this device.',
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDownloadingStatement = false);
     }
+  }
+
+  Future<void> _openSavedStatement(String path) async {
+    final result = await (widget.savedFileOpener ?? SavedFileOpener()).open(
+      path,
+    );
+    if (!mounted || result.succeeded) return;
+    _showMessage(
+      result.message ?? 'Unable to open the saved statement.',
+      isError: true,
+    );
+  }
+
+  Future<void> _copyAccountNumber() async {
+    if (widget.group.accountNo.isEmpty) return;
+    await Clipboard.setData(ClipboardData(text: widget.group.accountNo));
+    if (mounted) _showMessage('Group account number copied.');
+  }
+
+  Future<void> _openDeposit() async {
+    await context.push('/groups/deposit', extra: widget.group);
+    await _loadData();
+  }
+
+  Future<void> _openDisbursement() async {
+    await context.push('/groups/withdraw', extra: widget.group);
+    await _loadData();
+  }
+
+  void _showMessage(
+    String message, {
+    bool isError = false,
+    SnackBarAction? action,
+  }) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? Theme.of(context).colorScheme.error : null,
+          action: action,
+          duration: action == null
+              ? const Duration(seconds: 4)
+              : const Duration(seconds: 8),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
-    final isAdmin = widget.group.role.toLowerCase() == 'admin';
-    final currencyFormat = NumberFormat.currency(
-      symbol: 'KSh ',
-      decimalDigits: 2,
-    );
-
-    final themeController = InheritedThemeController.of(context);
-    final isDark = themeController.isDark;
-    final accent = themeController.accentColor.primary;
-    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    final titleColor = isDark ? Colors.white : AppColors.textLight;
-    final cardColor = isDark ? Theme.of(context).cardColor : Colors.white;
-
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Stack(
-        children: [
-          const Positioned.fill(child: AppBackgroundBlobs()),
-          Column(
-            children: [
-              _buildTopNav(context, titleColor, accent),
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  layoutBuilder:
-                      (Widget? currentChild, List<Widget> previousChildren) {
-                        return Stack(
-                          fit: StackFit.expand,
-                          alignment: Alignment.topCenter,
-                          children: <Widget>[
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                  switchInCurve: Curves.easeInOut,
-                  switchOutCurve: Curves.easeInOut,
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: ScaleTransition(
-                            scale: Tween<double>(
-                              begin: 0.98,
-                              end: 1.0,
-                            ).animate(animation),
-                            child: child,
-                          ),
-                        );
-                      },
-                  child: KeyedSubtree(
-                    key: ValueKey<int>(_currentIndex),
-                    child: _buildBody(
-                      currencyFormat,
-                      isAdmin,
-                      accent,
-                      titleColor,
-                      cardColor,
-                      isDark,
-                    ),
-                  ),
-                ),
-              ),
-              SafeArea(
-                top: false,
-                child: _buildBottomNavBar(accent, titleColor, isDark),
-              ),
-            ],
-          ),
-          if (_currentIndex == 0)
-            _buildFixedInsights(
-              currencyFormat,
-              accent,
-              cardColor,
-              titleColor,
-              backgroundColor,
-              isDark,
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.group.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w800),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopNav(BuildContext context, Color titleColor, Color accent) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 10,
-        left: 8,
-        right: 16,
-        bottom: 12,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: Icon(Icons.arrow_back_ios_new, color: titleColor, size: 22),
-            onPressed: () => context.pop(),
-          ),
-          Text(
-            widget.group.name,
-            style: TextStyle(
-              color: titleColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Icon(Icons.file_download_outlined, color: accent, size: 24),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBody(
-    NumberFormat fmt,
-    bool isAdmin,
-    Color accent,
-    Color titleColor,
-    Color cardColor,
-    bool isDark,
-  ) {
-    if (_currentIndex == 0) {
-      return _buildHomeView(
-        fmt,
-        isAdmin,
-        accent,
-        titleColor,
-        cardColor,
-        isDark,
-      );
-    } else if (_currentIndex == 1) {
-      return _buildWalletView(fmt, accent, titleColor, isDark);
-    } else if (_currentIndex == 2) {
-      return _buildMembersView(accent, titleColor, isAdmin, isDark);
-    } else if (_currentIndex == 3) {
-      return _buildSettingsView(accent, titleColor, isDark);
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildHomeView(
-    NumberFormat fmt,
-    bool isAdmin,
-    Color accent,
-    Color titleColor,
-    Color cardColor,
-    bool isDark,
-  ) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          _buildBalanceCard(fmt, accent, titleColor, cardColor, isDark),
-          const SizedBox(height: 24),
-          _buildMainActionButton(isAdmin, accent, titleColor, isDark),
-          const SizedBox(height: 32),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Recent Transactions',
-                style: TextStyle(
-                  color: titleColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+            Text(
+              widget.group.accountNo.isEmpty
+                  ? 'Group financial account'
+                  : 'Account ${widget.group.accountNo}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryText(context),
               ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: () {
-                  setState(() => _currentIndex = 1);
-                  _fetchTransactions();
-                },
-                child: Text(
-                  'See All',
-                  style: TextStyle(
-                    color: accent,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildTransactionsList(fmt, accent, titleColor, isDark),
-          const SizedBox(height: 120), // Spacer for fixed inflow/outflow
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWalletView(
-    NumberFormat fmt,
-    Color accent,
-    Color titleColor,
-    bool isDark,
-  ) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Group Statements',
-            style: TextStyle(
-              color: titleColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
             ),
-          ),
-          const SizedBox(height: 12),
-          _buildTransactionsList(fmt, accent, titleColor, isDark),
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBalanceCard(
-    NumberFormat fmt,
-    Color accent,
-    Color titleColor,
-    Color cardColor,
-    bool isDark,
-  ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [accent, accent.withValues(alpha: 0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          ],
         ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'TOTAL GROUP BALANCE',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8),
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                fmt.format(_balance),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Text(
-                '.00',
-                style: TextStyle(color: Colors.white70, fontSize: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Icon(Icons.trending_up, color: Colors.white, size: 14),
-              const SizedBox(width: 6),
-              Text(
-                '+4.2% from last month',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.9),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFixedInsights(
-    NumberFormat fmt,
-    Color accent,
-    Color cardColor,
-    Color titleColor,
-    Color backgroundColor,
-    bool isDark,
-  ) {
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
-    return Positioned(
-      bottom: bottomPadding + 96,
-      left: 20,
-      right: 20,
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildInsightCard(
-              'TOTAL INFLOW',
-              fmt.format(_totalInflow),
-              accent,
-              cardColor,
-              backgroundColor,
-              isDark,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: _buildInsightCard(
-              'TOTAL OUTFLOW',
-              fmt.format(_totalOutflow),
-              titleColor,
-              cardColor,
-              backgroundColor,
-              isDark,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInsightCard(
-    String label,
-    String amount,
-    Color amountColor,
-    Color cardColor,
-    Color backgroundColor,
-    bool isDark,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDark
-            ? Color.alphaBlend(cardColor, backgroundColor)
-            : cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: isDark
-            ? Border.all(color: Theme.of(context).dividerColor)
-            : Border.all(color: AppColors.slate200.withValues(alpha: 0.5)),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: AppColors.secondaryText(context),
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            amount,
-            style: TextStyle(
-              color: amountColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMainActionButton(
-    bool isAdmin,
-    Color accent,
-    Color titleColor,
-    bool isDark,
-  ) {
-    final btnColor = accent;
-    return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: btnColor.withValues(alpha: 0.2),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          if (isAdmin) {
-            context
-                .push('/groups/withdraw', extra: widget.group)
-                .then((_) => _loadData());
-          } else {
-            context.push('/groups/deposit').then((_) => _loadData());
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: btnColor,
-          foregroundColor: Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        icon: Icon(
-          isAdmin ? Icons.payments_outlined : Icons.savings_outlined,
-          size: 20,
-          color: Colors.black,
-        ),
-        label: Text(
-          isAdmin ? 'Disburse Funds' : 'Deposit Funds',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTransactionsList(
-    NumberFormat fmt,
-    Color accent,
-    Color titleColor,
-    bool isDark,
-  ) {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator(color: accent));
-    }
-    if (_transactions.isEmpty) {
-      return Container(
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.only(top: 40),
-        child: Text(
-          'No transactions yet',
-          style: TextStyle(color: titleColor.withValues(alpha: 0.4)),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _transactions.length,
-      itemBuilder: (context, index) {
-        final tx = _transactions[index];
-        final isInflow = tx.type == 'Inflow';
-        final amountColor = isInflow ? accent : titleColor;
-        final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: cardBg,
-              borderRadius: BorderRadius.circular(16),
-              border: isDark
-                  ? Border.all(color: Theme.of(context).dividerColor)
-                  : Border.all(
-                      color: AppColors.slate200.withValues(alpha: 0.5),
-                    ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: (isInflow ? accent : Colors.red).withValues(
-                      alpha: 0.08,
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isInflow
-                        ? Icons.arrow_downward_rounded
-                        : Icons.arrow_upward_rounded,
-                    color: isInflow ? accent : Colors.red,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        tx.title,
-                        style: TextStyle(
-                          color: titleColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${tx.type} • ${tx.date}',
-                        style: TextStyle(
-                          color: AppColors.secondaryText(context),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${isInflow ? '+' : '-'}${fmt.format(tx.amount)}',
-                      style: TextStyle(
-                        color: amountColor,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      tx.method.toUpperCase(),
-                      style: TextStyle(
-                        color: AppColors.secondaryText(context),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMembersView(
-    Color accent,
-    Color titleColor,
-    bool isAdmin,
-    bool isDark,
-  ) {
-    if (_isLoading) {
-      return Center(child: CircularProgressIndicator(color: accent));
-    }
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Members (${_members.length})',
-                style: TextStyle(
-                  color: titleColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              if (isAdmin)
-                IconButton(
-                  onPressed: () async {
-                    await context.push(
-                      '/groups/invite',
-                      extra: widget.group.id,
-                    );
-                    _loadData();
-                  },
-                  icon: Icon(Icons.person_add_alt_1, color: accent),
-                  tooltip: 'Invite Member',
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _members.isEmpty
-              ? Container(
-                  alignment: Alignment.topCenter,
-                  padding: const EdgeInsets.only(top: 40),
-                  child: Text(
-                    'No members yet',
-                    style: TextStyle(color: titleColor.withValues(alpha: 0.4)),
+        actions: [
+          _isDownloadingStatement
+              ? const Padding(
+                  padding: EdgeInsets.all(14),
+                  child: SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
                 )
-              : ListView.builder(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _members.length,
-                  itemBuilder: (context, index) {
-                    final member = _members[index];
-                    final isMemberAdmin = member.role.toLowerCase() == 'admin';
-                    final cardBg = isDark
-                        ? Theme.of(context).cardColor
-                        : Colors.white;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: cardBg,
-                          borderRadius: BorderRadius.circular(16),
-                          border: isDark
-                              ? Border.all(
-                                  color: Theme.of(context).dividerColor,
-                                )
-                              : Border.all(
-                                  color: AppColors.slate200.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                ),
-                          boxShadow: isDark
-                              ? null
-                              : [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.04),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 22,
-                              backgroundColor: titleColor.withValues(
-                                alpha: 0.05,
-                              ),
-                              child: Text(
-                                member.name.isNotEmpty ? member.name[0] : '?',
-                                style: TextStyle(
-                                  color: accent,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    member.name.isNotEmpty
-                                        ? member.name
-                                        : member.msisdn,
-                                    style: TextStyle(
-                                      color: titleColor,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    member.msisdn,
-                                    style: TextStyle(
-                                      color: titleColor.withValues(alpha: 0.4),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (isMemberAdmin)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: accent.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'ADMIN',
-                                  style: TextStyle(
-                                    color: accent,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+              : IconButton(
+                  tooltip: 'Download group statement',
+                  onPressed: _downloadStatement,
+                  icon: const Icon(Icons.download_for_offline_outlined),
                 ),
-          const SizedBox(height: 40),
+          const SizedBox(width: 6),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _loadData,
+              child: IndexedStack(
+                index: _currentIndex,
+                children: [
+                  _buildOverview(),
+                  _buildWallet(),
+                  _buildMembers(),
+                  _buildSettings(),
+                ],
+              ),
+            ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        height: 68,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_outlined),
+            selectedIcon: Icon(Icons.account_balance_rounded),
+            label: 'Overview',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
+            label: 'Ledger',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.people_outline_rounded),
+            selectedIcon: Icon(Icons.people_rounded),
+            label: 'Members',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.tune_outlined),
+            selectedIcon: Icon(Icons.tune_rounded),
+            label: 'Manage',
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingsView(Color accent, Color titleColor, bool isDark) {
-    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
-    final borderColor = isDark
-        ? Theme.of(context).dividerColor
-        : AppColors.slate200.withValues(alpha: 0.7);
-    final dividerColor = isDark
-        ? titleColor.withValues(alpha: 0.1)
-        : AppColors.slate200;
-
+  Widget _buildOverview() {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+      key: const PageStorageKey('group-overview'),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: borderColor),
+        FinancialBalancePanel(
+          label: 'Available group balance',
+          amount: _balance,
+          accountNumber: widget.group.accountNo,
+          status: widget.group.status.isEmpty ? 'Active' : widget.group.status,
+          onCopyAccount: _copyAccountNumber,
+          footer:
+              'Use this account number when paying through the Hesabu Online Paybill. Contributors do not need an app account.',
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: _openDeposit,
+                icon: const Icon(Icons.add_card_rounded),
+                label: const Text('Deposit'),
+              ),
+            ),
+            if (_isAdmin) ...[
+              const SizedBox(width: 9),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _openDisbursement,
+                  icon: const Icon(Icons.north_east_rounded),
+                  label: const Text('Disburse'),
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: FinancialMetricCard(
+                label: 'Total inflow',
+                amount: _totalInflow,
+                icon: Icons.south_west_rounded,
+                color: const Color(0xFF159455),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FinancialMetricCard(
+                label: 'Total outflow',
+                amount: _totalOutflow,
+                icon: Icons.north_east_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        FinancialSectionHeader(
+          title: 'Recent transactions',
+          subtitle: 'Latest posted ledger entries',
+          action: TextButton(
+            onPressed: () => setState(() => _currentIndex = 1),
+            child: const Text('Full ledger'),
           ),
+        ),
+        const SizedBox(height: 9),
+        if (_transactions.isEmpty)
+          const FinancialEmptyState(
+            icon: Icons.receipt_long_outlined,
+            title: 'No transactions yet',
+            message: 'Deposits and disbursements will be listed here.',
+          )
+        else
+          ..._transactions
+              .take(4)
+              .map(
+                (transaction) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: LedgerTransactionTile(
+                    transaction: transaction,
+                    onTap: () => _showTransactionDetails(transaction),
+                  ),
+                ),
+              ),
+        const SizedBox(height: 4),
+        Text(
+          'Wallet currency: KES • ${widget.group.role.isEmpty ? 'Member' : widget.group.role} access',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: AppColors.secondaryText(context),
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWallet() {
+    return ListView(
+      key: const PageStorageKey('group-wallet'),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      children: [
+        FinancialSectionHeader(
+          title: 'Transaction ledger',
+          subtitle: '${_transactions.length} posted entries • KES wallet',
+          action: IconButton(
+            tooltip: 'Download group statement',
+            onPressed: _isDownloadingStatement ? null : _downloadStatement,
+            icon: const Icon(Icons.download_outlined),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: FinancialMetricCard(
+                label: 'Inflow',
+                amount: _totalInflow,
+                icon: Icons.south_west_rounded,
+                color: const Color(0xFF159455),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FinancialMetricCard(
+                label: 'Outflow',
+                amount: _totalOutflow,
+                icon: Icons.north_east_rounded,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (_transactions.isEmpty)
+          const FinancialEmptyState(
+            icon: Icons.receipt_long_outlined,
+            title: 'Ledger is empty',
+            message: 'Completed group transactions will appear here.',
+          )
+        else
+          ..._transactions.map(
+            (transaction) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: LedgerTransactionTile(
+                transaction: transaction,
+                onTap: () => _showTransactionDetails(transaction),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMembers() {
+    return ListView(
+      key: const PageStorageKey('group-members'),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      children: [
+        FinancialSectionHeader(
+          title: 'Members',
+          subtitle:
+              '${_members.length} group participant${_members.length == 1 ? '' : 's'}',
+          action: _isAdmin
+              ? FilledButton.tonalIcon(
+                  onPressed: () async {
+                    await context.push('/groups/invite', extra: widget.group);
+                    await _loadData();
+                  },
+                  icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
+                  label: const Text('Invite'),
+                )
+              : null,
+        ),
+        const SizedBox(height: 10),
+        if (_members.isEmpty)
+          const FinancialEmptyState(
+            icon: Icons.people_outline_rounded,
+            title: 'No members listed',
+            message: 'Active members will appear here when available.',
+          )
+        else
+          ..._members.map(
+            (member) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: MemberLedgerTile(member: member),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSettings() {
+    return ListView(
+      key: const PageStorageKey('group-settings'),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      children: [
+        const FinancialSectionHeader(
+          title: 'Group management',
+          subtitle: 'Account and member controls',
+        ),
+        const SizedBox(height: 10),
+        FinancialSurface(
+          padding: EdgeInsets.zero,
           child: Column(
             children: [
-              _buildSettingsItem(
-                Icons.edit_outlined,
-                'Edit Group Profile',
-                titleColor: titleColor,
-                accent: accent,
-                onTap: () =>
-                    context.push('/groups/create', extra: widget.group),
+              _managementTile(
+                icon: Icons.info_outline_rounded,
+                title: 'Group profile',
+                subtitle: widget.group.location.isEmpty
+                    ? 'View group information'
+                    : widget.group.location,
+                onTap: _isAdmin
+                    ? () async {
+                        final updated = await context.push(
+                          '/groups/create',
+                          extra: widget.group,
+                        );
+                        if (updated == true) await _loadData();
+                      }
+                    : null,
               ),
-              Divider(color: dividerColor, height: 1),
-              _buildSettingsItem(
-                Icons.group_add_outlined,
-                'Invite Members',
-                titleColor: titleColor,
-                accent: accent,
-                onTap: () =>
-                    context.push('/groups/invite', extra: widget.group.id),
+              const Divider(height: 1),
+              _managementTile(
+                icon: Icons.person_add_alt_1_outlined,
+                title: 'Invite members',
+                subtitle: 'Share the group account and invitation link',
+                onTap: _isAdmin
+                    ? () => context.push('/groups/invite', extra: widget.group)
+                    : null,
               ),
-              Divider(color: dividerColor, height: 1),
-              _buildSettingsItem(
-                Icons.security_outlined,
-                'Permissions',
-                titleColor: titleColor,
-                accent: accent,
-              ),
-              Divider(color: dividerColor, height: 1),
-              _buildSettingsItem(
-                Icons.notifications_outlined,
-                'Notification Settings',
-                titleColor: titleColor,
-                accent: accent,
+              const Divider(height: 1),
+              _managementTile(
+                icon: Icons.description_outlined,
+                title: 'Export statement',
+                subtitle: 'Download the complete transaction ledger',
+                onTap: _downloadStatement,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 18),
-        Container(
-          decoration: BoxDecoration(
-            color: cardBg,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: borderColor),
-          ),
-          child: Column(
+        const SizedBox(height: 12),
+        FinancialSurface(
+          emphasized: true,
+          child: Row(
             children: [
-              _buildSettingsItem(
-                Icons.logout,
-                'Exit Group',
-                color: Colors.orange,
-                titleColor: titleColor,
-                accent: accent,
-                onTap: () => _showConfirmationDialog(
-                  'Exit Group',
-                  'Are you sure you want to exit this group?',
-                ),
+              Icon(
+                Icons.verified_user_outlined,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              Divider(color: dividerColor, height: 1),
-              _buildSettingsItem(
-                Icons.delete_outline,
-                'Delete Group',
-                color: Colors.red,
-                titleColor: titleColor,
-                accent: accent,
-                onTap: () => _showConfirmationDialog(
-                  'Delete Group',
-                  'This action is permanent. All group data will be lost. Continue?',
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Role: ${widget.group.role.isEmpty ? 'Member' : widget.group.role}. Financial actions are limited by your group permissions.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.secondaryText(context),
+                    height: 1.4,
+                  ),
                 ),
               ),
             ],
@@ -948,185 +564,82 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     );
   }
 
-  Widget _buildSettingsItem(
-    IconData icon,
-    String title, {
-    required Color titleColor,
-    required Color accent,
-    Color color = Colors.white,
+  Widget _managementTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
     VoidCallback? onTap,
   }) {
-    final isDefaultColor = color == Colors.white;
-    final effectiveColor = isDefaultColor ? titleColor : color;
-    final iconColor = isDefaultColor
-        ? accent.withValues(alpha: 0.95)
-        : color.withValues(alpha: 0.95);
-    final textColor = isDefaultColor
-        ? titleColor.withValues(alpha: 0.9)
-        : color.withValues(alpha: 0.95);
-
     return ListTile(
-      minLeadingWidth: 28,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: AppColors.secondaryText(context)),
+      ),
+      trailing: onTap == null
+          ? const FinancialStatusBadge(label: 'View only')
+          : const Icon(Icons.chevron_right_rounded),
       onTap: onTap,
-      leading: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: iconColor, size: 22),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: textColor,
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: effectiveColor.withValues(alpha: 0.45),
-      ),
     );
   }
 
-  void _showConfirmationDialog(String title, String message) {
-    final themeController = InheritedThemeController.of(context);
-    final isDark = themeController.isDark;
-    final backgroundColor = isDark
-        ? themeController.accentColor.darkBackground
-        : Colors.white;
-    final titleColor = isDark ? Colors.white : Colors.black87;
-
-    showDialog(
+  void _showTransactionDetails(Transaction transaction) {
+    final isInflow = transaction.type.toLowerCase() == 'inflow';
+    showModalBottomSheet<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: backgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(title, style: TextStyle(color: titleColor)),
-        content: Text(
-          message,
-          style: TextStyle(color: AppColors.secondaryText(context)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => context.pop(),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.secondaryText(context)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Action "$title" completed.'),
-                  backgroundColor: Colors.orange,
-                ),
-              );
-              context.pushReplacement('/groups');
-            },
-            child: const Text(
-              'Confirm',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar(Color accent, Color titleColor, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.only(top: 12, bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        border: Border(
-          top: BorderSide(color: titleColor.withValues(alpha: 0.05)),
-        ),
-      ),
-      child: Row(
-        children: [
-          _buildNavItem(
-            Icons.space_dashboard_outlined,
-            'Home',
-            _currentIndex == 0,
-            0,
-            accent,
-            titleColor,
-          ),
-          _buildNavItem(
-            Icons.account_balance_wallet,
-            'Wallet',
-            _currentIndex == 1,
-            1,
-            accent,
-            titleColor,
-          ),
-          _buildNavItem(
-            Icons.people_outlined,
-            'Members',
-            _currentIndex == 2,
-            2,
-            accent,
-            titleColor,
-          ),
-          _buildNavItem(
-            Icons.settings_outlined,
-            'Settings',
-            _currentIndex == 3,
-            3,
-            accent,
-            titleColor,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(
-    IconData icon,
-    String label,
-    bool isSelected,
-    int index,
-    Color accent,
-    Color titleColor,
-  ) {
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          setState(() => _currentIndex = index);
-          if (index == 1) {
-            _fetchTransactions();
-          } else if (index == 2) {
-            _fetchMembers();
-          }
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? accent : titleColor.withValues(alpha: 0.24),
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? accent : titleColor.withValues(alpha: 0.24),
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isInflow ? 'Deposit details' : 'Disbursement details',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
-            ),
-          ],
+              const SizedBox(height: 14),
+              LedgerTransactionTile(transaction: transaction),
+              const SizedBox(height: 14),
+              _detailRow(
+                'Reference',
+                transaction.id.isEmpty ? 'Pending' : transaction.id,
+              ),
+              _detailRow('Channel', transaction.method),
+              _detailRow('Posted', transaction.date),
+              _detailRow('Status', 'Posted'),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _detailRow(String label, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 88,
+          child: Text(
+            label,
+            style: TextStyle(color: AppColors.secondaryText(context)),
+          ),
+        ),
+        Expanded(
+          child: SelectableText(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ],
+    ),
+  );
 }

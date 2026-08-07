@@ -1,184 +1,196 @@
 import 'package:flutter/material.dart';
-import 'package:hesabu_app/core/constants/app_colors.dart';
-import 'package:hesabu_app/core/theme/theme_controller.dart';
-import 'package:hesabu_app/core/theme/inherited_theme_controller.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import 'package:hesabu_app/core/constants/app_colors.dart';
+import 'package:hesabu_app/features/activity/application/activity_provider.dart';
+import 'package:hesabu_app/features/activity/domain/account_activity.dart';
 import 'package:hesabu_app/features/groups/domain/groups_repository.dart';
+import 'package:hesabu_app/features/groups/presentation/widgets/financial_components.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DepositToGroupScreen extends StatefulWidget {
-  const DepositToGroupScreen({super.key});
+  const DepositToGroupScreen({super.key, this.group});
+
+  final Group? group;
 
   @override
   State<DepositToGroupScreen> createState() => _DepositToGroupScreenState();
 }
 
 class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-  int _selectedGroupIndex = 0;
-  String _selectedMethod = 'mpesa';
-  bool _isLoading = false;
-
-  List<Map<String, dynamic>> _groups = [];
+  List<Group> _groups = [];
+  Group? _selectedGroup;
   bool _isLoadingGroups = true;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final response = await context.read<GroupsRepository>().getActiveGroups();
-      if (mounted) {
-        setState(() {
-          _groups = (response.data ?? [])
-              .map(
-                (g) => {
-                  'id': g.id,
-                  'name': g.name,
-                  'account': 'Group Acct',
-                  'balance': 'KSh ${g.balance.toStringAsFixed(2)}',
-                },
-              )
-              .toList();
-          _isLoadingGroups = false;
-        });
-        if (response.hasError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(response.errorMessage ?? 'Failed to load groups.'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-          );
-        }
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadGroups());
   }
-
-  final _methods = [
-    {
-      'id': 'mpesa',
-      'label': 'M-Pesa',
-      'icon': Icons.phone_android_outlined,
-      'color': Color(0xFF00b300),
-    },
-    {
-      'id': 'bank',
-      'label': 'Bank',
-      'icon': Icons.account_balance_outlined,
-      'color': Colors.blue,
-    },
-    {
-      'id': 'card',
-      'label': 'Card',
-      'icon': Icons.credit_card_outlined,
-      'color': Colors.purple,
-    },
-  ];
 
   @override
   void dispose() {
     _amountController.dispose();
-    _noteController.dispose();
     super.dispose();
   }
 
-  void _deposit() async {
-    final amount = double.tryParse(_amountController.text.replaceAll(',', ''));
-    if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid amount')),
-      );
-      return;
-    }
-    if (_groups.isEmpty) return;
+  Future<void> _loadGroups() async {
+    final response = await context.read<GroupsRepository>().getActiveGroups();
+    if (!mounted) return;
 
-    setState(() => _isLoading = true);
-    final groupId = _groups[_selectedGroupIndex]['id'] as String;
-    final response = await context.read<GroupsRepository>().deposit(
-      groupId,
-      amount,
-      _selectedMethod,
-    );
-
-    if (mounted) {
-      setState(() => _isLoading = false);
-      if (!response.hasError && response.data == true) {
-        _showSuccessSheet(amount);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              response.errorMessage ?? 'Deposit failed. Please try again.',
-            ),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
+    final groups = response.data ?? [];
+    Group? selected;
+    if (groups.isNotEmpty) {
+      selected = groups.first;
+      final preferredId = widget.group?.id;
+      if (preferredId != null) {
+        for (final group in groups) {
+          if (group.id == preferredId) {
+            selected = group;
+            break;
+          }
+        }
       }
+    }
+
+    setState(() {
+      _groups = groups;
+      _selectedGroup = selected;
+      _isLoadingGroups = false;
+    });
+    if (response.hasError) {
+      _showMessage(
+        response.errorMessage ?? 'Unable to load active groups.',
+        isError: true,
+      );
     }
   }
 
-  void _showSuccessSheet(double amount) {
-    final accent = InheritedThemeController.of(context).accentColor.primary;
-    final group = _groups[_selectedGroupIndex];
-    showModalBottomSheet(
+  double? get _amount =>
+      double.tryParse(_amountController.text.replaceAll(',', '').trim());
+
+  Future<void> _reviewDeposit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final group = _selectedGroup;
+    final amount = _amount;
+    if (group == null || amount == null) return;
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm deposit'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _reviewRow('Group', group.name),
+            _reviewRow(
+              'Account',
+              group.accountNo.isEmpty ? 'Pending' : group.accountNo,
+            ),
+            _reviewRow('Amount', _currency(amount)),
+            _reviewRow('Payment', 'M-Pesa STK push'),
+            const SizedBox(height: 10),
+            Text(
+              'Check your phone and approve the M-Pesa prompt to complete this contribution.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryText(context),
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Request M-Pesa prompt'),
+          ),
+        ],
       ),
-      builder: (_) => SafeArea(
+    );
+    if (confirmed == true) await _deposit(group, amount);
+  }
+
+  Future<void> _deposit(Group group, double amount) async {
+    setState(() => _isSubmitting = true);
+    final response = await context.read<GroupsRepository>().deposit(
+      group.id,
+      amount,
+      'mpesa',
+    );
+    if (!mounted) return;
+
+    setState(() => _isSubmitting = false);
+    if (response.hasError || response.data != true) {
+      _showMessage(
+        response.errorMessage ?? 'Deposit failed. Please try again.',
+        isError: true,
+      );
+      return;
+    }
+
+    await context.read<ActivityProvider>().record(
+      type: AccountActivityType.deposit,
+      title: 'Deposit initiated',
+      description: 'An M-Pesa contribution was initiated for ${group.name}.',
+      groupId: group.id,
+      groupName: group.name,
+      amount: amount,
+      status: AccountActivityStatus.pending,
+      metadata: {'channel': 'mpesa', 'account_no': group.accountNo},
+    );
+    if (mounted) _showSuccessSheet(group, amount);
+  }
+
+  void _showSuccessSheet(Group group, double amount) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (sheetContext) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.check_circle_rounded,
-                  color: accent,
-                  size: 32,
-                ),
+              Icon(
+                Icons.phonelink_lock_rounded,
+                size: 42,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Deposit Successful!',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
-                'KSh ${amount.toStringAsFixed(2)} has been deposited\nto ${group['name']}',
+                'M-Pesa request sent',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                '${_currency(amount)} for ${group.name}. Approve the prompt on your phone; the ledger will update after confirmation.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.secondaryText(context),
-                  fontSize: 14,
-                  height: 1.5,
+                  height: 1.45,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    context.pop();
+                    Navigator.pop(sheetContext);
+                    context.pop(true);
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: accent,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Text(
-                    'Done',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
+                  child: const Text('Done'),
                 ),
               ),
             ],
@@ -188,510 +200,217 @@ class _DepositToGroupScreenState extends State<DepositToGroupScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final accent = InheritedThemeController.of(context).accentColor.primary;
-    final isDark = InheritedThemeController.of(context).isDark;
-    final cardBg = isDark ? Theme.of(context).cardColor : Colors.white;
-    final cardBorder = isDark
-        ? Theme.of(context).dividerColor
-        : AppColors.slate200;
-    final mutedIconColor = AppColors.mutedIcon(context);
-    final secondaryTextColor = AppColors.secondaryText(context);
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          // Top glow
-          Positioned(
-            top: -40,
-            left: -40,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.07),
-                shape: BoxShape.circle,
-              ),
-            ),
+  Widget _reviewRow(String label, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 78,
+          child: Text(
+            label,
+            style: TextStyle(color: AppColors.secondaryText(context)),
           ),
-
-          // Nav bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 10,
-                bottom: 12,
-                left: 16,
-                right: 16,
-              ),
-              color: Theme.of(
-                context,
-              ).scaffoldBackgroundColor.withValues(alpha: 0.9),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.07)
-                            : AppColors.slate100,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.arrow_back_ios_new,
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'Deposit to Group',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
-              ),
-            ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
+        ),
+      ],
+    ),
+  );
 
-          // Content
-          Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 60,
-            ),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 100),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ── Select Group ──────────────────────────────────
-                  _sectionLabel('SELECT GROUP'),
-                  if (_isLoadingGroups)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_groups.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Text(
-                        'No active groups found. Please join or create one.',
-                      ),
-                    )
-                  else
-                    Column(
-                      children: _groups.asMap().entries.map((e) {
-                        final i = e.key;
-                        final g = e.value;
-                        final selected = i == _selectedGroupIndex;
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedGroupIndex = i),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? accent.withValues(alpha: 0.08)
-                                  : cardBg,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: selected
-                                    ? accent.withValues(alpha: 0.5)
-                                    : cardBorder,
-                                width: selected ? 1.5 : 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 42,
-                                  height: 42,
-                                  decoration: BoxDecoration(
-                                    color: (selected ? accent : mutedIconColor)
-                                        .withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.group,
-                                    color: selected ? accent : mutedIconColor,
-                                    size: 22,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        g['name']!,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14,
-                                          color: Theme.of(
-                                            context,
-                                          ).textTheme.bodyLarge?.color,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${g['account']} • ${g['balance']}',
-                                        style: TextStyle(
-                                          color: secondaryTextColor,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: selected
-                                      ? Icon(
-                                          Icons.check_circle_rounded,
-                                          color: accent,
-                                          key: const ValueKey('on'),
-                                        )
-                                      : Container(
-                                          key: const ValueKey('off'),
-                                          width: 22,
-                                          height: 22,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: AppColors.mutedIcon(
-                                                context,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+  String _currency(double amount) =>
+      NumberFormat.currency(symbol: 'KSh ', decimalDigits: 2).format(amount);
 
-                  const SizedBox(height: 24),
-
-                  // ── Amount ──────────────────────────────────
-                  _sectionLabel('AMOUNT'),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: _amountController.text.isNotEmpty
-                            ? accent.withValues(alpha: 0.5)
-                            : cardBorder,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 18,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(color: cardBorder),
-                            ),
-                          ),
-                          child: Text(
-                            'KSh',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: accent,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: _amountController,
-                            keyboardType: TextInputType.number,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(
-                                context,
-                              ).textTheme.bodyLarge?.color,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: '0.00',
-                              hintStyle: TextStyle(
-                                color: AppColors.tertiaryText(context),
-                                fontSize: 22,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                            ),
-                            onChanged: (_) => setState(() {}),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Quick amounts
-                  Row(
-                    children: [500, 1000, 2000, 5000].map((v) {
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() {
-                            _amountController.text = v.toString();
-                          }),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _amountController.text == v.toString()
-                                  ? accent.withValues(alpha: 0.1)
-                                  : cardBg,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: _amountController.text == v.toString()
-                                    ? accent.withValues(alpha: 0.4)
-                                    : cardBorder,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '$v',
-                                style: TextStyle(
-                                  color: _amountController.text == v.toString()
-                                      ? accent
-                                      : Theme.of(
-                                          context,
-                                        ).textTheme.bodyLarge?.color,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // ── Payment Method ──────────────────────────────────
-                  _sectionLabel('PAYMENT METHOD'),
-                  Row(
-                    children: _methods.map((m) {
-                      final selected = m['id'] == _selectedMethod;
-                      final color = m['color'] as Color;
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(
-                            () => _selectedMethod = m['id'] as String,
-                          ),
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? color.withValues(alpha: 0.1)
-                                  : cardBg,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: selected
-                                    ? color.withValues(alpha: 0.5)
-                                    : cardBorder,
-                                width: selected ? 1.5 : 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  m['icon'] as IconData,
-                                  color: selected ? color : mutedIconColor,
-                                  size: 24,
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  m['label'] as String,
-                                  style: TextStyle(
-                                    color: selected ? color : mutedIconColor,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // ── Note ──────────────────────────────────
-                  _sectionLabel('NOTE (OPTIONAL)'),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: cardBg,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: cardBorder),
-                    ),
-                    child: TextField(
-                      controller: _noteController,
-                      maxLines: 2,
-                      style: TextStyle(
-                        color: Theme.of(context).textTheme.bodyLarge?.color,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'e.g. February contribution',
-                        hintStyle: TextStyle(
-                          color: AppColors.tertiaryText(context),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Summary row
-                  if (_amountController.text.isNotEmpty) ...[
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: accent.withValues(alpha: 0.25),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          _summaryRow(
-                            context,
-                            'To',
-                            _groups[_selectedGroupIndex]['name']!,
-                          ),
-                          const SizedBox(height: 8),
-                          _summaryRow(
-                            context,
-                            'Via',
-                            _methods.firstWhere(
-                                  (m) => m['id'] == _selectedMethod,
-                                )['label']
-                                as String,
-                          ),
-                          const SizedBox(height: 8),
-                          _summaryRow(
-                            context,
-                            'Amount',
-                            'KSh ${_amountController.text}',
-                            valueColor: accent,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _deposit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: accent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.savings_outlined),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Confirm Deposit',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+  void _showMessage(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Theme.of(context).colorScheme.error : null,
       ),
     );
   }
 
-  Widget _summaryRow(
-    BuildContext context,
-    String label,
-    String value, {
-    Color? valueColor,
-  }) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        label,
-        style: TextStyle(color: AppColors.secondaryText(context), fontSize: 13),
-      ),
-      Text(
-        value,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
-          color: valueColor ?? Theme.of(context).textTheme.bodyLarge?.color,
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Deposit funds',
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
-    ],
-  );
-
-  Widget _sectionLabel(String t) => Padding(
-    padding: const EdgeInsets.only(left: 4, bottom: 10),
-    child: Text(
-      t,
-      style: TextStyle(
-        color: AppColors.secondaryText(context),
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1,
-      ),
-    ),
-  );
+      body: _isLoadingGroups
+          ? const Center(child: CircularProgressIndicator())
+          : _groups.isEmpty
+          ? FinancialEmptyState(
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'No active groups',
+              message: 'Join or create a group before making a contribution.',
+              action: FilledButton(
+                onPressed: () => context.push('/groups/join'),
+                child: const Text('Join a group'),
+              ),
+            )
+          : Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
+                children: [
+                  const FinancialSectionHeader(
+                    title: 'Contribution details',
+                    subtitle: 'Credit a group collection ledger using M-Pesa',
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<Group>(
+                    initialValue: _selectedGroup,
+                    decoration: const InputDecoration(
+                      labelText: 'Group account',
+                      prefixIcon: Icon(Icons.groups_2_outlined),
+                    ),
+                    items: _groups
+                        .map(
+                          (group) => DropdownMenuItem(
+                            value: group,
+                            child: Text(
+                              group.accountNo.isEmpty
+                                  ? group.name
+                                  : '${group.name} • ${group.accountNo}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onChanged: (group) =>
+                        setState(() => _selectedGroup = group),
+                  ),
+                  if (_selectedGroup != null) ...[
+                    const SizedBox(height: 8),
+                    FinancialSurface(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Current ledger balance',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppColors.secondaryText(context),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            _currency(_selectedGroup!.balance),
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _amountController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textInputAction: TextInputAction.done,
+                    onChanged: (_) => setState(() {}),
+                    onFieldSubmitted: (_) => _reviewDeposit(),
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Contribution amount',
+                      prefixText: 'KSh  ',
+                      prefixIcon: Icon(Icons.payments_outlined),
+                      hintText: '0.00',
+                    ),
+                    validator: (value) {
+                      final amount = double.tryParse(
+                        value?.replaceAll(',', '').trim() ?? '',
+                      );
+                      if (amount == null || amount <= 0) {
+                        return 'Enter an amount greater than zero';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 7,
+                    runSpacing: 7,
+                    children: [500, 1000, 2000, 5000]
+                        .map(
+                          (amount) => ChoiceChip(
+                            label: Text(
+                              NumberFormat.decimalPattern().format(amount),
+                            ),
+                            selected: _amountController.text == '$amount',
+                            onSelected: (_) => setState(
+                              () => _amountController.text = '$amount',
+                            ),
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+                  const SizedBox(height: 18),
+                  FinancialSurface(
+                    emphasized: true,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.phone_android_rounded,
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'M-Pesa STK push',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'A secure payment prompt will be sent to your registered phone number.',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: AppColors.secondaryText(context),
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const FinancialStatusBadge(label: 'Secure'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+                  FilledButton.icon(
+                    onPressed: _isSubmitting ? null : _reviewDeposit,
+                    icon: _isSubmitting
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.arrow_forward_rounded),
+                    label: const Text('Review deposit'),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
 }
